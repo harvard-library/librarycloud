@@ -1,0 +1,293 @@
+
+<project name="librarycloud" default="doall" basedir=".">
+
+  <!-- ===================== Property Definitions =========================== -->
+
+  <property file="build-local.properties"/>
+  <property file="project.properties"/>
+
+  <!-- ==================== File and Directory Names ======================== -->
+
+  <property name="ois.buildfile.type"    value="internal-build"/>
+  <property name="ois.buildfile.version" value="2.0"/>
+  <property name="app.name"              value="${project.shortName}"/>
+  <property name="context.name"          value="${app.name}"/>
+  <property name="jar.name"	         	 value="${app.name}.jar"/>
+  <property name="jar.home"	         	 value="lib"/>
+  <property name="config.home"	         value="conf"/>
+  <property name="compile.dirs"	         value="src"/>
+  
+  <property name="javadoc.home"          value="javadoc"/>
+  <property name="manifest.name"         value="MANIFEST.MF"/>
+  <property name="bin.home"				 value="bin" />	
+	
+  <property name="build.home" value="webapps"/>
+  <property name="webinf.home" value="${build.home}/WEB-INF"/>
+  <property name="metainf.home" value="${build.home}/META-INF"/>
+  
+  <!-- ==================== Build 2.0 enhancements ======================== -->
+  <property name="appserver.home"	value="/usr/local/tomcat7"/>	
+  <property name="war-file" 		value="${app.name}.war" />
+  <property name="web-xml-file" 	value="${webinf.home}/web.xml" />
+
+  <property name="deployments.home"	value="${appserver.home}/webapps"/>
+	
+<!-- ===================== Compilation Control Options ==================== -->
+
+  <property name="compile.debug"       value="true"/>
+  <property name="compile.deprecation" value="true"/>
+  <property name="compile.optimize"    value="true"/>
+
+<!-- ==================== Compilation Classpath =========================== -->
+
+  <path id="compile.classpath">
+    <fileset dir=".">
+      <include name="lib/*.jar"/>
+    </fileset>
+  </path>
+	
+<!-- ==================== Config Target ================================== -->
+
+
+  <filterset id="blp.filterset"/>
+
+  <target name="init-build-local.properties" if="blp.available" depends="check-build-local.properties">
+  	<echo>build-local.properties found</echo>
+    <filterset id="blp.filterset">
+      <filtersfile file="build-local.properties"/>
+    </filterset>
+  </target>
+
+  <target name="check-build-local.properties">
+    <available file="build-local.properties" type="file" property="blp.available"/>
+  </target>
+	
+  <macrodef name="propertycopy">
+    <attribute name="name" />
+    <attribute name="from" />
+    <sequential>
+      <property name="@{name}" value="${@{from}}" />
+    </sequential>
+  </macrodef>
+	
+	<target name="run-post-config" if="post-config.available" depends="post-config.check">
+		<echo>post-config.sh found...executing</echo>
+		<!-- make post-config.sh executable -->	
+	     <exec dir="${project.base}/${project.dir}/bin" executable="/bin/chmod">
+	       <arg line="+x post-config.sh"/>
+	     </exec> 
+		<!-- call post-config.sh-->
+		<exec executable="${project.base}/${project.dir}/bin/post-config.sh">
+			<arg line="${instance}"/> 
+		</exec>
+	</target>
+	
+	<target name="make-bin-executable" if="bin.present" depends="check-bin">
+	    <echo>Making files in ${bin.home} executable</echo>	  	
+	  	<apply dir="${bin.home}" executable="/bin/chmod" parallel="false">
+	  	    <arg value="700" />
+	  	    <fileset dir="${bin.home}">
+	  	        <include name="**/*.sh"/>
+	  	    </fileset>
+	  	</apply>		
+	</target>
+	 	
+  <target name="post-config.check">
+  	<echo>checking for bin/post-config.sh</echo>
+	<available file="${project.base}/${project.dir}/bin/post-config.sh" type="file" property="post-config.available"/>
+  </target>
+
+  <target name="config" depends="check-instance-location, check-instance-stdin, init-build-local.properties">
+
+    <dirname property="project.base" file="." />  	
+  	<basename property="project.dir" file="." />
+  	
+    <property name="app.home" value="${project.base}/${project.dir}"/>
+
+    <echo>instance: ${instance}</echo>
+  	<echo>project.base: ${project.base}/${project.dir}</echo>
+    <echo>config.home: ${config.home}</echo>
+  	<echo>bin.home: ${bin.home}</echo>
+  	<echo>appserver.home: ${appserver.home}</echo>
+  	
+  	<!-- copy conf/templates/* to conf/ -->
+    <copy overwrite="true" todir="${config.home}">
+    	<fileset dir="${config.home}/templates"/>
+      <filterset refid="blp.filterset"/>
+      <filterset>
+        <filter token="project.base" value="${project.base}/${project.dir}" />
+      	<filtersfile file="project.properties"/>
+      </filterset>
+    </copy>
+	  	  	
+  	<!-- copy web.xml.template to web.xml -->
+  	<copy overwrite="true" todir="${webinf.home}">
+	  	<fileset dir="${webinf.home}">
+	  		<include name="*.template"/>
+	  	</fileset>
+	  	<filterset refid="blp.filterset"/>
+	  	<filterset>
+	  		<filter token="project.base" value="${project.base}/${project.dir}"/>
+	  		<filtersfile file="project.properties"/>
+	  	</filterset>
+	  	<globmapper from="*.template" to="*"/>
+  	</copy>
+  	
+  	<antcall target="make-bin-executable" />
+  	
+  	<antcall target="run-post-config" />
+
+  </target>
+
+
+<!-- ==================== Compile Target ================================== -->
+
+  <target name="compile" if="lib.present" depends="check-lib" description="Compile Java sources">
+    <echo>
+       The dest dir is ${build.home}/WEB-INF/classes
+    </echo>
+
+  	<javac srcdir="${compile.dirs}" destdir="${build.home}/WEB-INF/classes" debug="${compile.debug}" deprecation="${compile.deprecation}" optimize="${compile.optimize}">
+	  	<classpath>
+		  	<path refid="compile.classpath"/>
+		  	<fileset dir="${appserver.home}">
+			  	<include name="lib/*.jar"/>
+			</fileset>
+	  	</classpath>
+  	</javac> 
+ 	
+          <!-- copy all jars from lib/ to WEB-INF/lib -->
+        <copy todir="${webinf.home}/lib">
+                <fileset dir="lib">
+                        <include name="*.jar"/>
+                </fileset>
+        </copy>
+
+        <!-- copy all configuration files from conf/ to WEB-INF/classes -->
+        <copy todir="${webinf.home}/classes">
+                <fileset dir="conf">
+                        <include name="*.properties"/>
+                        <include name="*.xml"/>
+                </fileset>
+        </copy>	
+  	   	
+  </target>
+
+
+<!-- ==================== Clean Target ==================================== -->
+
+
+  <target name="clean"
+   description="Delete old build and dist directories">
+    <delete quiet="true">
+       <fileset  dir="${build.home}/WEB-INF/classes" includes="**/*.class"/>
+    	<fileset  dir="${webinf.home}/lib" includes="**/*.jar"/>
+    </delete>
+  </target>
+
+
+<!-- ==================== Javadoc Target ================================== -->
+
+  <target name="javadoc" description="Create Javadoc API documentation">
+    <mkdir dir="${javadoc.home}"/>
+    <javadoc destdir="${javadoc.home}" packagenames="*">
+	    <fileset dir=".">
+			<include name="src/**/*.java"/>
+	    </fileset>
+	    <classpath refid="compile.classpath"/>
+    </javadoc>
+  </target>
+
+
+<!-- ==================== Check and Set Targets =========================== -->
+
+  <target name="check-conf">
+    <available file="conf" type="dir" property="conf.present" />
+  </target>
+
+  <target name="check-lib">
+    <available file="lib" type="dir" property="lib.present" />
+  </target>
+
+  <target name="check-src">
+    <available file="src" type="dir" property="src.present" />
+  </target>
+	
+  <target name="check-bin">
+    <available file="bin" type="dir" property="bin.present" />
+  </target>
+
+
+  <target name="check-instance-location" unless="instance">
+
+    <dirname property="project.base" file="." />
+    <basename property="project.dir" file="." />
+   
+    <condition property="instance" value="prod">
+      <equals arg1="${project.base}/${project.dir}" arg2="/home/${app.name}/prod" />
+    </condition>
+    <condition property="instance" value="qa">
+      <equals arg1="${project.base}/${project.dir}" arg2="/home/${app.name}/qa" />
+    </condition>
+    <condition property="instance" value="dev">
+      <equals arg1="${project.base}/${project.dir}" arg2="/home/${app.name}/dev" />
+    </condition>
+    
+  </target>
+
+
+  <target name="check-instance-stdin" unless="instance">
+    <echo>
+       You will be prompted for the instance.
+    </echo>
+     <input message="Enter instance you want to use:"
+            validargs="dev,qa,prod"
+            addproperty="instance" />
+  </target>
+
+	<!-- ====================================== NEW BUILD 2.0 deployment tasks ==================================== -->
+	
+	<tstamp prefix="build-info">
+		<format property="current-date" pattern="d-MMMM-yyyy" locale="en" />
+		<format property="current-time" pattern="hh:mm:ss a z" locale="en" />
+		<format property="year-month-day" pattern="yyyy-MM-dd" locale="en" />
+	</tstamp>	
+	<property name="builder" value="LTS" />
+	
+	<target name="war" depends="config, compile">
+			<delete file="webapps/${war-file}" />
+			<war warfile="webapps/${war-file}" webxml="${web-xml-file}">
+				<classes dir="${webinf.home}/classes">
+						<include name="*.properties" />
+				</classes>
+				<fileset dir="${build.home}" >
+					<exclude name="META-INF" />
+					<exclude name="WEB-INF" />
+			        <exclude name="**/web.xml"/>
+				</fileset>
+				<lib dir="${webinf.home}/lib/">
+				    <!-- <exclude name="jdbc1.jar"/> -->
+				 </lib>
+					
+				<manifest>
+					<attribute name="Built-By" value="${builder}" />
+					<attribute name="Built-On" value="${build-info.current-date}" />
+					<attribute name="Built-At" value="${build-info.current-time}" />
+				</manifest>
+			</war>
+	</target>
+	
+	
+	<target name="deploy" description="deploy to jboss">
+			<echo>deploying ${deployments.home}/${war-file}</echo>
+			<copy file="webapps/${war-file}" todir="${deployments.home}" />
+	</target>
+	
+	<target name="undeploy" description="undeploy from tomcat">		
+		<echo>deleting ${deployments.home}/${war-file}</echo>
+		<delete file="${deployments.home}/${war-file}" />
+	</target>
+	
+	<target name="doall" depends="config,compile,war,deploy" />
+	
+</project>

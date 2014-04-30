@@ -1,0 +1,1 @@
+This is a directory used to store jars that are needed for compilation by Eclipse, but which should not be deployed (because the container already has them). If the container version changes, the jars in the directory may need to be updated.
