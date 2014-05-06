@@ -47,14 +47,15 @@ import java.util.ArrayList;
 import java.util.List;
 /**
 *
+* SearchResults is the java object representation of results returned from solr; it contains
+* pagination, item (wrapping a mods object) and optional facet section
 *
 * @author Michael Vandermillen
 *
 */
 
 @XmlRootElement(name="results")
-//@XmlType(propOrder={"pagination", "items"})
-@XmlType(propOrder={"pagination", "items"})
+@XmlType(propOrder={"pagination", "item","facet"})
 public class SearchResults {
 	
 	public SearchResults () {
@@ -64,7 +65,8 @@ public class SearchResults {
 	private Pagination pagination;
 
 	//private List<ModsType> modsTypes;
-	private List<Item> items;
+	private Item item;
+	private Facet facet;
 	
 	@XmlElement(name = "pagination")
 	public Pagination getPagination() {
@@ -86,44 +88,23 @@ public class SearchResults {
 	}
 	*/
 	
-	@XmlElement(name = "item")
-	public List<Item> getItems() {
-		return items;
+	@XmlElement(name = "items")
+	public Item getItem() {
+		return item;
 	}
 	
-	public void setItems(List<Item> items) {
-		this.items = items;
+	public void setItem(Item item) {
+		this.item = item;
+	}
+
+	@XmlElement(name = "facets")
+	public Facet getFacet() {
+		return facet;
 	}
 	
-	/*
-	protected static void marshalingExample(SearchResults results) throws JAXBException
-	{
-	    JAXBContext jaxbContext = JAXBContext.newInstance(SearchResults.class);
-	    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-	 
-	    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	    
-	    jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
-	    //jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-
-	    jaxbMarshaller.marshal(results, System.out);
+	public void setFacet(Facet facet) {
+		this.facet = facet;
 	}
-	*/
-
-	/*
-	protected SearchResults getJsonResults(SearchResults results) throws JAXBException
-	{
-	    JAXBContext jaxbContext = JAXBContext.newInstance(SearchResults.class);
-	    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-   
-	    jaxbMarshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
-	    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	    //jaxbMarshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
-	     
-	    //Marshal the employees list in console
-	    jaxbMarshaller.marshal(results, System.out);
-	    return results;
-	}	
-	*/
+	
 }
 

@@ -29,6 +29,13 @@ package edu.harvard.lib.lcloud;
 
 import java.util.Properties;
 
+/**
+*
+* Config is the standard LTS class for accessing properties from a properties file.
+* currently only access solr url
+* 
+*
+*/
 
 public class Config {
 	

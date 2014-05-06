@@ -31,7 +31,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 /**
 *
 *
-* @author Michael Vandermillen
+* SolrServer is a singleton class for retrieving solr connection
 *
 */
 public class SolrServer {
@@ -39,11 +39,9 @@ public class SolrServer {
 	
 	protected static HttpSolrServer getSolrConnection() {
 		try {
-			
-		System.out.println("SOLRURL: " + Config.getInstance().SOLR_URL);
-		server = new HttpSolrServer(Config.getInstance().SOLR_URL);
-		//server = new HttpSolrServer("http://interop.lib.harvard.edu:8984/solr/lcommons2");
+			server = new HttpSolrServer(Config.getInstance().SOLR_URL);
 		} catch (Exception e) {
+			// TO DO - error handling
 			System.out.println( e);
 		}
 		return server;

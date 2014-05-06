@@ -31,19 +31,28 @@ package edu.harvard.lib.lcloud;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 	 
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
 import gov.loc.mods.v3.ModsType;
 
 /**
 *
-*
+* ItemResource is the main entry point for item queries and individual item requests;
+* It uses the jersey implementation (see web.xml) of jax-rs api for RESTful web services.
+* Requests of /v2/items/{id} are for an individual item;
+* Requests of /v2/items?<search parameters> are for searching the api;
+* Default format is XML; dot notation (items.*) are for variant formats (json, dc and html);
+* 
 * @author Michael Vandermillen
 *
 */
@@ -59,9 +68,9 @@ public class ItemResource {
 		try {
 			modsType = itemdao.getMods(id);
 		} catch (JAXBException je) {
+			//TO-DO better error handling
 			System.out.print(je);
 		}
-
 		return modsType;
 	}
 
@@ -74,7 +83,7 @@ public class ItemResource {
 			modsType = itemdao.getMods(id);
 			modsString = itemdao.writeJson(modsType);
 		} catch (JAXBException je) {
-			//TO DO intelligent error handling
+			//TO-DO better error handling
 			System.out.print(je);
 		}
 
@@ -88,6 +97,7 @@ public class ItemResource {
 		try {
 			modsType = itemdao.getMods(id);
 		} catch (JAXBException je) {
+			//TO-DO better error handling
 			System.out.print(je);
 		}
 
@@ -101,6 +111,7 @@ public class ItemResource {
 		try {
 			modsType = itemdao.getMods(id);
 		} catch (JAXBException je) {
+			//TO-DO better error handling
 			System.out.print(je);
 		}
 
@@ -109,19 +120,17 @@ public class ItemResource {
 	
 	@GET @Path("items")
 	@Produces (MediaType.APPLICATION_XML)
-	public SearchResults getSearchResults(
-		@QueryParam("q") String q,
-		@QueryParam("title") String title,
-		@QueryParam("name") String name,
-		@QueryParam("start") String start,
-		@QueryParam("rows") String rows,
-		@QueryParam("sort") String sort
-		) {
+	public SearchResults getSearchResults(@Context UriInfo ui) {
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    //we don't currently need to use the pathParam
+	    //MultivaluedMap<String, String> pathParams = ui.getPathParameters();
+
 		SearchResults results = null;
 		
 		try {
-			results = itemdao.getResults(q,title,name,start,rows,sort);	
+			results = itemdao.getResults(queryParams);	
 		} catch (JAXBException je) {
+			//TO-DO better error handling
 			System.out.println(je);
 		}
 		return results;
@@ -129,20 +138,14 @@ public class ItemResource {
 
 	@GET @Path("items.json")
 	@Produces (MediaType.APPLICATION_JSON)
-	public String getJsonSearchResults(
-		@QueryParam("q") String q,
-		@QueryParam("title") String title,
-		@QueryParam("name") String name,
-		@QueryParam("start") String start,
-		@QueryParam("rows") String rows,
-		@QueryParam("sort") String sort
-		) {
+	public String getJsonSearchResults(@Context UriInfo ui) {
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		String jsonString = null;
 		try {
-			SearchResults results = itemdao.getResults(q,title,name,start,rows,sort);	
+			SearchResults results = itemdao.getResults(queryParams);	
 			jsonString = itemdao.writeJson(results);
 		} catch (JAXBException je) {
-			//TO DO - intelligent error handling
+			//TO-DO better error handling
 			System.out.println(je);
 		}	
 
@@ -151,80 +154,32 @@ public class ItemResource {
 	
 	@GET @Path("items.dc")
 	@Produces (MediaType.APPLICATION_XML)
-	public SearchResults getDublinCOreSearchResults(
-		@QueryParam("q") String q,
-		@QueryParam("title") String title,
-		@QueryParam("name") String name,
-		@QueryParam("start") String start,
-		@QueryParam("rows") String rows,
-		@QueryParam("sort") String sort
-		) {
+	public SearchResults getDublinCOreSearchResults(@Context UriInfo ui) {
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		SearchResults results = null;
 		
 		try {
-			results = itemdao.getResults(q,title,name,start,rows,sort);	
+			results = itemdao.getResults(queryParams);	
 		} catch (JAXBException je) {
+			//TO-DO better error handling
 			System.out.println(je);
-		}		
-
+		}
 		return results;
 	}
 	
 	@GET @Path("items.html")
 	@Produces (MediaType.APPLICATION_XML)
-	public SearchResults getHtmlSearchResults(
-		@QueryParam("q") String q,
-		@QueryParam("title") String title,
-		@QueryParam("name") String name,
-		@QueryParam("start") String start,
-		@QueryParam("rows") String rows,
-		@QueryParam("sort") String sort
-		) {
+	public SearchResults getHtmlSearchResults(@Context UriInfo ui) {
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		SearchResults results = null;
 		
 		try {
-			results = itemdao.getResults(q,title,name,start,rows,sort);	
+			results = itemdao.getResults(queryParams);	
 		} catch (JAXBException je) {
+			//TO-DO better error handling
 			System.out.println(je);
-		}		
-
-		return results;
-	}
-/*
-	@GET @Path("items/{id}/mock")
-	@Produces (MediaType.APPLICATION_JSON)
-	public Pagination getMockItem() {
-		TestRecords testrecs = new TestRecords();
-		return testrecs.getMockPagination();
-	}
-
-	@GET @Path("items/{id}/mock")
-	@Produces (MediaType.APPLICATION_XML)
-	public ModsType getMods(@PathParam("id") String id) {
-		ModsType modstype = new ModsType();
-		TestRecords testrecs = new TestRecords();
-		try {
-			modstype = testrecs.getModsType();
-			
-		} catch (JAXBException je) {
-			System.out.print(je);
 		}
-		return modstype;
-	}
-*/
-	/*
-	@GET @Path("/items/mock")
-	@Produces (MediaType.APPLICATION_XML)
-	public SearchResults getMockSearchResults(@QueryParam("q") String q) {
-		SearchResults results = new SearchResults();
-		TestRecords testrecs = new TestRecords();
-		List<Item> items = testrecs.getMockItems();
-		Pagination pagination = testrecs.getMockPagination();
-		results.setItems(items);
-		results.setPagination(pagination);
-
 		return results;
 	}
-*/
 	
 }

@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
@@ -51,7 +52,9 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -62,47 +65,13 @@ import org.json.XML;
 
 /**
 *
-*
+* ItemDAO makes queries to the solr index via solrj methods; item id info or query paramters
+* are parsed and mapped into solr query syntax
+* 
 * @author Michael Vandermillen
 *
 */
 public class ItemDAO {
-
-	/*
-    static final JAXBContext context = initContext();
-
-    private static JAXBContext initContext()  {
-    	JAXBContext context = null;
-    	try {
-    		context = JAXBContext.newInstance(ModsType.class,SearchResults.class);
-    	} catch (JAXBException je) {
-    		System.out.println(je);
-    	}
-    	return context;
-    }
-    */
-	public Item getItem(String id) {
-		SolrDocumentList docs;
-		SolrDocument doc;
-		Item item = new Item();
-	    HttpSolrServer server = null;
-		try {		   
-		    server = SolrServer.getSolrConnection();
-		    SolrQuery query = new SolrQuery("recordIdentifier:" + id);	
-		    QueryResponse response = server.query(query);
-		    docs = response.getResults();
-		    if (docs.size() == 0)
-		    	item = null;
-		    else {
-			    doc = docs.get(0);
-	        	item = setItem(doc);
-		    }
-		}
-		catch (SolrServerException  se) {
-			  System.out.println(se);
-		}
-		return item;
-	}
 	
 	public ModsType getMods(String id) throws JAXBException {
 		SolrDocumentList docs;
@@ -115,7 +84,7 @@ public class ItemDAO {
 		    QueryResponse response = server.query(query);
 		    docs = response.getResults();
 		    if (docs.size() == 0)
-		    	modsType = null;
+		    	throw new ResourceNotFoundException("Item, " + id + ", is not found");
 		    else {
 			    doc = docs.get(0);
 	        	modsType = getModsType(doc);
@@ -127,81 +96,168 @@ public class ItemDAO {
 		return modsType;
 	}
 	
-	public SearchResults getResults(String q, String title, String name, String start, String rows, String sort) throws JAXBException {
-		long starttime = System.currentTimeMillis();
-
+	//TO DO - pull the query building guts into a separate queryBuilder method
+	public SearchResults getResults(MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SearchResults results = new SearchResults();
-		List<Item> items = new ArrayList<Item>();
+		//List<Item> items = new ArrayList<Item>();
+		Item item = new Item();
 		SolrDocumentList docs = null;		
 	    HttpSolrServer server = null;
-		try {		   
-		    server = SolrServer.getSolrConnection();
-		    SolrQuery query = new SolrQuery();
-		    ArrayList qList = new ArrayList();
-		    String qStr = "";
-		    if (q != null)
-		    	qList.add("keyword:" + q);
-		    if (title != null)
-		    	qList.add("title_keyword:" + title);
-		    if (name != null)
-		    	qList.add("name_keyword:" + name);
-		    Iterator it = qList.iterator();
-		    while(it.hasNext()) {
-		    	String qTerm = (String)it.next();
-		    	System.out.print("QT: " + qTerm + "\n");
-		    	qStr += qTerm;
-		    	System.out.print("QS: " + qStr + "\n");
-		    	if (it.hasNext())
-		    		qStr += " AND ";
+	    ArrayList queryList = new ArrayList();
+	    server = SolrServer.getSolrConnection();
+	    SolrQuery query = new SolrQuery();
+	    int limit = 10;
+    	for (String key : queryParams.keySet()) {
+    		String value = queryParams.getFirst(key);
+	    	System.out.println(key + " : " + queryParams.getFirst(key) +"\n");
+		    if (key.equals("start")) {
+		    	int startNo = Integer.parseInt(value);
+		    	if (startNo < 0)
+		    		startNo = 0;
+		    	query.setStart(startNo);
+		    }	
+		    else if (key.equals("limit")) {
+		    	limit = Integer.parseInt(value);
+		    	query.setRows(limit);
+		    }	
+		    else if (key.equals("sort.asc") || key.equals("sort"))
+		    	query.setSort(value, ORDER.asc);
+		    else if (key.equals("sort.desc"))
+		    	query.setSort(value, ORDER.desc);
+		    else if (key.startsWith("facet")){
+		    	query.setFacet(true);
+		    	String[] facetArray = value.split(",");
+		    	for(String f: facetArray){
+		    		query.addFacetField(f);
+		    	}
 		    }
-		    System.out.print("qStr: " + qStr);
-		    query.setQuery(qStr);
-		    if (start != null) 
-		    	query.setStart(Integer.parseInt(start));
-		    if (rows != null)
-		    	query.setRows(Integer.parseInt(rows));
-		    if (sort != null)
-		    	query.setSort(sort, ORDER.asc);
-		    	
-		    QueryResponse response = server.query(query);
-		    
-		    docs = response.getResults();
-		}
+		    else {
+		    	if (key.endsWith("_exact"))
+		    		queryList.add(key.replace("_exact", "") + ":\"" + value + "\"");
+		    	else {
+		    		if (value.contains(" "))
+			    		value = "( " + value.replaceAll(" ", " AND ") + ")";
+		    		if (key.equals("q"))
+			    		queryList.add("keyword:" + value);
+		    		else
+		    			queryList.add(key + "_keyword:" + value);
+		    	}	
+		    }
+	    }
+
+	    Iterator it = queryList.iterator();
+	    String queryStr = "";
+	    while(it.hasNext()) {
+	    	String qTerm = (String)it.next();
+	    	System.out.print("QT: " + qTerm + "\n");
+	    	queryStr += qTerm;
+	    	System.out.print("QS: " + queryStr + "\n");
+	    	if (it.hasNext())
+	    		queryStr += " AND ";
+	    }
+	    System.out.print("queryStr: " + queryStr);
+	    query.setQuery(queryStr);
+	    QueryResponse response = null;
+	    try {
+	    	response = server.query(query);
+	    }
 		catch (SolrServerException  se) {
-			  System.out.println(se);
+			  throw new BadParameterException(se.getMessage()); 
 		}
-		
-		//List<ModsType> modsTypes = new ArrayList<ModsType>();
+	    catch (RemoteSolrException rse) {
+	    	if (rse.getMessage().contains("SyntaxError"))
+	    		throw new BadParameterException("Incorrect query syntax");
+	    	else {
+	    		String msg = rse.getMessage().replace("_keyword","");
+	    		throw new BadParameterException("Incorrect query syntax:" + rse.getMessage());
+	    	}	
+	    }
+	    List<FacetField> facets = response.getFacetFields();
+	    Facet facet = new Facet();
+	    List<FacetType> facetTypes = new ArrayList<FacetType>();
+	    if (facets != null) {
+	        for(FacetField facetField : facets)
+	        {	
+	        	List<FacetTerm> facetTerms = new ArrayList<FacetTerm>();
+	        	FacetType facetType = new FacetType();
+	        	facetType.setFacetName(facetField.getName());
+	            List<FacetField.Count> facetEntries = facetField.getValues();
+	            for(FacetField.Count fcount : facetEntries)
+	            {
+	            	if (fcount.getCount() > 0) {
+	            	FacetTerm facetTerm = new FacetTerm();
+	            	facetTerm.setTermName(fcount.getName());
+	            	facetTerm.setTermCount(fcount.getCount());
+	                //System.out.println(fcount.getName() + ": " + fcount.getCount());
+	            	facetTerms.add(facetTerm);
+	            	}
+	            }
+	            facetType.setFacetTerms(facetTerms);
+	            facetTypes.add(facetType);
+	        }
+        	facet.setFacetTypes(facetTypes);  
+	    }
+    	docs = response.getResults();
+    	// here is where we would throw an exception for results of 0
+    	// but we want to pass back a 200 with 0 results found
+	    //if (docs.getNumFound() == 0)
 		Pagination pagination = new Pagination();
 	    pagination.setNumFound(docs.getNumFound());
 	    pagination.setStart(docs.getStart());
-	    pagination.setRows(rows == null ? 10:Integer.parseInt(rows));
-		System.out.println("\n1: " + ((System.currentTimeMillis() - starttime)));
+	    pagination.setRows(limit);
+	    List<ModsType> modsTypes = new ArrayList<ModsType>();
         for (final SolrDocument doc : docs) {
-        	Item item = new Item();
-    	    ModsType modsType = getModsType(doc);
-    	    item.setModsType(modsType);
-    	    items.add(item);
+        	//Item item = new Item();
+        	ModsType modsType = null;
+        	try {
+    	    modsType = (new ItemDAO()).getModsType(doc);
+			} catch (JAXBException je) {
+				//TO DO - intelligent error handling
+				System.out.println(je);
+			}	
+    	    modsTypes.add(modsType);
+    	    //items.add(item);
         }
-		System.out.println("\n2: " + ((System.currentTimeMillis() - starttime)));
         //items.setModsType(modsType);
-		results.setItems(items);
+        item.setModsTypes(modsTypes);
+		results.setItem(item);
 		results.setPagination(pagination);
-		return results;
+		if (facet != null)
+			results.setFacet(facet);
+		return results;	
 	}
 	
     public ModsType getModsType(SolrDocument doc) throws JAXBException {
     	String modsString = (String) doc.getFieldValue("originalMods");
-    	//System.out.println(modsString);
-    	//JAXBContext jc = JAXBContext.newInstance(ModsType.class);
-        //Unmarshaller unmarshaller = jc.createUnmarshaller();
     	Unmarshaller unmarshaller = JAXBHelper.context.createUnmarshaller();
-        //System.out.println(modsString);
         StringReader reader = new StringReader(modsString);
         ModsType modsType = (ModsType) ((JAXBElement)(unmarshaller.unmarshal(reader))).getValue();
         return modsType;
     }
 	
+	protected String writeJson(Object obj) throws JAXBException
+	{
+	    StringWriter sw = new StringWriter();
+	    String jsonString = null;
+	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
+	    jaxbMarshaller.marshal(obj, sw);
+
+    	try {
+    		String xml = sw.toString();
+    		//String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><results xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns=\"http://api.lib.harvard.edu/v2/item\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><pagination><numFound>11</numFound><rows>2</rows><start>0</start></pagination><item><mods:mods version=\"3.4\"><mods:titleInfo><mods:title>Peanut research</mods:title></mods:titleInfo><mods:name type=\"corporate\"><mods:namePart>National Peanut Council</mods:namePart></mods:name></mods:mods></item><item><mods:mods version=\"3.4\"><mods:titleInfo><mods:nonSort>Die </mods:nonSort><mods:title>&quot;Peanuts&quot;, Verbreitung und ästhetische Formen</mods:title><mods:subTitle>ein Comic-Bestseller im Medienverbund</mods:subTitle></mods:titleInfo><mods:name type=\"personal\"><mods:namePart>Strobel, Ricarda</mods:namePart><mods:namePart type=\"date\">1954-</mods:namePart></mods:name></mods:mods></item></results>";
+            JSONObject xmlJSONObj = XML.toJSONObject(xml);
+            jsonString = xmlJSONObj.toString(5);
+            //System.out.println(jsonString);
+        } catch (JSONException je) {
+            System.out.println(je.toString());
+        }
+	    return jsonString;
+
+	}	
+	
+	// deprecated, keep for now - this is how we would provide access to individual solr fields
+	// but we are instead displaying the embedded mods record in 1 solr field
+	// the old Item class (individual fields) has been moved to SolrItem for possible future use
 	private Item setItem(SolrDocument doc) {
 
 		Item item = new Item();
@@ -239,28 +295,30 @@ public class ItemDAO {
 		
 		return item;
 	}
-	
-	
-	protected String writeJson(Object obj) throws JAXBException
-	{
-	    StringWriter sw = new StringWriter();
-	    String jsonString = null;
-		//JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
-	    //Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
-	    jaxbMarshaller.marshal(obj, sw);
 
-    	try {
-    		//System.out.println(sw.toString());
-    		String xml = sw.toString();
-    		//String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><results xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns=\"http://api.lib.harvard.edu/v2/item\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><pagination><numFound>11</numFound><rows>2</rows><start>0</start></pagination><item><mods:mods version=\"3.4\"><mods:titleInfo><mods:title>Peanut research</mods:title></mods:titleInfo><mods:name type=\"corporate\"><mods:namePart>National Peanut Council</mods:namePart></mods:name></mods:mods></item><item><mods:mods version=\"3.4\"><mods:titleInfo><mods:nonSort>Die </mods:nonSort><mods:title>&quot;Peanuts&quot;, Verbreitung und ästhetische Formen</mods:title><mods:subTitle>ein Comic-Bestseller im Medienverbund</mods:subTitle></mods:titleInfo><mods:name type=\"personal\"><mods:namePart>Strobel, Ricarda</mods:namePart><mods:namePart type=\"date\">1954-</mods:namePart></mods:name></mods:mods></item></results>";
-            JSONObject xmlJSONObj = XML.toJSONObject(xml);
-            jsonString = xmlJSONObj.toString(5);
-            System.out.println(jsonString);
-        } catch (JSONException je) {
-            System.out.println(je.toString());
-        }
-	    return jsonString;
-
-	}	
+	
+	// deprecated - use getModsType instead, rewrite and use this if we decide to wrap
+	// the mods document in an <item> tag
+	public Item getItem(String id) {
+		SolrDocumentList docs;
+		SolrDocument doc;
+		Item item = new Item();
+	    HttpSolrServer server = null;
+		try {		   
+		    server = SolrServer.getSolrConnection();
+		    SolrQuery query = new SolrQuery("recordIdentifier:" + id);	
+		    QueryResponse response = server.query(query);
+		    docs = response.getResults();
+		    if (docs.size() == 0)
+		    	item = null;
+		    else {
+			    doc = docs.get(0);
+	        	item = setItem(doc);
+		    }
+		}
+		catch (SolrServerException  se) {
+			  System.out.println(se);
+		}
+		return item;
+	}
 }

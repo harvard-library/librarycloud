@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 /**
 *
+* Pagination is the java object representation of solr result/@numFound result/@start, 
+* and list[name="params]/str[name="rows"]
 *
 * @author Michael Vandermillen
 *

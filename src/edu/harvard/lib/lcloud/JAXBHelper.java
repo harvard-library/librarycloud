@@ -35,7 +35,10 @@ import gov.loc.mods.v3.ModsType;
 
 /**
 *
-*
+* JAXBHelper is a singleton class that is used for jaxb marshalling and unmarshalling of 
+* mods and search results (other classes could be added if needed)
+* using a singleton provides vastly quicker marshalling/unmarshalling
+* 
 * @author Michael Vandermillen
 *
 */

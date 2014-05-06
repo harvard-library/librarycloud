@@ -41,6 +41,9 @@ import java.util.List;
 
 /**
 *
+* SolrItem is a legacy class moved from Item; it is currently unused, but would be the means to map
+* individual solr fields (below is just a subset of all fields in solr); instead we use the embedded
+* originalMods field and parse those fields for display
 *
 * @author Michael Vandermillen
 *

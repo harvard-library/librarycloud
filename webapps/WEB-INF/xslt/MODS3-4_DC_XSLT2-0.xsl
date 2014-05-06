@@ -62,6 +62,7 @@
 		  <results>
 		    <xsl:copy-of select="//item:pagination"/>		
 		   	<xsl:apply-templates select="//mods:mods"/>
+		   	<xsl:copy-of select="//item:facets"/>
 		  </results>	
 		</xsl:when>
 		<xsl:otherwise>
