@@ -29,19 +29,13 @@ package edu.harvard.lib.lcloud;
 
 import gov.loc.mods.v3.ModsType;
 
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -50,15 +44,12 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
-import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
@@ -117,7 +108,7 @@ public class ItemDAO {
 		Item item = new Item();
 		SolrDocumentList docs = null;		
 	    HttpSolrServer server = null;
-	    ArrayList queryList = new ArrayList();
+	    ArrayList<String> queryList = new ArrayList<String>();
 	    server = SolrServer.getSolrConnection();
 	    SolrQuery query = new SolrQuery();
 	    int limit = 10;
@@ -159,7 +150,7 @@ public class ItemDAO {
 		    }
 	    }
 
-	    Iterator it = queryList.iterator();
+	    Iterator<String> it = queryList.iterator();
 	    String queryStr = "";
 	    while(it.hasNext()) {
 	    	String qTerm = (String)it.next();
