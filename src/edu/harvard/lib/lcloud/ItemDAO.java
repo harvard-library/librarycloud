@@ -90,7 +90,7 @@ public class ItemDAO {
 		    QueryResponse response = server.query(query);
 		    docs = response.getResults();
 		    if (docs.size() == 0)
-		    	throw new ResourceNotFoundException("Item, " + id + ", is not found");
+		    	throw new ResourceNotFoundException("Item " + id + " not found");
 		    else {
 			    doc = docs.get(0);
 	        	modsType = getModsType(doc);
