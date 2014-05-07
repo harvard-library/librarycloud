@@ -110,16 +110,6 @@
     <echo>config.home: ${config.home}</echo>
   	<echo>bin.home: ${bin.home}</echo>
   	<echo>appserver.home: ${appserver.home}</echo>
-  	
-  	<!-- copy conf/templates/* to conf/ -->
-    <copy overwrite="true" todir="${config.home}">
-    	<fileset dir="${config.home}/templates"/>
-      <filterset refid="blp.filterset"/>
-      <filterset>
-        <filter token="project.base" value="${project.base}/${project.dir}" />
-      	<filtersfile file="project.properties"/>
-      </filterset>
-    </copy>
 	  	  	
   	<!-- copy web.xml.template to web.xml -->
   	<copy overwrite="true" todir="${webinf.home}">
