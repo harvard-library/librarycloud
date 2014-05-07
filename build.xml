@@ -43,6 +43,7 @@
   <path id="compile.classpath">
     <fileset dir=".">
       <include name="lib/*.jar"/>
+    	<include name="lib_tmp/*.jar"/>
     </fileset>
   </path>
 	
