@@ -20,6 +20,6 @@ Be sure to set your JAVA_HOME environment variable
 
 Solr war, config files including schema.xml, and sample data forthcoming
 
-solr url must be specified in conf/application.properties (default is localhost:8983/solr)
+The solr url must be specified in conf/application.properties (default is localhost:8983/solr)
 
 
