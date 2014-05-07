@@ -65,7 +65,7 @@ public class Pagination {
 		return start;
 	}
 	
-	@XmlElement
+	@XmlElement(name = "limit")
 	public long getRows() {
 		return rows;
 	}

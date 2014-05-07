@@ -76,17 +76,6 @@ public class SearchResults {
 	public void setPagination(Pagination pagination) {
 		this.pagination = pagination;
 	}
-	/*
-	@XmlElement(name = "mods", namespace = "http://www.loc.gov/mods/v3")
-	public List<ModsType> getModsTypes() {
-		
-		return modsTypes;
-	}
-	
-	public void setModsTypes(List<ModsType> modsTypes) {
-		this.modsTypes = modsTypes;
-	}
-	*/
 	
 	@XmlElement(name = "items")
 	public Item getItem() {
@@ -105,6 +94,20 @@ public class SearchResults {
 	public void setFacet(Facet facet) {
 		this.facet = facet;
 	}
+
+
+	/*
+	//the old way was to add ModsType objects directly, now they get wrapped as a list in Item
+	//hold on for now in case things change for some reason
+	@XmlElement(name = "mods", namespace = "http://www.loc.gov/mods/v3")
+	public List<ModsType> getModsTypes() {
+		
+		return modsTypes;
+	}
 	
+	public void setModsTypes(List<ModsType> modsTypes) {
+		this.modsTypes = modsTypes;
+	}
+	*/
 }
 

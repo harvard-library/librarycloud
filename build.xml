@@ -97,7 +97,7 @@
 	<available file="${project.base}/${project.dir}/bin/post-config.sh" type="file" property="post-config.available"/>
   </target>
 
-  <target name="config" depends="check-instance-location, check-instance-stdin, init-build-local.properties">
+  <target name="config" depends="init-build-local.properties">
 
     <dirname property="project.base" file="." />  	
   	<basename property="project.dir" file="." />
@@ -215,34 +215,6 @@
 	
   <target name="check-bin">
     <available file="bin" type="dir" property="bin.present" />
-  </target>
-
-
-  <target name="check-instance-location" unless="instance">
-
-    <dirname property="project.base" file="." />
-    <basename property="project.dir" file="." />
-   
-    <condition property="instance" value="prod">
-      <equals arg1="${project.base}/${project.dir}" arg2="/home/${app.name}/prod" />
-    </condition>
-    <condition property="instance" value="qa">
-      <equals arg1="${project.base}/${project.dir}" arg2="/home/${app.name}/qa" />
-    </condition>
-    <condition property="instance" value="dev">
-      <equals arg1="${project.base}/${project.dir}" arg2="/home/${app.name}/dev" />
-    </condition>
-    
-  </target>
-
-
-  <target name="check-instance-stdin" unless="instance">
-    <echo>
-       You will be prompted for the instance.
-    </echo>
-     <input message="Enter instance you want to use:"
-            validargs="dev,qa,prod"
-            addproperty="instance" />
   </target>
 
 	<!-- ====================================== NEW BUILD 2.0 deployment tasks ==================================== -->

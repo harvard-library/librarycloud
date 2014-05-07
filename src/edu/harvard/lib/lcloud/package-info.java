@@ -2,6 +2,7 @@
 *
 * package-info is the reserved name for the jaxb class used to set package-level information for
 * jaxb classes; here it is used to set namespaces for our "item" api, as well as for mods and xlink
+* (otherwise jaxb generates ns1, ns2, etc)
 * 
 * @author Michael Vandermillen
 *

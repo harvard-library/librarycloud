@@ -31,7 +31,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 /**
 *
 *
-* SolrServer is a singleton class for retrieving solr connection
+* SolrServer is a singleton class for retrieving the solr connection
 *
 */
 public class SolrServer {

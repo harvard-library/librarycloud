@@ -72,7 +72,13 @@ import org.json.XML;
 *
 */
 public class ItemDAO {
-	
+		
+	/**
+	 * Returns a MODS record for a given recordIdentifier.
+	 * @param id    a recordIdentifier for a solr document
+	 * @return      the ModsType for this recordidentifier
+	 * @see         ModsType
+	 */
 	public ModsType getMods(String id) throws JAXBException {
 		SolrDocumentList docs;
 		SolrDocument doc;
@@ -96,7 +102,15 @@ public class ItemDAO {
 		return modsType;
 	}
 	
-	//TO DO - pull the query building guts into a separate queryBuilder method
+	
+	/**
+	 * Returns search results for a given query. Search parameters are parsed and mapped into
+	 * solr (solrj) query syntax
+	 * TO DO (20140506): consider pulling the query building guts into a separate queryBuilder method
+	 * @param queryParams query parameters to map to a solr query
+	 * @return      the SearchResults for this query
+	 * @see         SearchResults
+	 */
 	public SearchResults getResults(MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SearchResults results = new SearchResults();
 		//List<Item> items = new ArrayList<Item>();
@@ -169,7 +183,7 @@ public class ItemDAO {
 	    		throw new BadParameterException("Incorrect query syntax");
 	    	else {
 	    		String msg = rse.getMessage().replace("_keyword","");
-	    		throw new BadParameterException("Incorrect query syntax:" + rse.getMessage());
+	    		throw new BadParameterException("Incorrect query syntax:" + msg);
 	    	}	
 	    }
 	    List<FacetField> facets = response.getFacetFields();
@@ -227,7 +241,18 @@ public class ItemDAO {
 		return results;	
 	}
 	
-    public ModsType getModsType(SolrDocument doc) throws JAXBException {
+	
+	/**
+	 * 
+	 * Returns a mods document, which is embedded in escaped xml form in the 
+	 * originalMods field of each solr document. This escaped string is unmarshalled (jaxb)
+	 * into a loc.gov.mods.v3.ModsType (and all child elements) and returned as an individual item
+	 * or added to a search result set
+	 * @param doc a SolrDocument from which to extract the mods record
+	 * @return      the ModsType
+	 * @see         ModsType
+	 */
+    protected ModsType getModsType(SolrDocument doc) throws JAXBException {
     	String modsString = (String) doc.getFieldValue("originalMods");
     	Unmarshaller unmarshaller = JAXBHelper.context.createUnmarshaller();
         StringReader reader = new StringReader(modsString);
@@ -235,6 +260,17 @@ public class ItemDAO {
         return modsType;
     }
 	
+    
+	/**
+	 * 
+	 * Marshals a SearchResult or ModsType object to an XML string. This string
+	 * is converted to json using the org.json package. Order of the json array is
+	 * not guaranteed (as per spec); TO DO (201405007) - investigate means for
+	 * preserving XML order (json schema?)
+	 * 
+	 * @param obj a a SearchResult or ModsType object for conversion to json string
+	 * @return      the json String
+	 */
 	protected String writeJson(Object obj) throws JAXBException
 	{
 	    StringWriter sw = new StringWriter();
@@ -249,6 +285,7 @@ public class ItemDAO {
             jsonString = xmlJSONObj.toString(5);
             //System.out.println(jsonString);
         } catch (JSONException je) {
+        	//TO DO - error handling
             System.out.println(je.toString());
         }
 	    return jsonString;
@@ -256,7 +293,7 @@ public class ItemDAO {
 	}	
 	
 	// deprecated, keep for now - this is how we would provide access to individual solr fields
-	// but we are instead displaying the embedded mods record in 1 solr field
+	// but we are instead displaying the embedded mods record in 1 solr field;
 	// the old Item class (individual fields) has been moved to SolrItem for possible future use
 	private Item setItem(SolrDocument doc) {
 

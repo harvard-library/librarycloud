@@ -49,9 +49,11 @@ import gov.loc.mods.v3.ModsType;
 *
 * ItemResource is the main entry point for item queries and individual item requests;
 * It uses the jersey implementation (see web.xml) of jax-rs api for RESTful web services.
-* Requests of /v2/items/{id} are for an individual item;
-* Requests of /v2/items?<search parameters> are for searching the api;
+* Requests of type items/{id} are for an individual item;
+* Requests of type items?<search parameters> are for searching the api;
 * Default format is XML; dot notation (items.*) are for variant formats (json, dc and html);
+* Request of pattern .dc and .html additionally rely on xslt in servlet filter (see web.xml);
+* TO DO (20140506) - move dc (and html) xslt back from filter, to allow subsequent dc json serialization
 * 
 * @author Michael Vandermillen
 *
