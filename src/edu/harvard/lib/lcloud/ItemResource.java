@@ -43,6 +43,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
+import org.apache.log4j.Logger;
+
 import gov.loc.mods.v3.ModsType;
 
 /**
@@ -61,17 +63,19 @@ import gov.loc.mods.v3.ModsType;
 
 @Path ("/v2")
 public class ItemResource {
+	Logger log = Logger.getLogger(ItemResource.class); 
 	ItemDAO itemdao = new ItemDAO();
 	
 	@GET @Path("items/{id}")
 	@Produces (MediaType.APPLICATION_XML)
 	public ModsType getItem(@PathParam("id") String id) {
+		log.info("getItem called for id: " + id);
 		ModsType modsType = null; 
 		try {
 			modsType = itemdao.getMods(id);
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.print(je);
+			System.out.println(je);
+			log.error(je.getMessage());
 		}
 		return modsType;
 	}
@@ -79,14 +83,15 @@ public class ItemResource {
 	@GET @Path("items/{id}.json")
 	@Produces ("application/json")
 	public String getJsonItem(@PathParam("id") String id) {
+		log.info("getJsonItem called for id: " + id);
 		ModsType modsType = null; 
 		String modsString = null;
 		try {
 			modsType = itemdao.getMods(id);
-			modsString = itemdao.writeJson(modsType);
+			modsString = itemdao.writeJsonXslt(modsType);
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.print(je);
+			je.printStackTrace();
+			log.error(je);
 		}
 
 		return modsString;
@@ -95,12 +100,13 @@ public class ItemResource {
 	@GET @Path("items/{id}.dc")
 	@Produces (MediaType.APPLICATION_XML)
 	public ModsType getDublinCoreItem(@PathParam("id") String id) {
+		log.info("getDublinCoreItem called for id: " + id);
 		ModsType modsType = null; 
 		try {
 			modsType = itemdao.getMods(id);
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.print(je);
+			je.printStackTrace();
+			log.error(je);
 		}
 
 		return modsType;
@@ -113,8 +119,8 @@ public class ItemResource {
 		try {
 			modsType = itemdao.getMods(id);
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.print(je);
+			je.printStackTrace();
+			log.error(je.getMessage());
 		}
 
 		return modsType;
@@ -123,6 +129,7 @@ public class ItemResource {
 	@GET @Path("items")
 	@Produces (MediaType.APPLICATION_XML)
 	public SearchResults getSearchResults(@Context UriInfo ui) {
+		log.info("getSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 	    //we don't currently need to use the pathParam
 	    //MultivaluedMap<String, String> pathParams = ui.getPathParameters();
@@ -132,8 +139,8 @@ public class ItemResource {
 		try {
 			results = itemdao.getResults(queryParams);	
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.println(je);
+			je.printStackTrace();
+			log.error(je.getMessage());
 		}
 		return results;
 	}
@@ -141,14 +148,15 @@ public class ItemResource {
 	@GET @Path("items.json")
 	@Produces (MediaType.APPLICATION_JSON)
 	public String getJsonSearchResults(@Context UriInfo ui) {
+		log.info("getJsonSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		String jsonString = null;
 		try {
-			SearchResults results = itemdao.getResults(queryParams);	
-			jsonString = itemdao.writeJson(results);
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
+			jsonString = itemdao.writeJsonXslt(results);
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.println(je);
+			je.printStackTrace();
+			log.error(je.getMessage());
 		}	
 
 		return jsonString;
@@ -157,14 +165,15 @@ public class ItemResource {
 	@GET @Path("items.dc")
 	@Produces (MediaType.APPLICATION_XML)
 	public SearchResults getDublinCOreSearchResults(@Context UriInfo ui) {
+		log.info("getDublinCoreSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		SearchResults results = null;
 		
 		try {
 			results = itemdao.getResults(queryParams);	
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.println(je);
+			je.printStackTrace();
+			log.error(je.getMessage());
 		}
 		return results;
 	}
@@ -172,14 +181,15 @@ public class ItemResource {
 	@GET @Path("items.html")
 	@Produces (MediaType.APPLICATION_XML)
 	public SearchResults getHtmlSearchResults(@Context UriInfo ui) {
+		log.info("getHtmlSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		SearchResults results = null;
 		
 		try {
 			results = itemdao.getResults(queryParams);	
 		} catch (JAXBException je) {
-			//TO-DO better error handling
-			System.out.println(je);
+			je.printStackTrace();
+			log.error(je.getMessage());
 		}
 		return results;
 	}

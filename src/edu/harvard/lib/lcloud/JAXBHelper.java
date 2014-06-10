@@ -49,7 +49,7 @@ public class JAXBHelper {
     private static JAXBContext initContext()  {
     	JAXBContext context = null;
     	try {
-    		context = JAXBContext.newInstance(ModsType.class,SearchResults.class);
+    		context = JAXBContext.newInstance(ModsType.class,SearchResults.class,SearchResultsSlim.class);
     	} catch (JAXBException je) {
     		System.out.println(je);
     	}

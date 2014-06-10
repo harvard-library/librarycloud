@@ -29,6 +29,8 @@ package edu.harvard.lib.lcloud;
 
 import java.util.Properties;
 
+import javax.servlet.ServletContext;
+
 /**
 *
 * Config is the standard LTS class for accessing properties from a properties file,
@@ -39,6 +41,7 @@ import java.util.Properties;
 public class Config {
 	
 	public String SOLR_URL;
+	public String JSON_XSLT;
     
 	private static Config conf;
 	
@@ -56,6 +59,7 @@ public class Config {
 		} 
 		
 		SOLR_URL = props.getProperty("solr_url");
+		JSON_XSLT = props.getProperty("json_xslt");
 	
 	}
 	

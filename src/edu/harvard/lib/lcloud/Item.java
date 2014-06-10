@@ -51,7 +51,7 @@ public class Item {
 	public Item () {
 		
 	}
-	
+	/*
 	private List<ModsType> modsTypes;
 	
 	@XmlElement(name = "mods", namespace = "http://www.loc.gov/mods/v3")
@@ -62,9 +62,9 @@ public class Item {
 	public void setModsTypes(List<ModsType> modsTypes) {
 		this.modsTypes = modsTypes;
 	}
-	
+	*/
 	//the old way was to add individual ModsType objects to a SearchResults, now use list above
-/*
+
 	private ModsType modsType;
 	
 	@XmlElement(name = "mods", namespace = "http://www.loc.gov/mods/v3")
@@ -76,5 +76,7 @@ public class Item {
 	public void setModsType(ModsType modsType) {
 		this.modsType = modsType;
 	}
-*/
+
+	
+	
 }

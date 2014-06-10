@@ -55,7 +55,7 @@ import java.util.List;
 */
 
 @XmlRootElement(name="results")
-@XmlType(propOrder={"pagination", "item","facet"})
+@XmlType(propOrder={"pagination", "itemGroup","facet"})
 public class SearchResults {
 	
 	public SearchResults () {
@@ -65,7 +65,7 @@ public class SearchResults {
 	private Pagination pagination;
 
 	//private List<ModsType> modsTypes;
-	private Item item;
+	private ItemGroup itemGroup;
 	private Facet facet;
 	
 	@XmlElement(name = "pagination")
@@ -78,12 +78,12 @@ public class SearchResults {
 	}
 	
 	@XmlElement(name = "items")
-	public Item getItem() {
-		return item;
+	public ItemGroup getItemGroup() {
+		return itemGroup;
 	}
 	
-	public void setItem(Item item) {
-		this.item = item;
+	public void setItemGroup(ItemGroup itemGroup) {
+		this.itemGroup = itemGroup;
 	}
 
 	@XmlElement(name = "facets")

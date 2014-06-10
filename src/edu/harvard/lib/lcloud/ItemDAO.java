@@ -40,7 +40,12 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -63,7 +68,10 @@ import org.json.XML;
 *
 */
 public class ItemDAO {
-		
+	Logger log = Logger.getLogger(ItemDAO.class);	
+    private int limit = 10;
+    private Facet facet = null;
+	
 	/**
 	 * Returns a MODS record for a given recordIdentifier.
 	 * @param id    a recordIdentifier for a solr document
@@ -88,11 +96,11 @@ public class ItemDAO {
 		    }
 		}
 		catch (SolrServerException  se) {
-			  System.out.println(se);
+			se.printStackTrace();
+			log.error(se.getMessage());
 		}
 		return modsType;
 	}
-	
 	
 	/**
 	 * Returns search results for a given query. Search parameters are parsed and mapped into
@@ -103,15 +111,32 @@ public class ItemDAO {
 	 * @see         SearchResults
 	 */
 	public SearchResults getResults(MultivaluedMap<String, String> queryParams) throws JAXBException {
-		SearchResults results = new SearchResults();
-		//List<Item> items = new ArrayList<Item>();
-		Item item = new Item();
+		SolrDocumentList docs = doQuery(queryParams);
+    	// here is where we would throw an exception for results of 0
+    	// but we want to pass back a 200 with 0 results found
+	    //if (docs.getNumFound() == 0)
+		
+		SearchResults results = buildFullResults(docs);
+		return results;	
+	}
+
+	public SearchResultsSlim getSlimResults(MultivaluedMap<String, String> queryParams) throws JAXBException {
+		SolrDocumentList docs = doQuery(queryParams);
+    	// here is where we would throw an exception for results of 0
+    	// but we want to pass back a 200 with 0 results found
+	    //if (docs.getNumFound() == 0)
+		
+		SearchResultsSlim results = buildSlimResults(docs);
+		return results;	
+	}
+	
+	
+	private SolrDocumentList doQuery(MultivaluedMap<String, String> queryParams) {
 		SolrDocumentList docs = null;		
 	    HttpSolrServer server = null;
 	    ArrayList<String> queryList = new ArrayList<String>();
 	    server = SolrServer.getSolrConnection();
 	    SolrQuery query = new SolrQuery();
-	    int limit = 10;
     	for (String key : queryParams.keySet()) {
     		String value = queryParams.getFirst(key);
 	    	System.out.println(key + " : " + queryParams.getFirst(key) +"\n");
@@ -167,21 +192,26 @@ public class ItemDAO {
 	    	response = server.query(query);
 	    }
 		catch (SolrServerException  se) {
-			  throw new BadParameterException(se.getMessage()); 
+			log.error(se.getMessage());
+			throw new BadParameterException(se.getMessage()); 
 		}
 	    catch (RemoteSolrException rse) {
-	    	if (rse.getMessage().contains("SyntaxError"))
+	    	if (rse.getMessage().contains("SyntaxError")) {
+	    		log.error("solr syntax error");
 	    		throw new BadParameterException("Incorrect query syntax");
+	    	}	
 	    	else {
 	    		String msg = rse.getMessage().replace("_keyword","");
+	    		log.error(msg);
 	    		throw new BadParameterException("Incorrect query syntax:" + msg);
 	    	}	
 	    }
 	    List<FacetField> facets = response.getFacetFields();
-	    Facet facet = new Facet();
-	    List<FacetType> facetTypes = new ArrayList<FacetType>();
+	    facet = null;
 	    if (facets != null) {
-	        for(FacetField facetField : facets)
+		    facet = new Facet();
+		    List<FacetType> facetTypes = new ArrayList<FacetType>();
+	    	for(FacetField facetField : facets)
 	        {	
 	        	List<FacetTerm> facetTerms = new ArrayList<FacetTerm>();
 	        	FacetType facetType = new FacetType();
@@ -203,35 +233,67 @@ public class ItemDAO {
         	facet.setFacetTypes(facetTypes);  
 	    }
     	docs = response.getResults();
-    	// here is where we would throw an exception for results of 0
-    	// but we want to pass back a 200 with 0 results found
-	    //if (docs.getNumFound() == 0)
+		return docs;
+	}
+	
+	private SearchResults buildFullResults(SolrDocumentList docs) {
+		SearchResults results = new SearchResults();	
 		Pagination pagination = new Pagination();
 	    pagination.setNumFound(docs.getNumFound());
 	    pagination.setStart(docs.getStart());
 	    pagination.setRows(limit);
-	    List<ModsType> modsTypes = new ArrayList<ModsType>();
+	    //List<ModsType> modsTypes = new ArrayList<ModsType>();
+	    ItemGroup itemGroup = new  ItemGroup();
+	    List<Item> items = new ArrayList<Item>();
         for (final SolrDocument doc : docs) {
-        	//Item item = new Item();
+        	Item item = new Item();
         	ModsType modsType = null;
         	try {
-    	    modsType = (new ItemDAO()).getModsType(doc);
+        		modsType = (new ItemDAO()).getModsType(doc);
 			} catch (JAXBException je) {
-				//TO DO - intelligent error handling
-				System.out.println(je);
+				log.error(je.getMessage());
+				je.printStackTrace();
 			}	
-    	    modsTypes.add(modsType);
+    	    //modsTypes.add(modsType);
     	    //items.add(item);
+        	item.setModsType(modsType);
+        	items.add(item);
         }
         //items.setModsType(modsType);
-        item.setModsTypes(modsTypes);
-		results.setItem(item);
+        itemGroup.setItems(items);
+		results.setItemGroup(itemGroup);
 		results.setPagination(pagination);
 		if (facet != null)
 			results.setFacet(facet);
-		return results;	
+		return results;
 	}
-	
+		
+	private SearchResultsSlim buildSlimResults(SolrDocumentList docs) {
+		SearchResultsSlim results = new SearchResultsSlim();	
+		Pagination pagination = new Pagination();
+	    pagination.setNumFound(docs.getNumFound());
+	    pagination.setStart(docs.getStart());
+	    pagination.setRows(limit);
+	    //List<ModsType> modsTypes = new ArrayList<ModsType>();
+	    List<Item> items = new ArrayList<Item>();
+        for (final SolrDocument doc : docs) {
+        	Item item = new Item();
+        	ModsType modsType = null;
+        	try {
+        		modsType = (new ItemDAO()).getModsType(doc);
+			} catch (JAXBException je) {
+				log.error(je.getMessage());
+				je.printStackTrace();
+			}	
+        	item.setModsType(modsType);
+        	items.add(item);
+        }
+		results.setItems(items);
+		results.setPagination(pagination);
+		if (facet != null)
+			results.setFacet(facet);
+		return results;
+	}
 	
 	/**
 	 * 
@@ -276,12 +338,47 @@ public class ItemDAO {
             jsonString = xmlJSONObj.toString(5);
             //System.out.println(jsonString);
         } catch (JSONException je) {
-        	//TO DO - error handling
-            System.out.println(je.toString());
+        	log.error(je.getMessage());
+        	je.printStackTrace();
         }
 	    return jsonString;
 
 	}	
+	
+	/**
+	 * 
+	 * Marshals a SearchResult or ModsType object to an XML string. Uses xslt transform 
+	 * rather than xml to json class (the xsl preserves order, the class does not)
+	 * 
+	 * @param obj a a SearchResult or ModsType object for conversion to json string
+	 * @return      the json String
+	 */
+	protected String writeJsonXslt(Object obj) throws JAXBException
+	{
+	    StringWriter sw = new StringWriter();
+	    String jsonString = null;
+	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
+	    jaxbMarshaller.marshal(obj, sw);	
+	    String result = null;
+	    try {
+	        StringReader reader = new StringReader(sw.toString());
+	        StringWriter writer = new StringWriter();
+	        TransformerFactory tFactory = TransformerFactory.newInstance();
+	        Transformer transformer = tFactory.newTransformer(
+	                new javax.xml.transform.stream.StreamSource(this.getClass().getClassLoader().getResourceAsStream(Config.getInstance().JSON_XSLT)));
+
+	        transformer.transform(
+	                new javax.xml.transform.stream.StreamSource(reader), 
+	                new javax.xml.transform.stream.StreamResult(writer));
+
+	        result = writer.toString();
+	    } catch (Exception e) {
+	    	log.error(e.getMessage());
+	        e.printStackTrace();
+	    }
+	    return result;
+}
+	
 	
 	// deprecated, keep for now - this is how we would provide access to individual solr fields
 	// but we are instead displaying the embedded mods record in 1 solr field;
@@ -345,7 +442,8 @@ public class ItemDAO {
 		    }
 		}
 		catch (SolrServerException  se) {
-			  System.out.println(se);
+			log.error(se.getMessage());
+			se.printStackTrace();
 		}
 		return item;
 	}

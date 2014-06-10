@@ -48,7 +48,7 @@ All rights reserved.
   <xsl:param name="use-namespaces" as="xs:boolean" select="false()"/>
   <xsl:param name="use-rayfish" as="xs:boolean" select="false()"/>
   <xsl:param name="jsonp" as="xs:string" select="''"/>
-  <xsl:param name="skip-root" as="xs:boolean" select="false()"/>
+  <xsl:param name="skip-root" as="xs:boolean" select="true()"/>
 
   <!--
 If you import or include the stylesheet in your own stylesheet you
@@ -153,7 +153,7 @@ standalone.
                 <xsl:copy-of select="json:create-simple-node-member('#children', $empty-array)"/>
               </json:object>
             </json:value>
-          </json:array-value>
+          </json:array-value> 
         </xsl:for-each>
         <xsl:for-each select="$node/child::element()">
           <json:array-value>
