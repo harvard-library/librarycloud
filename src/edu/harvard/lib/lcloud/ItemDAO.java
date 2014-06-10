@@ -103,9 +103,7 @@ public class ItemDAO {
 	}
 	
 	/**
-	 * Returns search results for a given query. Search parameters are parsed and mapped into
-	 * solr (solrj) query syntax
-	 * TO DO (20140506): consider pulling the query building guts into a separate queryBuilder method
+	 * Returns search results for a given query.
 	 * @param queryParams query parameters to map to a solr query
 	 * @return      the SearchResults for this query
 	 * @see         SearchResults
@@ -120,6 +118,13 @@ public class ItemDAO {
 		return results;	
 	}
 
+	/**
+	 * Returns search results for a given query; the slim version of search results excludes the 
+	 * "items" wrapper eiement, for better conversion to json. 
+	 * @param queryParams query parameters to map to a solr query
+	 * @return      the SearchResultsSlim object for this query
+	 * @see         SearchResultsSlim
+	 */
 	public SearchResultsSlim getSlimResults(MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SolrDocumentList docs = doQuery(queryParams);
     	// here is where we would throw an exception for results of 0
@@ -129,7 +134,14 @@ public class ItemDAO {
 		SearchResultsSlim results = buildSlimResults(docs);
 		return results;	
 	}
-	
+
+	/**
+	 * Returns a SolrDocumentList for a given set of search parameters. Search parameters are parsed 
+	 * and mapped into solr (solrj) query syntax, and solr query is performed.
+	 * @param queryParams query parameters to map to a solr query
+	 * @return      the SolrDocumentList for this query
+	 * @see         SolrDocumentList
+	 */
 	
 	private SolrDocumentList doQuery(MultivaluedMap<String, String> queryParams) {
 		SolrDocumentList docs = null;		
@@ -235,6 +247,14 @@ public class ItemDAO {
     	docs = response.getResults();
 		return docs;
 	}
+
+	/**
+	 * Returns SearchResults for a given SolrDocumentList. A full results object with an "items" wrapper
+	 * element around the mods items is used to logically separate pagination, items and facets in the XML
+	 * @param doc   solr document list to build results
+	 * @return      the SearchResults object for this solr result
+	 * @see         SearchResults
+	 */
 	
 	private SearchResults buildFullResults(SolrDocumentList docs) {
 		SearchResults results = new SearchResults();	
@@ -267,7 +287,15 @@ public class ItemDAO {
 			results.setFacet(facet);
 		return results;
 	}
-		
+
+	/**
+	 * Returns SearchResultsSlim for a given SolrDocumentList. A "slimmer" results object without the 
+	 * "items" wrapper element is created for better transform to json.
+	 * @param doc   solr document list to build results
+	 * @return      the SearchResultsSlim object for this solr result
+	 * @see         SearchResultsSlim
+	 */
+	
 	private SearchResultsSlim buildSlimResults(SolrDocumentList docs) {
 		SearchResultsSlim results = new SearchResultsSlim();	
 		Pagination pagination = new Pagination();
