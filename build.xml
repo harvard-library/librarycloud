@@ -251,6 +251,13 @@
 		<delete file="${deployments.home}/${war-file}" />
 	</target>
 	
+	<target name="deploysolr" description="deploy solr dir to desired solr location">
+		<echo>deploying solr to ${solr.home}</echo>
+		<copy todir="${solr.home}">
+		  <fileset dir="solr"/>
+		</copy>
+	</target>	
+	
 	<target name="doall" depends="config,compile,war,deploy" />
 	
 </project>
