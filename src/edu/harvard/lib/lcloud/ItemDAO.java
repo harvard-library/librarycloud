@@ -361,7 +361,6 @@ public class ItemDAO {
 
     	try {
     		String xml = sw.toString();
-    		//String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><results xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns=\"http://api.lib.harvard.edu/v2/item\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><pagination><numFound>11</numFound><rows>2</rows><start>0</start></pagination><item><mods:mods version=\"3.4\"><mods:titleInfo><mods:title>Peanut research</mods:title></mods:titleInfo><mods:name type=\"corporate\"><mods:namePart>National Peanut Council</mods:namePart></mods:name></mods:mods></item><item><mods:mods version=\"3.4\"><mods:titleInfo><mods:nonSort>Die </mods:nonSort><mods:title>&quot;Peanuts&quot;, Verbreitung und ästhetische Formen</mods:title><mods:subTitle>ein Comic-Bestseller im Medienverbund</mods:subTitle></mods:titleInfo><mods:name type=\"personal\"><mods:namePart>Strobel, Ricarda</mods:namePart><mods:namePart type=\"date\">1954-</mods:namePart></mods:name></mods:mods></item></results>";
             JSONObject xmlJSONObj = XML.toJSONObject(xml);
             jsonString = xmlJSONObj.toString(5);
             //System.out.println(jsonString);
