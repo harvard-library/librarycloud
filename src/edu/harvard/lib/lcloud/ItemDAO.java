@@ -146,10 +146,16 @@ public class ItemDAO {
 	private SolrDocumentList doQuery(MultivaluedMap<String, String> queryParams) {
 		SolrDocumentList docs = null;		
 	    HttpSolrServer server = null;
+	    String queryStr = "";
+	    SolrQuery query = new SolrQuery();
+	    System.out.println("queryParams: " + queryParams.size());
+   
 	    ArrayList<String> queryList = new ArrayList<String>();
 	    server = SolrServer.getSolrConnection();
-	    SolrQuery query = new SolrQuery();
-    	for (String key : queryParams.keySet()) {
+
+	    if (queryParams.size() > 0) {
+	    
+	    for (String key : queryParams.keySet()) {
     		String value = queryParams.getFirst(key);
 	    	System.out.println(key + " : " + queryParams.getFirst(key) +"\n");
 		    if (key.equals("start")) {
@@ -182,13 +188,14 @@ public class ItemDAO {
 		    		if (key.equals("q"))
 			    		queryList.add("keyword:" + value);
 		    		else
-		    			queryList.add(key + "_keyword:" + value);
+		    			if (!key.equals("jsonp"))
+		    				queryList.add(key + "_keyword:" + value);
 		    	}	
 		    }
 	    }
 
 	    Iterator<String> it = queryList.iterator();
-	    String queryStr = "";
+
 	    while(it.hasNext()) {
 	    	String qTerm = (String)it.next();
 	    	System.out.print("QT: " + qTerm + "\n");
@@ -197,6 +204,11 @@ public class ItemDAO {
 	    	if (it.hasNext())
 	    		queryStr += " AND ";
 	    }
+	    }
+	    else {
+	    	queryStr = "*:*";
+	    }
+	    
 	    System.out.print("queryStr: " + queryStr);
 	    query.setQuery(queryStr);
 	    QueryResponse response = null;
@@ -372,6 +384,8 @@ public class ItemDAO {
 
 	}	
 	
+	
+	
 	/**
 	 * 
 	 * Marshals a SearchResult or ModsType object to an XML string. Uses xslt transform 
@@ -382,10 +396,7 @@ public class ItemDAO {
 	 */
 	protected String writeJsonXslt(Object obj) throws JAXBException
 	{
-	    StringWriter sw = new StringWriter();
-	    String jsonString = null;
-	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
-	    jaxbMarshaller.marshal(obj, sw);	
+		StringWriter sw = marshallObject(obj);
 	    String result = null;
 	    try {
 	        StringReader reader = new StringReader(sw.toString());
@@ -404,7 +415,15 @@ public class ItemDAO {
 	        e.printStackTrace();
 	    }
 	    return result;
-}
+	}
+	
+	protected StringWriter marshallObject(Object obj) throws JAXBException {
+	    StringWriter sw = new StringWriter();
+	    String jsonString = null;
+	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
+	    jaxbMarshaller.marshal(obj, sw);	
+	    return sw;
+	}
 	
 	
 	// deprecated, keep for now - this is how we would provide access to individual solr fields

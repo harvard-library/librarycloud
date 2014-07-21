@@ -30,6 +30,7 @@ package edu.harvard.lib.lcloud;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -68,8 +69,9 @@ public class ItemResource {
 	
 	@GET @Path("items/{id}")
 	@Produces (MediaType.APPLICATION_XML)
-	public ModsType getItem(@PathParam("id") String id) {
+	public ModsType getItem(@PathParam("id") String id, @Context HttpServletResponse response) {
 		log.info("getItem called for id: " + id);
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		ModsType modsType = null; 
 		try {
 			modsType = itemdao.getMods(id);
@@ -82,8 +84,9 @@ public class ItemResource {
 
 	@GET @Path("items/{id}.json")
 	@Produces ("application/json")
-	public String getJsonItem(@PathParam("id") String id) {
+	public String getJsonItem(@PathParam("id") String id, @Context HttpServletResponse response) {
 		log.info("getJsonItem called for id: " + id);
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		ModsType modsType = null; 
 		String modsString = null;
 		try {
@@ -128,9 +131,10 @@ public class ItemResource {
 	
 	@GET @Path("items")
 	@Produces (MediaType.APPLICATION_XML)
-	public SearchResults getSearchResults(@Context UriInfo ui) {
+	public SearchResults getSearchResults(@Context UriInfo ui, @Context HttpServletResponse response) {
 		log.info("getSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    response.setHeader("Access-Control-Allow-Origin", "*");
 	    //we don't currently need to use the pathParam
 	    //MultivaluedMap<String, String> pathParams = ui.getPathParameters();
 
@@ -147,9 +151,10 @@ public class ItemResource {
 
 	@GET @Path("items.json")
 	@Produces (MediaType.APPLICATION_JSON)
-	public String getJsonSearchResults(@Context UriInfo ui) {
+	public String getJsonSearchResults(@Context UriInfo ui, @Context HttpServletResponse response) {
 		log.info("getJsonSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    response.setHeader("Access-Control-Allow-Origin", "*");
 		String jsonString = null;
 		try {
 			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
