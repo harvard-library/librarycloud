@@ -183,6 +183,23 @@ public class ItemResource {
 		return results;
 	}
 	
+	@GET @Path("items.dc.json")
+	@Produces (MediaType.APPLICATION_JSON)
+	public String getDublinCoreJsonSearchResults(@Context UriInfo ui) {
+		log.info("getDublinCoreJsonSearchResults made query: " + "TO DO");
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+		SearchResults results = null;
+		String dcString = null;
+		try {
+			results = itemdao.getResults(queryParams);
+			dcString = itemdao.writeJsonXslt(results);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+		}
+		return dcString;
+	}
+	
 	@GET @Path("items.html")
 	@Produces (MediaType.APPLICATION_XML)
 	public SearchResults getHtmlSearchResults(@Context UriInfo ui) {
@@ -197,6 +214,13 @@ public class ItemResource {
 			log.error(je.getMessage());
 		}
 		return results;
+	}
+
+	@GET @Path("error")
+	@Produces (MediaType.APPLICATION_XML)
+	public void getHtmlSearchResults(@QueryParam("status") int status) {
+		log.info("error: " + status);
+		throw new LibCommException("Error: Please see documentation at link below", status);
 	}
 	
 }

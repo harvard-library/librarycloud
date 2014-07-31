@@ -4,7 +4,12 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
    <error-page>
         <error-code>404</error-code>
-        <location>/v2/items</location>
+        <location>/v2/error?status=404</location>
+   </error-page>
+
+   <error-page>
+        <error-code>500</error-code>
+        <location>/v2/error?status=500</location>
    </error-page>
 
    <filter>
