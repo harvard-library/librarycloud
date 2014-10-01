@@ -7,7 +7,7 @@ This is an alpha release Library Cloud API v2 (see http://librarycloud.harvard.e
 
 API documentation and link forthcoming
 
-Intstallation
+Installation
 ----------------
 
 Prerequisites: 
@@ -27,3 +27,18 @@ Start solr by going to your solr home directory and running java -jar start.jar 
 To add sample records run "java -Durl=http://localhost:8983/solr/librarycloud/update -jar post.jar samplerecs.xml"  from solr home (change the url if you have configured your own solr instance).
 
 Now start your servlet container, such as tomcat, and go to http://localhost:8080/librarycloud/v2/items.
+
+# Solr installation on RHEL
+
+        sudo yum install git java ant
+        git clone https://github.com/harvard-library/librarycloud.git
+        cd librarycloud
+
+Edit ~/project.properties and set solr home to /usr/local/solr
+
+        sudo ant deploysolr
+        cd /usr/local/solr
+        sudo nohup java -jar start.jar &
+        cd ~/librarycloud/solr
+        java -Durl=http://localhost:8983/solr/librarycloud/update -jar post.jar samplerecs.xm
+
