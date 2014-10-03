@@ -124,20 +124,18 @@
 	<!-- Only single values allowed -->
 
 	<field name="resourceType" type="string" indexed="true" stored="true"/>
-	<field name="genre" type="string" indexed="true" stored="true"/>
-	<field name="publisher" type="string" indexed="true" stored="true"/>
+  <field name="publisher" type="string" indexed="true" stored="true"  multiValued="true"/>
 	<field name="originDate" type="string" indexed="true" stored="true"/>
 	<field name="edition" type="string" indexed="true" stored="true"/>
 	<field name="physicalDescription" type="string" indexed="true" stored="true"/>
 	<field name="source" type="string" indexed="true" stored="true"/>
 	<field name="recordIdentifier" type="string" indexed="true" stored="true"/>
-	<field name="originalMods" type="string" indexed="true" stored="true"/>
-	<field name="subject" type="string" indexed="true" stored="true"/>
-	<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true"/>
+	<field name="originalMods" type="string" indexed="false" stored="true"/>
 	<field name="isCollection" type="string" indexed="true" stored="true"/>
 	<field name="isManuscript" type="string" indexed="true" stored="true"/>
 
 <!-- Muliple values possible -->
+  <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="title" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="abstractTOC" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="languageCode" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -155,6 +153,8 @@
 	<field name="url" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="issuance" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="relatedItem" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.topic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.geographic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.temporal" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -192,8 +192,6 @@
 	<copyField source="source" dest="source_keyword"/>
 	<field name="recordIdentifier_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
 <copyField source="recordIdentifier" dest="recordIdentifier_keyword"/>
-	<field name="originalMods_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
-	<copyField source="originalMods" dest="originalMods_keyword"/>
 	<field name="subject_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
 <copyField source="subject" dest="subject_keyword"/>
 	<field name="subject.hierarchicalGeographic_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
