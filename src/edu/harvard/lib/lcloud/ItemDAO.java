@@ -352,7 +352,6 @@ public class ItemDAO {
         ModsType modsType = (ModsType) ((JAXBElement)(unmarshaller.unmarshal(reader))).getValue();
         return modsType;
     }
-	
     
 	/**
 	 * 
@@ -384,8 +383,7 @@ public class ItemDAO {
 
 	}	
 	
-	
-	
+
 	/**
 	 * 
 	 * Marshals a SearchResult or ModsType object to an XML string. Uses xslt transform 
@@ -394,16 +392,16 @@ public class ItemDAO {
 	 * @param obj a a SearchResult or ModsType object for conversion to json string
 	 * @return      the json String
 	 */
-	protected String writeJsonXslt(Object obj) throws JAXBException
+	protected String transform(String xmlString, String xslFilename) 
 	{
-		StringWriter sw = marshallObject(obj);
+		//StringWriter sw = marshallObject(obj);
 	    String result = null;
 	    try {
-	        StringReader reader = new StringReader(sw.toString());
+	        StringReader reader = new StringReader(xmlString);
 	        StringWriter writer = new StringWriter();
 	        TransformerFactory tFactory = TransformerFactory.newInstance();
 	        Transformer transformer = tFactory.newTransformer(
-	                new javax.xml.transform.stream.StreamSource(this.getClass().getClassLoader().getResourceAsStream(Config.getInstance().JSON_XSLT)));
+	                new javax.xml.transform.stream.StreamSource(this.getClass().getClassLoader().getResourceAsStream(xslFilename)));
 
 	        transformer.transform(
 	                new javax.xml.transform.stream.StreamSource(reader), 
@@ -417,12 +415,12 @@ public class ItemDAO {
 	    return result;
 	}
 	
-	protected StringWriter marshallObject(Object obj) throws JAXBException {
+	protected String marshallObject(Object obj) throws JAXBException {
 	    StringWriter sw = new StringWriter();
 	    String jsonString = null;
 	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
 	    jaxbMarshaller.marshal(obj, sw);	
-	    return sw;
+	    return sw.toString();
 	}
 	
 	

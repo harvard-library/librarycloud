@@ -42,6 +42,7 @@ public class Config {
 	
 	public String SOLR_URL;
 	public String JSON_XSLT;
+	public String DC_XSLT;
     
 	private static Config conf;
 	
@@ -60,6 +61,7 @@ public class Config {
 		
 		SOLR_URL = props.getProperty("solr_url");
 		JSON_XSLT = props.getProperty("json_xslt");
+		DC_XSLT = props.getProperty("dc_xslt");
 	
 	}
 	

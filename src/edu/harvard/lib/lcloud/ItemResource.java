@@ -82,37 +82,77 @@ public class ItemResource {
 		return modsType;
 	}
 
+	//duplicate of above to avoid error if user tries appending .xml (is there a better way?)
+	@GET @Path("items/{id}.xml")
+	@Produces (MediaType.APPLICATION_XML)
+	public ModsType getItemXml(@PathParam("id") String id, @Context HttpServletResponse response) {
+		log.info("getItem called for id: " + id);
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		ModsType modsType = null; 
+		try {
+			modsType = itemdao.getMods(id);
+		} catch (JAXBException je) {
+			System.out.println(je);
+			log.error(je.getMessage());
+		}
+		return modsType;
+	}
+	
 	@GET @Path("items/{id}.json")
 	@Produces ("application/json")
 	public String getJsonItem(@PathParam("id") String id, @Context HttpServletResponse response) {
 		log.info("getJsonItem called for id: " + id);
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		ModsType modsType = null; 
-		String modsString = null;
+		String modsJson = null;
 		try {
 			modsType = itemdao.getMods(id);
-			modsString = itemdao.writeJsonXslt(modsType);
+			//modsString = itemdao.writeJsonXslt(modsType);
+			String modsXml = itemdao.marshallObject(modsType);
+			modsJson = itemdao.transform(modsXml, Config.getInstance().JSON_XSLT); 
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je);
 		}
 
-		return modsString;
+		return modsJson;
 	}
 
 	@GET @Path("items/{id}.dc")
 	@Produces (MediaType.APPLICATION_XML)
-	public ModsType getDublinCoreItem(@PathParam("id") String id) {
+	public String getDublinCoreItem(@PathParam("id") String id) {
 		log.info("getDublinCoreItem called for id: " + id);
 		ModsType modsType = null; 
+		String dcXml = null;
 		try {
 			modsType = itemdao.getMods(id);
+			String modsXml = itemdao.marshallObject(modsType);
+			dcXml = itemdao.transform(modsXml, Config.getInstance().DC_XSLT); 
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je);
 		}
 
-		return modsType;
+		return dcXml;
+	}
+
+	@GET @Path("items/{id}.dc.json")
+	@Produces (MediaType.APPLICATION_JSON)
+	public String getDublinCoreJsonItem(@PathParam("id") String id) {
+		log.info("getDublinCoreItem called for id: " + id);
+		ModsType modsType = null; 
+		String dcJson = null;
+		try {
+			modsType = itemdao.getMods(id);
+			String modsXml = itemdao.marshallObject(modsType);
+			String dcXml = itemdao.transform(modsXml, Config.getInstance().DC_XSLT); 
+			dcJson = itemdao.transform(dcXml, Config.getInstance().JSON_XSLT); 
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je);
+		}
+
+		return dcJson;
 	}
 	
 	@GET @Path("items/{id}.html")
@@ -148,30 +188,17 @@ public class ItemResource {
 		}
 		return results;
 	}
-
-	@GET @Path("items.json")
-	@Produces (MediaType.APPLICATION_JSON)
-	public String getJsonSearchResults(@Context UriInfo ui, @Context HttpServletResponse response) {
-		log.info("getJsonSearchResults made query: " + "TO DO");
+	
+	//duplicate of above to avoid error if user tries appending .xml (is there a better way?)
+	@GET @Path("items.xml")
+	@Produces (MediaType.APPLICATION_XML)
+	public SearchResults getSearchResultsXML(@Context UriInfo ui, @Context HttpServletResponse response) {
+		log.info("getSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 	    response.setHeader("Access-Control-Allow-Origin", "*");
-		String jsonString = null;
-		try {
-			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
-			jsonString = itemdao.writeJsonXslt(results);
-		} catch (JAXBException je) {
-			je.printStackTrace();
-			log.error(je.getMessage());
-		}	
+	    //we don't currently need to use the pathParam
+	    //MultivaluedMap<String, String> pathParams = ui.getPathParameters();
 
-		return jsonString;
-	}
-	
-	@GET @Path("items.dc")
-	@Produces (MediaType.APPLICATION_XML)
-	public SearchResults getDublinCOreSearchResults(@Context UriInfo ui) {
-		log.info("getDublinCoreSearchResults made query: " + "TO DO");
-	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		SearchResults results = null;
 		
 		try {
@@ -183,21 +210,63 @@ public class ItemResource {
 		return results;
 	}
 	
-	@GET @Path("items.dc.json")
+	@GET @Path("items.json")
 	@Produces (MediaType.APPLICATION_JSON)
-	public String getDublinCoreJsonSearchResults(@Context UriInfo ui) {
-		log.info("getDublinCoreJsonSearchResults made query: " + "TO DO");
+	public String getJsonSearchResults(@Context UriInfo ui, @Context HttpServletResponse response) {
+		log.info("getJsonSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
-		SearchResults results = null;
-		String dcString = null;
+	    response.setHeader("Access-Control-Allow-Origin", "*");
+		String resultsJson = null;
 		try {
-			results = itemdao.getResults(queryParams);
-			dcString = itemdao.writeJsonXslt(results);
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
+			String resultsXml = itemdao.marshallObject(results);
+			resultsJson = itemdao.transform(resultsXml, Config.getInstance().JSON_XSLT);
+			//jsonString = itemdao.writeJsonXslt(results);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+		}	
+
+		return resultsJson;
+	}
+	
+	@GET @Path("items.dc")
+	@Produces (MediaType.APPLICATION_XML)
+	public String getDublinCoreSearchResults(@Context UriInfo ui) {
+		log.info("getDublinCoreSearchResults made query: " + "TO DO");
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+		String resultsDC = null;
+		
+		try {
+			SearchResults results = itemdao.getResults(queryParams);	
+			String resultsXml = itemdao.marshallObject(results);
+			resultsDC = itemdao.transform(resultsXml, Config.getInstance().DC_XSLT);
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
 		}
-		return dcString;
+		return resultsDC;
+	}
+
+	@GET @Path("items.dc.json")
+	@Produces (MediaType.APPLICATION_JSON)
+	public String getJsonDCSearchResults(@Context UriInfo ui, @Context HttpServletResponse response) {
+		log.info("getJsonDCSearchResults made query: " + "TO DO");
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    response.setHeader("Access-Control-Allow-Origin", "*");
+		String resultsJson = null;
+		try {
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
+			String resultsXml = itemdao.marshallObject(results);
+			String resultsDC = itemdao.transform(resultsXml, Config.getInstance().DC_XSLT);
+			resultsJson = itemdao.transform(resultsDC, Config.getInstance().JSON_XSLT);
+			//jsonString = itemdao.writeJsonXslt(results);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+		}	
+
+		return resultsJson;
 	}
 	
 	@GET @Path("items.html")

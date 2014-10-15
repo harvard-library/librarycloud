@@ -25,6 +25,7 @@
     </init-param>
   </filter>
 
+<!-- 
   <filter>
     <filter-name>xsltDCFilter</filter-name>
     <filter-class>com.oreilly.javaxslt.util.StylesheetFilter</filter-class>
@@ -42,6 +43,7 @@
     <filter-name>xsltDCFilter</filter-name>
     <url-pattern>*.dc</url-pattern>
   </filter-mapping>
+-->
 
    <filter-mapping>
     <filter-name>xsltHtmlFilter</filter-name>
