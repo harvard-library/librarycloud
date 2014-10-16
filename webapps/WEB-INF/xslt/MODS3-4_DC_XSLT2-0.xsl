@@ -367,6 +367,16 @@
 		</dc:rights>
 	</xsl:template>
 
+	<!-- Harvard addition, to add recordIdentifier as a dc:identifier -->
+	<xsl:template match="mods:recordInfo">
+		<xsl:apply-templates select="mods:recordIdentifier"/>
+	</xsl:template>
+	<xsl:template match="mods:recordIdentifier">
+		<dc:identifier>
+			<xsl:value-of select="."></xsl:value-of>
+		</dc:identifier>
+	</xsl:template>
+
 	<xsl:template name="name">
 		<xsl:variable name="name">
 			<xsl:for-each select="mods:namePart[not(@type)]">
