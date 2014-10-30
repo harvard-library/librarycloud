@@ -176,6 +176,7 @@
 	<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="stackscore_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
     <copyField source="stackscore" dest="stackscore_keyword"/>
+    
 
 	<!-- Keyword searching (normalize text, stem it, etc. here)-->
 	<field name="resourceType_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
