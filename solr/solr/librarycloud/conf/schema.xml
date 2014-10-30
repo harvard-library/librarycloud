@@ -126,7 +126,6 @@
 	<field name="resourceType" type="string" indexed="true" stored="true"/>
   <field name="publisher" type="string" indexed="true" stored="true"  multiValued="true"/>
 	<field name="originDate" type="string" indexed="true" stored="true"/>
-	<field name="edition" type="string" indexed="true" stored="true"/>
 	<field name="physicalDescription" type="string" indexed="true" stored="true"/>
 	<field name="source" type="string" indexed="true" stored="true"/>
 	<field name="recordIdentifier" type="string" indexed="true" stored="true"/>
@@ -136,7 +135,8 @@
 	<field name="stackscore" type="string" indexed="true" stored="true"/>
 
 <!-- Muliple values possible -->
-  <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="edition" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="title" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="abstractTOC" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="languageCode" type="string" indexed="true" stored="true" multiValued="true"/>
