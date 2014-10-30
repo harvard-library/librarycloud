@@ -73,7 +73,7 @@ public class JsonpFilter implements Filter {
   private static final Logger logger = LoggerFactory.getLogger(JsonpFilter.class);
 
   /** The querystring parameter that indicates the response should be padded */
-  public static final String CALLBACK_PARAM = "jsonp";
+  public static final String CALLBACK_PARAM = "callback";
 
   /** The regular expression to ensure that the callback is safe for display to a browser */
   public static final Pattern SAFE_PATTERN = Pattern.compile("[a-zA-Z0-9\\.\\_]+");
