@@ -164,6 +164,9 @@ public class ItemDAO {
 		    		startNo = 0;
 		    	query.setStart(startNo);
 		    }	
+		    else if (key.contains("callback")){
+		    	//do nothing
+		    }
 		    else if (key.equals("limit")) {
 		    	limit = Integer.parseInt(value);
 		    	query.setRows(limit);
