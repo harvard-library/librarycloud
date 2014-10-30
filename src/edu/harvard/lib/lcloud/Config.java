@@ -61,7 +61,7 @@ public class Config {
 		
 		SOLR_URL = props.getProperty("solr_url");
 		JSON_XSLT = props.getProperty("json_xslt");
-		DC_XSLT = props.getProperty("dc_xslt");
+		DC_XSLT = props.getProperty("dc_xsl");
 	
 	}
 	
