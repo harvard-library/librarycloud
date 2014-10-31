@@ -164,9 +164,6 @@ public class ItemDAO {
 		    		startNo = 0;
 		    	query.setStart(startNo);
 		    }	
-		    else if (key.contains("callback")){
-		    	//do nothing
-		    }
 		    else if (key.equals("limit")) {
 		    	limit = Integer.parseInt(value);
 		    	query.setRows(limit);
@@ -188,10 +185,12 @@ public class ItemDAO {
 		    	else {
 		    		if (value.contains(" "))
 			    		value = "( " + value.replaceAll(" ", " AND ") + ")";
+		    		if (value.contains(":"))
+		    			value = "\"" + value + "\"";
 		    		if (key.equals("q"))
 			    		queryList.add("keyword:" + value);
 		    		else
-		    			if (!key.equals("jsonp"))
+		    			if (!key.equals("callback"))
 		    				queryList.add(key + "_keyword:" + value);
 		    	}	
 		    }
