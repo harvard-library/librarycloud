@@ -124,7 +124,7 @@
 	<!-- Only single values allowed -->
 
 	<field name="resourceType" type="string" indexed="true" stored="true"/>
-  <field name="publisher" type="string" indexed="true" stored="true"  multiValued="true"/>
+    <field name="publisher" type="string" indexed="true" stored="true"  multiValued="true"/>
 	<field name="originDate" type="string" indexed="true" stored="true"/>
 	<field name="physicalDescription" type="string" indexed="true" stored="true"/>
 	<field name="source" type="string" indexed="true" stored="true"/>
@@ -176,6 +176,9 @@
 	<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="stackscore_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
     <copyField source="stackscore" dest="stackscore_keyword"/>
+	<field name="collectionTitle" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="collectionTitle_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
+    <copyField source="collectionTitle" dest="collectionTitle_keyword"/>
     
 
 	<!-- Keyword searching (normalize text, stem it, etc. here)-->
