@@ -36,6 +36,8 @@ Run the following commands:
         git clone https://github.com/harvard-library/librarycloud.git
         cd librarycloud
 
+(Or spin up a new AWS server from [here](https://github.com/harvard-library/librarycloud_deploy/tree/master/vagrant-api))
+
 Edit ```~/project.properties``` and set ```solr_home=/usr/local/solr```
 
         sudo ant deploysolr
