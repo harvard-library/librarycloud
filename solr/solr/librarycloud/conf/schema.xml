@@ -132,6 +132,7 @@
 	<field name="originalMods" type="string" indexed="false" stored="true"/>
 	<field name="isCollection" type="string" indexed="true" stored="true"/>
 	<field name="isManuscript" type="string" indexed="true" stored="true"/>
+	<field name="isOnline" type="string" indexed="true" stored="true"/>
 	<field name="stackscore" type="string" indexed="true" stored="true"/>
 
 <!-- Muliple values possible -->
@@ -152,6 +153,7 @@
 	<field name="physicalLocation" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="shelfLocator" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="url" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="urn" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="issuance" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="relatedItem" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -203,6 +205,8 @@
 <copyField source="isCollection" dest="isCollection_keyword"/>
 	<field name="isManuscript_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
 	<copyField source="isManuscript" dest="isManuscript_keyword"/>
+	<field name="isOnline_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
+	<copyField source="isOnline" dest="isOnline_keyword"/>
 	<field name="title_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
 	<copyField source="title" dest="title_keyword"/>
 	<field name="abstractTOC_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
@@ -233,6 +237,8 @@
 	<copyField source="shelfLocator" dest="shelfLocator_keyword"/>
 	<field name="url_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
 	<copyField source="url" dest="url_keyword"/>
+	<field name="urn_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
+	<copyField source="urn" dest="urn_keyword"/>
 	<field name="issuance_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
 <copyField source="issuance" dest="issuance_keyword"/>
 	<field name="relatedItem_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
