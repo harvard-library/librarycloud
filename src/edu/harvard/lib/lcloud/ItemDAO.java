@@ -155,57 +155,59 @@ public class ItemDAO {
 
 	    if (queryParams.size() > 0) {
 	    
-	    for (String key : queryParams.keySet()) {
-    		String value = queryParams.getFirst(key);
-	    	System.out.println(key + " : " + queryParams.getFirst(key) +"\n");
-		    if (key.equals("start")) {
-		    	int startNo = Integer.parseInt(value);
-		    	if (startNo < 0)
-		    		startNo = 0;
-		    	query.setStart(startNo);
-		    }	
-		    else if (key.equals("limit")) {
-		    	limit = Integer.parseInt(value);
-		    	query.setRows(limit);
-		    }	
-		    else if (key.equals("sort.asc") || key.equals("sort"))
-		    	query.setSort(value, ORDER.asc);
-		    else if (key.equals("sort.desc"))
-		    	query.setSort(value, ORDER.desc);
-		    else if (key.startsWith("facet")){
-		    	query.setFacet(true);
-		    	String[] facetArray = value.split(",");
-		    	for(String f: facetArray){
-		    		query.addFacetField(f);
-		    	}
+		    for (String key : queryParams.keySet()) {
+	    		String value = queryParams.getFirst(key);
+		    	System.out.println(key + " : " + queryParams.getFirst(key) +"\n");
+			    if (key.equals("start")) {
+			    	int startNo = Integer.parseInt(value);
+			    	if (startNo < 0)
+			    		startNo = 0;
+			    	query.setStart(startNo);
+			    }	
+			    else if (key.equals("limit")) {
+			    	limit = Integer.parseInt(value);
+			    	query.setRows(limit);
+			    }	
+			    else if (key.equals("sort.asc") || key.equals("sort"))
+			    	query.setSort(value, ORDER.asc);
+			    else if (key.equals("sort.desc"))
+			    	query.setSort(value, ORDER.desc);
+			    else if (key.startsWith("facet")){
+			    	query.setFacet(true);
+			    	String[] facetArray = value.split(",");
+			    	for(String f: facetArray){
+			    		query.addFacetField(f);
+			    	}
+			    }
+			    else {
+			    	if (key.endsWith("_exact"))
+			    		queryList.add(key.replace("_exact", "") + ":\"" + value + "\"");
+			    	else {
+			    		if (value.contains(" "))
+				    		value = "( " + value.replaceAll(" ", " AND ") + ")";
+			    		if (value.contains(":"))
+			    			value = "\"" + value + "\"";
+			    		if (key.equals("q"))
+				    		queryList.add("keyword:" + value);
+			    		else
+			    			if (!key.equals("callback"))
+			    				queryList.add(key + "_keyword:" + value);
+			    	}	
+			    }
 		    }
-		    else {
-		    	if (key.endsWith("_exact"))
-		    		queryList.add(key.replace("_exact", "") + ":\"" + value + "\"");
-		    	else {
-		    		if (value.contains(" "))
-			    		value = "( " + value.replaceAll(" ", " AND ") + ")";
-		    		if (value.contains(":"))
-		    			value = "\"" + value + "\"";
-		    		if (key.equals("q"))
-			    		queryList.add("keyword:" + value);
-		    		else
-		    			if (!key.equals("callback"))
-		    				queryList.add(key + "_keyword:" + value);
-		    	}	
+
+		    Iterator<String> it = queryList.iterator();
+	
+		    while(it.hasNext()) {
+		    	String qTerm = (String)it.next();
+		    	System.out.print("QT: " + qTerm + "\n");
+		    	queryStr += qTerm;
+		    	System.out.print("QS: " + queryStr + "\n");
+		    	if (it.hasNext())
+		    		queryStr += " AND ";
 		    }
-	    }
-
-	    Iterator<String> it = queryList.iterator();
-
-	    while(it.hasNext()) {
-	    	String qTerm = (String)it.next();
-	    	System.out.print("QT: " + qTerm + "\n");
-	    	queryStr += qTerm;
-	    	System.out.print("QS: " + queryStr + "\n");
-	    	if (it.hasNext())
-	    		queryStr += " AND ";
-	    }
+		    if (queryList.size() == 0)
+		    	queryStr = "*:*";
 	    }
 	    else {
 	    	queryStr = "*:*";

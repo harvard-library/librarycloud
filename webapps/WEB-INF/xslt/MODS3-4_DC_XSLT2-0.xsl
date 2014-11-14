@@ -373,7 +373,7 @@
 	</xsl:template>
 	<xsl:template match="mods:recordIdentifier">
 		<dc:identifier>
-			<xsl:value-of select="."></xsl:value-of>
+			<xsl:text>librarycloud: </xsl:text><xsl:value-of select="."></xsl:value-of>
 		</dc:identifier>
 	</xsl:template>
 
