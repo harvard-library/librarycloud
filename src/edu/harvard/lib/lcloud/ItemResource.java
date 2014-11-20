@@ -218,7 +218,7 @@ public class ItemResource {
 	    response.setHeader("Access-Control-Allow-Origin", "*");
 		String resultsJson = null;
 		try {
-			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);
 			String resultsXml = itemdao.marshallObject(results);
 			resultsJson = itemdao.transform(resultsXml, Config.getInstance().JSON_XSLT);
 			//jsonString = itemdao.writeJsonXslt(results);

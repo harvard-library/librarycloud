@@ -183,12 +183,18 @@ public class ItemDAO {
 			    	if (key.endsWith("_exact"))
 			    		queryList.add(key.replace("_exact", "") + ":\"" + value + "\"");
 			    	else {
+			    		value = value.trim();
+			    		if (value.contains(" OR "))
+			    			value = "(" + value.replaceAll(" OR ", "+OR+") + ")";
 			    		if (value.contains(" "))
 				    		value = "( " + value.replaceAll(" ", " AND ") + ")";
 			    		if (value.contains(":"))
 			    			value = "\"" + value + "\"";
-			    		if (key.equals("q"))
-				    		queryList.add("keyword:" + value);
+			    		if (key.equals("q")) {
+			    			if (!value.equals("*")) {
+			    				queryList.add("keyword:" + value);
+			    			}	
+			    		}	
 			    		else
 			    			if (!key.equals("callback"))
 			    				queryList.add(key + "_keyword:" + value);
@@ -378,7 +384,7 @@ public class ItemDAO {
     		String xml = sw.toString();
             JSONObject xmlJSONObj = XML.toJSONObject(xml);
             jsonString = xmlJSONObj.toString(5);
-            //System.out.println(jsonString);
+            ;System.out.println(jsonString);
         } catch (JSONException je) {
         	log.error(je.getMessage());
         	je.printStackTrace();
