@@ -365,26 +365,19 @@ public class ItemDAO {
     
 	/**
 	 * 
-	 * Marshals a SearchResult or ModsType object to an XML string. This string
-	 * is converted to json using the org.json package. Order of the json array is
-	 * not guaranteed (as per spec); TO DO (201405007) - investigate means for
-	 * preserving XML order (json schema?)
+	 * Converts an xml string to json using the org.json package. 
+	 * Order of the json array is not guaranteed (as per spec); TO DO (201405007) 
+	 * Investigate means for preserving XML order (json schema?)
 	 * 
-	 * @param obj a a SearchResult or ModsType object for conversion to json string
+	 * @param xml	an xml string
 	 * @return      the json String
 	 */
-	protected String writeJson(Object obj) throws JAXBException
-	{
-	    StringWriter sw = new StringWriter();
-	    String jsonString = null;
-	    Marshaller jaxbMarshaller = JAXBHelper.context.createMarshaller();
-	    jaxbMarshaller.marshal(obj, sw);
-
+	protected String writeJson(String xml) throws JAXBException {
+		String jsonString = null;
     	try {
-    		String xml = sw.toString();
             JSONObject xmlJSONObj = XML.toJSONObject(xml);
             jsonString = xmlJSONObj.toString(5);
-            ;System.out.println(jsonString);
+            System.out.println(jsonString);
         } catch (JSONException je) {
         	log.error(je.getMessage());
         	je.printStackTrace();
@@ -392,6 +385,8 @@ public class ItemDAO {
 	    return jsonString;
 
 	}	
+	
+	
 	
 
 	/**

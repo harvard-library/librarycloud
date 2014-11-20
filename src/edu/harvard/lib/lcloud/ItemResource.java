@@ -107,9 +107,9 @@ public class ItemResource {
 		String modsJson = null;
 		try {
 			modsType = itemdao.getMods(id);
-			//modsString = itemdao.writeJsonXslt(modsType);
 			String modsXml = itemdao.marshallObject(modsType);
-			modsJson = itemdao.transform(modsXml, Config.getInstance().JSON_XSLT); 
+			modsJson = itemdao.writeJson(modsXml);
+			//modsJson = itemdao.transform(modsXml, Config.getInstance().JSON_XSLT);
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je);
@@ -146,7 +146,8 @@ public class ItemResource {
 			modsType = itemdao.getMods(id);
 			String modsXml = itemdao.marshallObject(modsType);
 			String dcXml = itemdao.transform(modsXml, Config.getInstance().DC_XSLT); 
-			dcJson = itemdao.transform(dcXml, Config.getInstance().JSON_XSLT); 
+			//dcJson = itemdao.transform(dcXml, Config.getInstance().JSON_XSLT); 
+			dcJson = itemdao.writeJson(dcXml);
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je);
@@ -218,10 +219,10 @@ public class ItemResource {
 	    response.setHeader("Access-Control-Allow-Origin", "*");
 		String resultsJson = null;
 		try {
-			SearchResultsSlim results = itemdao.getSlimResults(queryParams);
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
 			String resultsXml = itemdao.marshallObject(results);
-			resultsJson = itemdao.transform(resultsXml, Config.getInstance().JSON_XSLT);
-			//jsonString = itemdao.writeJsonXslt(results);
+			//resultsJson = itemdao.transform(resultsXml, Config.getInstance().JSON_XSLT);
+			resultsJson = itemdao.writeJson(resultsXml);
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
@@ -259,8 +260,8 @@ public class ItemResource {
 			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
 			String resultsXml = itemdao.marshallObject(results);
 			String resultsDC = itemdao.transform(resultsXml, Config.getInstance().DC_XSLT);
-			resultsJson = itemdao.transform(resultsDC, Config.getInstance().JSON_XSLT);
-			//jsonString = itemdao.writeJsonXslt(results);
+			//resultsJson = itemdao.transform(resultsDC, Config.getInstance().JSON_XSLT);
+			resultsJson = itemdao.writeJson(resultsDC);
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
