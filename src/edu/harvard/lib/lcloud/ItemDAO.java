@@ -166,6 +166,8 @@ public class ItemDAO {
 			    }	
 			    else if (key.equals("limit")) {
 			    	limit = Integer.parseInt(value);
+			    	if (limit > 250)
+			    		limit = 250;
 			    	query.setRows(limit);
 			    }	
 			    else if (key.equals("sort.asc") || key.equals("sort"))
