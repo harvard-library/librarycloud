@@ -118,6 +118,26 @@ public class ItemResource {
 		return modsJson;
 	}
 
+	@GET @Path("items/{id}")
+	@Produces ("application/json")
+	public String getJsonItemByHeader(@PathParam("id") String id, @Context HttpServletResponse response) {
+		log.info("getJsonItem called for id: " + id);
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		ModsType modsType = null; 
+		String modsJson = null;
+		try {
+			modsType = itemdao.getMods(id);
+			//modsString = itemdao.writeJsonXslt(modsType);
+			String modsXml = itemdao.marshallObject(modsType);
+			modsJson = itemdao.transform(modsXml, Config.getInstance().JSON_XSLT); 
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je);
+		}
+
+		return modsJson;
+	}
+	
 	@GET @Path("items/{id}.dc")
 	@Produces (MediaType.APPLICATION_XML)
 	public String getDublinCoreItem(@PathParam("id") String id) {
@@ -139,6 +159,25 @@ public class ItemResource {
 	@GET @Path("items/{id}.dc.json")
 	@Produces (MediaType.APPLICATION_JSON)
 	public String getDublinCoreJsonItem(@PathParam("id") String id) {
+		log.info("getDublinCoreItem called for id: " + id);
+		ModsType modsType = null; 
+		String dcJson = null;
+		try {
+			modsType = itemdao.getMods(id);
+			String modsXml = itemdao.marshallObject(modsType);
+			String dcXml = itemdao.transform(modsXml, Config.getInstance().DC_XSLT); 
+			dcJson = itemdao.transform(dcXml, Config.getInstance().JSON_XSLT); 
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je);
+		}
+
+		return dcJson;
+	}
+
+	@GET @Path("items/{id}.dc")
+	@Produces (MediaType.APPLICATION_JSON)
+	public String getDublinCoreJsonItemByHeader(@PathParam("id") String id) {
 		log.info("getDublinCoreItem called for id: " + id);
 		ModsType modsType = null; 
 		String dcJson = null;
@@ -229,6 +268,26 @@ public class ItemResource {
 
 		return resultsJson;
 	}
+
+	@GET @Path("items")
+	@Produces (MediaType.APPLICATION_JSON)
+	public String getJsonSearchResultsByHeader(@Context UriInfo ui, @Context HttpServletResponse response) {
+		log.info("getJsonSearchResults made query: " + "TO DO");
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    response.setHeader("Access-Control-Allow-Origin", "*");
+		String resultsJson = null;
+		try {
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);
+			String resultsXml = itemdao.marshallObject(results);
+			resultsJson = itemdao.transform(resultsXml, Config.getInstance().JSON_XSLT);
+			//jsonString = itemdao.writeJsonXslt(results);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+		}	
+
+		return resultsJson;
+	}
 	
 	@GET @Path("items.dc")
 	@Produces (MediaType.APPLICATION_XML)
@@ -251,6 +310,27 @@ public class ItemResource {
 	@GET @Path("items.dc.json")
 	@Produces (MediaType.APPLICATION_JSON)
 	public String getJsonDCSearchResults(@Context UriInfo ui, @Context HttpServletResponse response) {
+		log.info("getJsonDCSearchResults made query: " + "TO DO");
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    response.setHeader("Access-Control-Allow-Origin", "*");
+		String resultsJson = null;
+		try {
+			SearchResultsSlim results = itemdao.getSlimResults(queryParams);	
+			String resultsXml = itemdao.marshallObject(results);
+			String resultsDC = itemdao.transform(resultsXml, Config.getInstance().DC_XSLT);
+			resultsJson = itemdao.transform(resultsDC, Config.getInstance().JSON_XSLT);
+			//jsonString = itemdao.writeJsonXslt(results);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+		}	
+
+		return resultsJson;
+	}
+
+	@GET @Path("items.dc")
+	@Produces (MediaType.APPLICATION_JSON)
+	public String getJsonDCSearchResultsByHeader(@Context UriInfo ui, @Context HttpServletResponse response) {
 		log.info("getJsonDCSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 	    response.setHeader("Access-Control-Allow-Origin", "*");
