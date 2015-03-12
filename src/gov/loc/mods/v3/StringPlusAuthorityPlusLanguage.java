@@ -44,6 +44,8 @@ public class StringPlusAuthorityPlusLanguage
     @XmlAttribute
     protected String script;
     @XmlAttribute
+    protected String altRepGroup;
+    @XmlAttribute
     protected String transliteration;
 
     /**

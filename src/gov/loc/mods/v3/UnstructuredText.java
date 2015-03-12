@@ -46,6 +46,8 @@ public class UnstructuredText
     @XmlAttribute
     protected String script;
     @XmlAttribute
+    protected String altRepGroup;    
+    @XmlAttribute
     protected String transliteration;
     @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
     protected String type;

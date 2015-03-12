@@ -58,6 +58,8 @@ public class IdentifierType {
     @XmlAttribute
     protected String script;
     @XmlAttribute
+    protected String altRepGroup;
+    @XmlAttribute
     protected String transliteration;
 
     /**
