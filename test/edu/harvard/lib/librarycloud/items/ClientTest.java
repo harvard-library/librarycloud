@@ -1,4 +1,4 @@
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

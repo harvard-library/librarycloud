@@ -7,7 +7,7 @@ see implementation details http://jersey.java.net/nonav/documentation/latest/jax
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>edu.harvard.lib.lcloud</param-value>
+            <param-value>edu.harvard.lib.librarycloud.items</param-value>
         </init-param>
         <init-param>
             <param-name>jersey.config.server.mediaTypeMappings</param-name>
