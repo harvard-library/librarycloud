@@ -25,38 +25,36 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.lib.lcloud;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+package edu.harvard.lib.librarycloud.items;
 
-import java.util.List;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import org.dublincore.Metadata;
+
+import gov.loc.mods.v3.ModsType;
 
 /**
 *
-* Facet is the java object representation of solr facet_counts list; it contains a list of
-* one or more FacetType objects
+* JAXBHelper is a singleton class that is used for jaxb marshalling and unmarshalling of 
+* mods and search results (other classes could be added if needed)
+* using a singleton provides vastly quicker marshalling/unmarshalling
 * 
 * @author Michael Vandermillen
 *
 */
+public class JAXBHelper {
+	
+    static final JAXBContext context = initContext();
 
-@XmlRootElement()
-public class Facet {
+    private static JAXBContext initContext()  {
+    	JAXBContext context = null;
+    	try {
+    		context = JAXBContext.newInstance(ModsType.class,Metadata.class,SearchResultsMods.class,SearchResultsDC.class);
+    	} catch (JAXBException je) {
+    		System.out.println(je);
+    	}
+    	return context;
+    }
 	
-	private List<FacetType> facetTypes;
-	
-	public Facet() {
-	
-	}
-
-    @XmlElement(name="facetField")  
-    public List<FacetType> getFacetTypes() {  
-        return facetTypes;  
-    }  
-  
-    public void setFacetTypes( List<FacetType> facetTypes) {  
-        this.facetTypes = facetTypes;  
-    }     
-    
 }

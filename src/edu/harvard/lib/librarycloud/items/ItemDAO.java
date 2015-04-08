@@ -25,7 +25,7 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
 import gov.loc.mods.v3.ModsType;
 
@@ -323,7 +323,6 @@ public class ItemDAO {
 				modsType = (new ItemDAO()).getModsType(doc);
 				String modsXml = marshallObject(modsType);
 				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
-				System.out.println(dcXml);
 				metadata = getDublinCore(dcXml);
 			} catch (JAXBException je) {
 				log.error(je.getMessage());

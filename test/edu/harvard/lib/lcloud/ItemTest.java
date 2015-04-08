@@ -1,6 +1,8 @@
 package edu.harvard.lib.lcloud;
 
 import static org.junit.Assert.*;
+import edu.harvard.lib.librarycloud.items.JAXBHelper;
+import edu.harvard.lib.librarycloud.items.ResourceNotFoundException;
 import gov.loc.mods.v3.ModsType;
 import gov.loc.mods.v3.IdentifierType;
 import gov.loc.mods.v3.RecordInfoType;

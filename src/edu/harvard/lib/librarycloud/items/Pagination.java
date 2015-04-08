@@ -25,36 +25,60 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
+package edu.harvard.lib.librarycloud.items;
 
-package edu.harvard.lib.lcloud;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import org.dublincore.Metadata;
 
-import gov.loc.mods.v3.ModsType;
 
+import java.util.ArrayList;
+import java.util.List;
 /**
 *
-* JAXBHelper is a singleton class that is used for jaxb marshalling and unmarshalling of 
-* mods and search results (other classes could be added if needed)
-* using a singleton provides vastly quicker marshalling/unmarshalling
-* 
+* Pagination is the java object representation of solr result/@numFound result/@start, 
+* and list[name="params]/str[name="rows"]
+*
 * @author Michael Vandermillen
 *
 */
-public class JAXBHelper {
-	
-    static final JAXBContext context = initContext();
 
-    private static JAXBContext initContext()  {
-    	JAXBContext context = null;
-    	try {
-    		context = JAXBContext.newInstance(ModsType.class,Metadata.class,SearchResultsMods.class,SearchResultsDC.class);
-    	} catch (JAXBException je) {
-    		System.out.println(je);
-    	}
-    	return context;
-    }
+@XmlRootElement()
+public class Pagination {
+
+	private long numFound;
+	private long start;
+	private long rows;
+
+	public Pagination () {
+		
+	}
 	
+	@XmlElement
+	public long getNumFound() {
+		return numFound;
+	}
+
+	@XmlElement
+	public long getStart() {
+		return start;
+	}
+	
+	@XmlElement(name = "limit")
+	public long getRows() {
+		return rows;
+	}
+	
+	public void setNumFound(long numFound){
+		this.numFound = numFound;
+	}
+	
+	public void setStart(long start){
+		this.start = start;
+	}	
+	
+	public void setRows(long rows){
+		this.rows = rows;
+	}
 }

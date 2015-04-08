@@ -27,6 +27,10 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
+import edu.harvard.lib.librarycloud.items.Item;
+import edu.harvard.lib.librarycloud.items.ItemDAO;
+import edu.harvard.lib.librarycloud.items.Pagination;
+import edu.harvard.lib.librarycloud.items.SolrServer;
 import gov.loc.mods.v3.ModsType;
 
 @Path ("/v2")

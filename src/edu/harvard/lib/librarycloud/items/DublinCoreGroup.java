@@ -1,4 +1,4 @@
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
 import org.dublincore.Metadata;
 import java.util.List;

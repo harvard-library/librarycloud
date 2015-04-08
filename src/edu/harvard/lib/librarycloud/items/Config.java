@@ -25,25 +25,53 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import java.util.Properties;
+
+import javax.servlet.ServletContext;
+
 /**
 *
-*
-* SolrServer is a singleton class for retrieving the solr connection
+* Config is the standard LTS class for accessing properties from a properties file,
+* 
 *
 */
-public class SolrServer {
-	private static HttpSolrServer server = null;
+
+public class Config {
 	
-	protected static HttpSolrServer getSolrConnection() {
+	public String SOLR_URL;
+	public String JSON_XSLT;
+	public String DC_XSLT;
+    
+	private static Config conf;
+	
+	public static String propFile = "application.properties";
+	
+	private Config() {
+		
+		
+		Properties props = new Properties();
+		
 		try {
-			server = new HttpSolrServer(Config.getInstance().SOLR_URL);
+			props.load(this.getClass().getClassLoader().getResourceAsStream(Config.propFile));
 		} catch (Exception e) {
-			// TO DO - error handling
-			System.out.println( e);
-		}
-		return server;
+			throw new RuntimeException("Couldn't load project configuration!", e);
+		} 
+		
+		SOLR_URL = props.getProperty("solr_url");
+		JSON_XSLT = props.getProperty("json_xslt");
+		DC_XSLT = props.getProperty("dc_xslt");
+	
 	}
+	
+	public static synchronized Config getInstance() {
+		if (conf == null)
+			conf = new Config();
+		
+		return conf;
+	}	
+	
+	
 }
+

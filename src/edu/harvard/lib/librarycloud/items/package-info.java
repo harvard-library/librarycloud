@@ -17,4 +17,4 @@
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://api.lib.harvard.edu/v2/item", prefix = "")  
     },  
     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) 
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;

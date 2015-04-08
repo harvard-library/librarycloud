@@ -24,6 +24,7 @@ import javax.xml.bind.Unmarshaller;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.harvard.lib.librarycloud.items.JAXBHelper;
 import gov.loc.mods.v3.ModsType;
 
 /** *

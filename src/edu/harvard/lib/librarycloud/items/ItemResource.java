@@ -25,7 +25,7 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
 
 import java.util.List;

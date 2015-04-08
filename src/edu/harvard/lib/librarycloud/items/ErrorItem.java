@@ -1,4 +1,4 @@
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;

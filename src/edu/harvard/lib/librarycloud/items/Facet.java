@@ -25,60 +25,38 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-
-
-import java.util.ArrayList;
 import java.util.List;
+
 /**
 *
-* Pagination is the java object representation of solr result/@numFound result/@start, 
-* and list[name="params]/str[name="rows"]
-*
+* Facet is the java object representation of solr facet_counts list; it contains a list of
+* one or more FacetType objects
+* 
 * @author Michael Vandermillen
 *
 */
 
 @XmlRootElement()
-public class Pagination {
-
-	private long numFound;
-	private long start;
-	private long rows;
-
-	public Pagination () {
-		
-	}
+public class Facet {
 	
-	@XmlElement
-	public long getNumFound() {
-		return numFound;
+	private List<FacetType> facetTypes;
+	
+	public Facet() {
+	
 	}
 
-	@XmlElement
-	public long getStart() {
-		return start;
-	}
-	
-	@XmlElement(name = "limit")
-	public long getRows() {
-		return rows;
-	}
-	
-	public void setNumFound(long numFound){
-		this.numFound = numFound;
-	}
-	
-	public void setStart(long start){
-		this.start = start;
-	}	
-	
-	public void setRows(long rows){
-		this.rows = rows;
-	}
+    @XmlElement(name="facetField")  
+    public List<FacetType> getFacetTypes() {  
+        return facetTypes;  
+    }  
+  
+    public void setFacetTypes( List<FacetType> facetTypes) {  
+        this.facetTypes = facetTypes;  
+    }     
+    
 }

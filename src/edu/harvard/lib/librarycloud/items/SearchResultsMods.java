@@ -25,9 +25,9 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.lib.lcloud;
+package edu.harvard.lib.librarycloud.items;
 
-import org.dublincore.Metadata;
+import gov.loc.mods.v3.ModsType;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -51,17 +51,15 @@ import java.util.List;
 
 @XmlRootElement(name="results")
 @XmlType(propOrder={"pagination", "itemGroup","facet"})
-public class SearchResultsDC {
+public class SearchResultsMods {
 	
-	public SearchResultsDC () {
+	public SearchResultsMods () {
 		
 	}
 	
 	private Pagination pagination;
 
-	//private List<ModsType> modsTypes;
-	//private List<Metadata> metadataList;
-	private DublinCoreGroup itemGroup;
+	private ModsGroup itemGroup;
 	private Facet facet;
 	
 	@XmlElement(name = "pagination")
@@ -73,23 +71,12 @@ public class SearchResultsDC {
 		this.pagination = pagination;
 	}
 	
-	/*
-	@XmlElement()
-	public List<Metadata> getItems() {
-		return metadataList;
-	}
-	
-	public void setItems(List<Metadata> metadata) {
-		this.metadataList = metadataList;
-	}
-	*/
-
 	@XmlElement(name = "items")
-	public DublinCoreGroup getItemGroup() {
+	public ModsGroup getItemGroup() {
 		return itemGroup;
 	}
 	
-	public void setitemGroup(DublinCoreGroup itemGroup) {
+	public void setItemGroup(ModsGroup itemGroup) {
 		this.itemGroup = itemGroup;
 	}
 	
