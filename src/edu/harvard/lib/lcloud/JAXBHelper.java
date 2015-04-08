@@ -30,6 +30,7 @@ package edu.harvard.lib.lcloud;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import org.dublincore.Metadata;
 
 import gov.loc.mods.v3.ModsType;
 
@@ -49,7 +50,7 @@ public class JAXBHelper {
     private static JAXBContext initContext()  {
     	JAXBContext context = null;
     	try {
-    		context = JAXBContext.newInstance(ModsType.class,SearchResults.class,SearchResultsSlim.class);
+    		context = JAXBContext.newInstance(ModsType.class,Metadata.class,SearchResultsMods.class,SearchResultsDC.class);
     	} catch (JAXBException je) {
     		System.out.println(je);
     	}

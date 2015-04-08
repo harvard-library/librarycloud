@@ -7,6 +7,8 @@
 	xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+	<xsl:output omit-xml-declaration="yes"/>
+
 <!-- 
 	
 	Version 2.0		2012/08/12 WS 
@@ -72,9 +74,9 @@
 	</xsl:template>
 	
 	<xsl:template match="mods:mods">
-			<item >
-				<xsl:apply-templates/>
-			</item>
+		<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<xsl:apply-templates/>
+		</oai_dc:dc>
 	</xsl:template>
 	
 	<xsl:template match="mods:titleInfo">
