@@ -15,7 +15,6 @@ public class ResourceNotFoundException extends WebApplicationException {
 
     public ResourceNotFoundException(String message) {
         super(Response.status(Response.Status.NOT_FOUND).
-        		entity(new ErrorItem(Response.Status.NOT_FOUND.getStatusCode(), message, "https://wiki.harvard.edu/confluence/display/LibraryStaffDoc/Library+Cloud")).
-        		type(MediaType.APPLICATION_XML).build());
+        		entity(new ErrorItem(Response.Status.NOT_FOUND.getStatusCode(), message, "https://wiki.harvard.edu/confluence/display/LibraryStaffDoc/Library+Cloud")).build());
     }
 }

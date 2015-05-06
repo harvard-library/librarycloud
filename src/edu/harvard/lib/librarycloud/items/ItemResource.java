@@ -40,6 +40,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
@@ -76,6 +77,7 @@ public class ItemResource {
 		} catch (JAXBException je) {
 			System.out.println(je);
 			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		return modsType;
 	}
@@ -86,18 +88,15 @@ public class ItemResource {
 	@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
 	public Metadata getDublinCoreItem(@PathParam("id") String id) {
 		log.info("getDublinCoreItem called for id: " + id);
-		ModsType modsType = null;
-		String dcXml = null;
+		//ModsType modsType = null;
 		Metadata metadata = null;
 		try {
-			modsType = itemdao.getMods(id);
-			String modsXml = itemdao.marshallObject(modsType);
-			dcXml = itemdao.transform(modsXml, Config.getInstance().DC_XSLT); 
-			metadata = itemdao.getDublinCore(dcXml);
+			metadata = itemdao.getDublinCore(id);
 
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je);
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		return metadata;
@@ -120,6 +119,7 @@ public class ItemResource {
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		return results;
 	}
@@ -137,6 +137,7 @@ public class ItemResource {
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		} 
 		catch(Exception e) {
 			e.printStackTrace();

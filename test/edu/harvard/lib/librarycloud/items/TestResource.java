@@ -31,16 +31,17 @@ import edu.harvard.lib.librarycloud.items.Item;
 import edu.harvard.lib.librarycloud.items.ItemDAO;
 import edu.harvard.lib.librarycloud.items.Pagination;
 import edu.harvard.lib.librarycloud.items.SolrServer;
+import edu.harvard.lib.librarycloud.items.SearchResultsMods;
 import gov.loc.mods.v3.ModsType;
 
 @Path ("/v2")
 public class TestResource {
 	
 	@GET @Path("test")
-	public SearchResults get(@Context UriInfo ui) {
+	public SearchResultsMods get(@Context UriInfo ui) {
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 	    MultivaluedMap<String, String> pathParams = ui.getPathParameters();
-		SearchResults results = new SearchResults();
+		SearchResultsMods results = new SearchResultsMods();
 		List<Item> items = new ArrayList<Item>();
 		SolrDocumentList docs = null;		
 	    HttpSolrServer server = null;
@@ -106,7 +107,7 @@ public class TestResource {
         	Item item = new Item();
         	ModsType modsType = null;
         	try {
-    	    modsType = (new ItemDAO()).getModsType(doc);
+    	    modsType = (new ItemDAO()).unmarshallModsType(doc);
 			} catch (JAXBException je) {
 				//TO DO - intelligent error handling
 				System.out.println(je);

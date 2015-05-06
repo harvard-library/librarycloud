@@ -14,7 +14,6 @@ public class BadParameterException extends WebApplicationException {
 
     public BadParameterException(String message) {
         super(Response.status(Response.Status.BAD_REQUEST).
-        		entity(new ErrorItem(Response.Status.BAD_REQUEST.getStatusCode(), message, "https://wiki.harvard.edu/confluence/display/LibraryStaffDoc/Library+Cloud")).
-        		type(MediaType.APPLICATION_XML).build());
+        		entity(new ErrorItem(Response.Status.BAD_REQUEST.getStatusCode(), message, "https://wiki.harvard.edu/confluence/display/LibraryStaffDoc/Library+Cloud")).build());
     }
 }

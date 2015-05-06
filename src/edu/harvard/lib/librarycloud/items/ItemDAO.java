@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -88,19 +89,37 @@ public class ItemDAO {
 			QueryResponse response = server.query(query);
 			docs = response.getResults();
 			if (docs.size() == 0)
-				throw new ResourceNotFoundException("Item " + id + " not found");
+				throw new LibraryCloudException("Item " + id + " not found", Response.Status.NOT_FOUND);
+			else if (docs.size() > 1)
+				throw new LibraryCloudException("Internal Server Error", Response.Status.INTERNAL_SERVER_ERROR); 
 			else {
 				doc = docs.get(0);
-				modsType = getModsType(doc);
+				modsType = unmarshallModsType(doc);
 			}
 		} catch (SolrServerException se) {
 			se.printStackTrace();
 			log.error(se.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + se.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		return modsType;
 	}
 
-
+	/**
+	 * Returns a Metadata (DublinCore) record for a given recordIdentifier.
+	 * 
+	 * @param id a recordIdentifier for a solr document
+	 * @return the Metadata (DublinCore record) for this recordidentifier
+	 * @see Metadata
+	 */
+	public Metadata getDublinCore(String id) throws JAXBException {
+		ModsType modsType = getMods(id);
+		String modsXml = marshallObject(modsType);
+		String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
+		Metadata metadata = unmarshallDublinCore(dcXml);
+		return metadata;
+	}
+	
+	
 	/**
 	 * Returns search results for a given query, in mods format.
 	 * 
@@ -111,13 +130,15 @@ public class ItemDAO {
 	public SearchResultsMods getModsResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SolrDocumentList docs = doQuery(queryParams);
-		// here is where we would throw an exception for results of 0
-		// but we want to pass back a 200 with 0 results found
-		// if (docs.getNumFound() == 0)
-		SearchResultsMods results = buildModsResults(docs);
+		SearchResultsMods results = new SearchResultsMods();
+		Pagination pagination = getPagination(docs);
+		ModsGroup modsGroup = getModsGroup(docs);
+		results.setItemGroup(modsGroup);
+		results.setPagination(pagination);
+		if (facet != null)
+			results.setFacet(facet);
 		return results;
 	}
-
 	
 	/**
 	 * Returns search results for a given query, in dublin core
@@ -128,15 +149,139 @@ public class ItemDAO {
 	 * @see SearchResultsDC
 	 */
 	public SearchResultsDC getDCResults(
-		MultivaluedMap<String, String> queryParams) throws JAXBException {
+			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SolrDocumentList docs = doQuery(queryParams);
-		// here is where we would throw an exception for results of 0
-		// but we want to pass back a 200 with 0 results found
-		// if (docs.getNumFound() == 0)
-		SearchResultsDC results = buildDCResults(docs);
+		SearchResultsDC results = new SearchResultsDC();
+		Pagination pagination = getPagination(docs);
+		DublinCoreGroup dcGroup = getDublinCoreGroup(docs);
+		results.setitemGroup(dcGroup);
+		results.setPagination(pagination);
+		if (facet != null)
+			results.setFacet(facet);
 		return results;
 	}
 	
+	private Pagination getPagination(SolrDocumentList docs) {
+		Pagination pagination = new Pagination();
+		pagination.setNumFound(docs.getNumFound());
+		pagination.setStart(docs.getStart());
+		pagination.setRows(limit);		
+		return pagination;
+	}
+
+	private ModsGroup getModsGroup(SolrDocumentList docs) {
+		ModsGroup modsGroup = new ModsGroup();
+		List<ModsType> modsList = new ArrayList<ModsType>();
+		for (final SolrDocument doc : docs) {
+			ModsType modsType = null;
+			try {
+				modsType = unmarshallModsType(doc);
+			} catch (JAXBException je) {
+				log.error(je.getMessage());
+				je.printStackTrace();
+				throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+			}
+			modsList.add(modsType);
+		}
+		modsGroup.setItems(modsList);
+		return modsGroup;
+	}
+
+	private DublinCoreGroup getDublinCoreGroup(SolrDocumentList docs) {
+		DublinCoreGroup dcGroup = new DublinCoreGroup();
+		List<Metadata> metadataList = new ArrayList<Metadata>();
+		for (final SolrDocument doc : docs) {
+			ModsType modsType = null;
+			Metadata metadata = null;
+			try {
+				modsType = unmarshallModsType(doc);
+				String modsXml = marshallObject(modsType);
+				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
+				metadata = unmarshallDublinCore(dcXml);;
+			} catch (JAXBException je) {
+				log.error(je.getMessage());
+				je.printStackTrace();
+				throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+			}
+			metadataList.add(metadata);
+		}
+		dcGroup.setItems(metadataList);
+		return dcGroup;
+	}
+	
+	/**
+	 * Returns search results for a given SolrDocumentList, in mods format.
+	 * 
+	 * @param doc solr document list to build results
+	 * @return the SearchResultsMods object for this solr result
+	 * @see SearchResultsMods
+	 */
+	private SearchResultsMods buildModsResults(SolrDocumentList docs) {
+		SearchResultsMods results = new SearchResultsMods();
+		Pagination pagination = new Pagination();
+		pagination.setNumFound(docs.getNumFound());
+		pagination.setStart(docs.getStart());
+		pagination.setRows(limit);
+		ModsGroup modsGroup = new ModsGroup();
+		List<ModsType> modsList = new ArrayList<ModsType>();
+		for (final SolrDocument doc : docs) {
+			ModsType modsType = null;
+			try {
+				modsType = unmarshallModsType(doc);
+			} catch (JAXBException je) {
+				log.error(je.getMessage());
+				je.printStackTrace();
+				throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+			}
+			modsList.add(modsType);
+		}
+		modsGroup.setItems(modsList);
+		results.setItemGroup(modsGroup);
+		results.setPagination(pagination);
+		if (facet != null)
+			results.setFacet(facet);
+		return results;
+	}
+
+	
+	/**
+	 * Returns search results for a given SolrDocumentList, in dublin core
+	 * 
+	 * @param doc solr document list to build results
+	 * @return the SearchResultsDC object for this solr result
+	 * @see SearchResultsSlim
+	 */
+	private SearchResultsDC buildDCResults(SolrDocumentList docs) {
+		SearchResultsDC results = new SearchResultsDC();
+		Pagination pagination = new Pagination();
+		pagination.setNumFound(docs.getNumFound());
+		pagination.setStart(docs.getStart());
+		pagination.setRows(limit);
+		// List<ModsType> modsTypes = new ArrayList<ModsType>();
+		DublinCoreGroup dcGroup = new DublinCoreGroup();
+		List<Metadata> metadataList = new ArrayList<Metadata>();
+		for (final SolrDocument doc : docs) {
+			Metadata metadata= new Metadata();
+			ModsType modsType = null;
+			try {
+				modsType = unmarshallModsType(doc);
+				String modsXml = marshallObject(modsType);
+				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
+				metadata = unmarshallDublinCore(dcXml);
+			} catch (JAXBException je) {
+				log.error(je.getMessage());
+				je.printStackTrace();
+				throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+			}
+			metadataList.add(metadata);
+		}
+		dcGroup.setItems(metadataList);
+		results.setitemGroup(dcGroup);
+		results.setPagination(pagination);
+		if (facet != null)
+			results.setFacet(facet);
+		return results;
+	}
 	
 	/**
 	 * Returns a SolrDocumentList for a given set of search parameters. Search
@@ -225,15 +370,15 @@ public class ItemDAO {
 			response = server.query(query);
 		} catch (SolrServerException se) {
 			log.error(se.getMessage());
-			throw new BadParameterException(se.getMessage());
+			throw new LibraryCloudException(se.getMessage(), Response.Status.BAD_REQUEST);
 		} catch (RemoteSolrException rse) {
 			if (rse.getMessage().contains("SyntaxError")) {
 				log.error("solr syntax error");
-				throw new BadParameterException("Incorrect query syntax");
+				throw new LibraryCloudException("Incorrect query syntax", Response.Status.BAD_REQUEST);
 			} else {
 				String msg = rse.getMessage().replace("_keyword", "");
 				log.error(msg);
-				throw new BadParameterException("Incorrect query syntax:" + msg);
+				throw new LibraryCloudException("Incorrect query syntax:" + msg, Response.Status.BAD_REQUEST);
 			}
 		}
 		List<FacetField> facets = response.getFacetFields();
@@ -264,79 +409,6 @@ public class ItemDAO {
 		docs = response.getResults();
 		return docs;
 	}
-
-	/**
-	 * Returns search results for a given SolrDocumentList, in mods format.
-	 * 
-	 * @param doc solr document list to build results
-	 * @return the SearchResultsMods object for this solr result
-	 * @see SearchResultsMods
-	 */
-	private SearchResultsMods buildModsResults(SolrDocumentList docs) {
-		SearchResultsMods results = new SearchResultsMods();
-		Pagination pagination = new Pagination();
-		pagination.setNumFound(docs.getNumFound());
-		pagination.setStart(docs.getStart());
-		pagination.setRows(limit);
-		ModsGroup modsGroup = new ModsGroup();
-		List<ModsType> modsList = new ArrayList<ModsType>();
-		for (final SolrDocument doc : docs) {
-			Item item = new Item();
-			ModsType modsType = null;
-			try {
-				modsType = (new ItemDAO()).getModsType(doc);
-			} catch (JAXBException je) {
-				log.error(je.getMessage());
-				je.printStackTrace();
-			}
-			modsList.add(modsType);
-		}
-		modsGroup.setItems(modsList);
-		results.setItemGroup(modsGroup);
-		results.setPagination(pagination);
-		if (facet != null)
-			results.setFacet(facet);
-		return results;
-	}
-
-	
-	/**
-	 * Returns search results for a given SolrDocumentList, in dublin core
-	 * 
-	 * @param doc solr document list to build results
-	 * @return the SearchResultsDC object for this solr result
-	 * @see SearchResultsSlim
-	 */
-	private SearchResultsDC buildDCResults(SolrDocumentList docs) {
-		SearchResultsDC results = new SearchResultsDC();
-		Pagination pagination = new Pagination();
-		pagination.setNumFound(docs.getNumFound());
-		pagination.setStart(docs.getStart());
-		pagination.setRows(limit);
-		// List<ModsType> modsTypes = new ArrayList<ModsType>();
-		DublinCoreGroup dcGroup = new DublinCoreGroup();
-		List<Metadata> metadataList = new ArrayList<Metadata>();
-		for (final SolrDocument doc : docs) {
-			Metadata metadata= new Metadata();
-			ModsType modsType = null;
-			try {
-				modsType = (new ItemDAO()).getModsType(doc);
-				String modsXml = marshallObject(modsType);
-				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
-				metadata = getDublinCore(dcXml);
-			} catch (JAXBException je) {
-				log.error(je.getMessage());
-				je.printStackTrace();
-			}
-			metadataList.add(metadata);
-		}
-		dcGroup.setItems(metadataList);
-		results.setitemGroup(dcGroup);
-		results.setPagination(pagination);
-		if (facet != null)
-			results.setFacet(facet);
-		return results;
-	}
 	
 	/**
 	 *
@@ -350,7 +422,7 @@ public class ItemDAO {
 	 * @return the ModsType
 	 * @see ModsType
 	 */
-	protected ModsType getModsType(SolrDocument doc) throws JAXBException {
+	protected ModsType unmarshallModsType(SolrDocument doc) throws JAXBException {
 		String modsString = (String) doc.getFieldValue("originalMods");
 		//System.out.println(modsString);
 		Unmarshaller unmarshaller = JAXBHelper.context.createUnmarshaller();
@@ -368,7 +440,7 @@ public class ItemDAO {
 	 * @return the Metadata object unmarshalled from DC xml string
 	 * @see Metadata
 	 */	
-	protected Metadata getDublinCore(String dc) throws JAXBException {
+	protected Metadata unmarshallDublinCore(String dc) throws JAXBException {
 		//System.out.println(dc);
 		Unmarshaller unmarshaller = JAXBHelper.context.createUnmarshaller();
 		StringReader reader = new StringReader(dc);
@@ -404,6 +476,7 @@ public class ItemDAO {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
+			throw new LibraryCloudException("Internal Server Error:" + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		return result;
 	}
@@ -459,7 +532,7 @@ public class ItemDAO {
 		return item;
 	}
 
-	// deprecated - use getModsType instead, rewrite and use this if we decide
+	// deprecated - use unmarshallModsType instead, rewrite and use this if we decide
 	// to wrap
 	// the mods document in an <item> tag
 	public Item getItem(String id) {
@@ -481,6 +554,7 @@ public class ItemDAO {
 		} catch (SolrServerException se) {
 			log.error(se.getMessage());
 			se.printStackTrace();
+			throw new LibraryCloudException("Internal Server Error:" + se.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 		return item;
 	}
