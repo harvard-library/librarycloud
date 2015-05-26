@@ -13,6 +13,11 @@ see implementation details http://jersey.java.net/nonav/documentation/latest/jax
             <param-name>jersey.config.server.mediaTypeMappings</param-name>
             <param-value>json : application/json, xml : application/xml, jsonp : application/javascript</param-value>
         </init-param>
+		<init-param>
+		  <param-name>jersey.config.server.provider.classnames</param-name>
+		  <!--<param-value>org.glassfish.jersey.filter.LoggingFilter;edu.harvard.lib.librarycloud.items.ExceptionListener</param-value>-->
+		  <param-value>edu.harvard.lib.librarycloud.items.ExceptionListener</param-value>
+		</init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
