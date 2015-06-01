@@ -28,14 +28,10 @@
 package edu.harvard.lib.librarycloud.items;
 
 
-import java.util.List;
-
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 	 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -44,11 +40,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
+import net.sf.json.JSON;
+import net.sf.json.xml.XMLSerializer;
+
 import org.apache.log4j.Logger;
-import org.dublincore.Metadata;
 import org.glassfish.jersey.server.JSONP;
 
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 /**
 *
@@ -66,9 +65,12 @@ public class ItemResource {
 	Logger log = Logger.getLogger(ItemResource.class); 
 	ItemDAO itemdao = new ItemDAO();
 	
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for xml
 	@GET @Path("items/{id}")
     @JSONP(queryParam = "callback")
-	@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	//@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	@Produces (MediaType.APPLICATION_XML + ";qs=0.9")
 	public ModsType getItem(@PathParam("id") String id) {
 		log.info("getItem called for id: " + id);
 		ModsType modsType = null; 
@@ -79,9 +81,34 @@ public class ItemResource {
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		//System.out.println("test");
 		return modsType;
 	}
-	
+
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for json	
+	@GET @Path("items/{id}")
+    @JSONP(queryParam = "callback")
+	@Produces ({"application/javascript", MediaType.APPLICATION_JSON})
+	public String getItemJson(@PathParam("id") String id) {
+		log.info("getItem called for id: " + id);
+		ModsType modsType = null;
+		String modsString = null;
+		try {
+			modsType = itemdao.getMods(id);
+			modsString = itemdao.marshallObject(modsType);
+		} catch (JAXBException je) {
+			System.out.println(je);
+			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
+	    XMLSerializer serializer = new XMLSerializer();  
+	    serializer.setSkipNamespaces(true);
+	    serializer.setRemoveNamespacePrefixFromElements(true);
+	    serializer.setTypeHintsEnabled(false);
+	    JSON json = serializer.read( modsString );
+	    return json.toString();
+	}
 	
 	@GET @Path("items/{id}.dc")
     @JSONP(queryParam = "callback")
@@ -102,10 +129,12 @@ public class ItemResource {
 		return metadata;
 	}
 
-
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for xml
 	@GET @Path("items")
     @JSONP(queryParam = "callback")
-	@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	//@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	@Produces (MediaType.APPLICATION_XML + ";qs=0.9")
 	public SearchResultsMods getSearchResults(@Context UriInfo ui) {
 		log.info("getSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
@@ -121,9 +150,45 @@ public class ItemResource {
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return results;
+
 	}
-	
+
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for json
+	@GET @Path("items")
+    @JSONP(queryParam = "callback")
+	@Produces ({"application/javascript", MediaType.APPLICATION_JSON})
+	public String getSearchResultsJson(@Context UriInfo ui) {
+		log.info("getSearchResults made query: " + "TO DO");
+	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+	    //we don't currently need to use the pathParam
+	    //MultivaluedMap<String, String> pathParams = ui.getPathParameters();
+
+		SearchResultsMods results = null;
+		String resultsString = null;
+		try {
+			results = itemdao.getModsResults(queryParams);	
+			resultsString = itemdao.marshallObject(results);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	    XMLSerializer serializer = new XMLSerializer();  
+	    serializer.setSkipNamespaces(true);
+	    serializer.setRemoveNamespacePrefixFromElements(true);
+	    serializer.setTypeHintsEnabled(false);
+	    JSON json = serializer.read( resultsString );
+	    return json.toString();
+
+	}
 	
 	@GET @Path("items.dc")
     @JSONP(queryParam = "callback")

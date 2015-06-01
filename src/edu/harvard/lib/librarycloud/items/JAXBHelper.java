@@ -30,9 +30,9 @@ package edu.harvard.lib.librarycloud.items;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import org.dublincore.Metadata;
 
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 /**
 *

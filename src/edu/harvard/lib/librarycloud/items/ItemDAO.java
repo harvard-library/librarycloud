@@ -27,7 +27,8 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -56,7 +57,6 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.dublincore.Metadata;
 
 /**
  *

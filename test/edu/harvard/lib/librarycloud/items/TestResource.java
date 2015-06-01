@@ -32,7 +32,7 @@ import edu.harvard.lib.librarycloud.items.ItemDAO;
 import edu.harvard.lib.librarycloud.items.Pagination;
 import edu.harvard.lib.librarycloud.items.SolrServer;
 import edu.harvard.lib.librarycloud.items.SearchResultsMods;
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 @Path ("/v2")
 public class TestResource {
