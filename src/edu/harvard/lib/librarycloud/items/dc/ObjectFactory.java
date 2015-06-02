@@ -112,8 +112,8 @@ public class ObjectFactory {
      * 
      */
     @XmlElementDecl(namespace = "http://purl.org/dc/elements/1.1/", name = "date")
-    public JAXBElement<BigInteger> createDate(BigInteger value) {
-        return new JAXBElement<BigInteger>(_Date_QNAME, BigInteger.class, null, value);
+    public JAXBElement<String> createDate(String value) {
+        return new JAXBElement<String>(_Date_QNAME, String.class, null, value);
     }
 
     /**

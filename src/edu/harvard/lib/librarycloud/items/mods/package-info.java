@@ -5,5 +5,11 @@
 // Generated on: 2009.02.02 at 03:34:01 PM MST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.loc.gov/mods/v3", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.loc.gov/mods/v3",
+xmlns = {   
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.loc.gov/mods/v3", prefix = ""),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.w3.org/1999/xlink", prefix = "xlink")
+
+},
+elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package edu.harvard.lib.librarycloud.items.mods;
