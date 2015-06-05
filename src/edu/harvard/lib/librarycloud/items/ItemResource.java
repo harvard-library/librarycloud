@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.PathParam;
 	 
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -94,6 +95,7 @@ public class ItemResource {
 		log.info("getItem called for id: " + id);
 		ModsType modsType = null;
 		String modsString = null;
+
 		try {
 			modsType = itemdao.getMods(id);
 			modsString = itemdao.marshallObject(modsType);
@@ -102,13 +104,9 @@ public class ItemResource {
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
-	    XMLSerializer serializer = new XMLSerializer();  
-	    serializer.setSkipNamespaces(true);
-	    serializer.setRemoveNamespacePrefixFromElements(true);
-	    serializer.setTypeHintsEnabled(false);
-	    JSON json = serializer.read( modsString );
-	    return json.toString();
+	    return itemdao.getJsonFromXml(modsString);
 	}
+
 	
 	@GET @Path("items/{id}.dc")
     @JSONP(queryParam = "callback")
@@ -142,7 +140,6 @@ public class ItemResource {
 	    //MultivaluedMap<String, String> pathParams = ui.getPathParameters();
 
 		SearchResultsMods results = null;
-		
 		try {
 			results = itemdao.getModsResults(queryParams);	
 		} catch (JAXBException je) {
@@ -150,11 +147,7 @@ public class ItemResource {
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
 		return results;
-
 	}
 
 	// because of problems rendering json with moxy, xml and json now divided into separate methods
@@ -178,18 +171,11 @@ public class ItemResource {
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	    XMLSerializer serializer = new XMLSerializer();  
-	    serializer.setSkipNamespaces(true);
-	    serializer.setRemoveNamespacePrefixFromElements(true);
-	    serializer.setTypeHintsEnabled(false);
-	    JSON json = serializer.read( resultsString );
-	    return json.toString();
+	    return itemdao.getJsonFromXml(resultsString);
 
 	}
-	
+
+
 	@GET @Path("items.dc")
     @JSONP(queryParam = "callback")
 	@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
@@ -204,10 +190,6 @@ public class ItemResource {
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		} 
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
 		return resultsDC;
 	}
 	
