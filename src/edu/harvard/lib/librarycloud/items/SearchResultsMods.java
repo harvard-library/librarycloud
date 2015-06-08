@@ -27,7 +27,7 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
