@@ -2,11 +2,11 @@ package edu.harvard.lib.librarycloud.items;
 
 import static org.junit.Assert.*;
 import edu.harvard.lib.librarycloud.items.JAXBHelper;
-import edu.harvard.lib.librarycloud.items.ResourceNotFoundException;
-import gov.loc.mods.v3.ModsType;
-import gov.loc.mods.v3.IdentifierType;
-import gov.loc.mods.v3.RecordInfoType;
-import gov.loc.mods.v3.TitleInfoType;
+import edu.harvard.lib.librarycloud.items.LibraryCloudException;
+import edu.harvard.lib.librarycloud.items.mods.IdentifierType;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
+import edu.harvard.lib.librarycloud.items.mods.RecordInfoType;
+import edu.harvard.lib.librarycloud.items.mods.TitleInfoType;
 
 import java.io.FileInputStream;
 import java.io.StringReader;
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -128,7 +129,7 @@ public class ItemTest {
 	    QueryResponse response = server.query(query);
 	    docs = response.getResults();
 	    if (docs.size() == 0)
-	    	throw new ResourceNotFoundException("Item " + id + " not found");
+	    	throw new LibraryCloudException("Item " + id + " not found",Response.Status.NOT_FOUND);
 	    else {
 		    doc = docs.get(0);
 		    String modsString = (String) doc.getFieldValue("originalMods");

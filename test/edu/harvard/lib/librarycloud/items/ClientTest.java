@@ -25,7 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.harvard.lib.librarycloud.items.JAXBHelper;
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 /** *
 * @author 
@@ -35,7 +35,7 @@ public class ClientTest {
 	private Client client;
 	private WebTarget target;
 	private static String URL;
-	private static String ID = "000404917-9";
+	private static String ID = "000124242";
 	private static String BADID = "NO_SUCH_ID";
 	private static String QUERYPARAM = "?q=peanuts";
 	private static String BADQUERYPARAM = "?nosuchindex=peanuts";
@@ -123,8 +123,7 @@ public class ClientTest {
     	String fullUrl = URL + id;
     	fullUrl = fullUrl.replace("/?","?");
         client = createClient();
-        target = client
-                .target(fullUrl);
+        target = client.target(fullUrl);
         return target;
     }
     

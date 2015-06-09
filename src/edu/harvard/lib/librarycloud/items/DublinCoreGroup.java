@@ -1,7 +1,9 @@
 package edu.harvard.lib.librarycloud.items;
 
-import org.dublincore.Metadata;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
+
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 
 public class DublinCoreGroup {

@@ -27,7 +27,8 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -46,6 +47,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.json.JSON;
+import net.sf.json.xml.XMLSerializer;
+
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -56,7 +60,6 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.dublincore.Metadata;
 
 /**
  *
@@ -489,6 +492,15 @@ public class ItemDAO {
 		return sw.toString();
 	}
 
+	protected String getJsonFromXml(String xml) {
+	    XMLSerializer serializer = new XMLSerializer();  
+	    serializer.setSkipNamespaces(true);
+	    serializer.setRemoveNamespacePrefixFromElements(true);
+	    serializer.setTypeHintsEnabled(false);
+	    JSON json = serializer.read( xml );
+	    return json.toString();
+	}
+	
 	// deprecated, keep for now - this is how we would provide access to
 	// individual solr fields
 	// but we are instead displaying the embedded mods record in 1 solr field;

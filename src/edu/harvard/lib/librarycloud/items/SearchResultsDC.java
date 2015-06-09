@@ -27,7 +27,7 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import org.dublincore.Metadata;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

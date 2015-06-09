@@ -32,7 +32,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import gov.loc.mods.v3.ModsType;
+import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 /**
 *
