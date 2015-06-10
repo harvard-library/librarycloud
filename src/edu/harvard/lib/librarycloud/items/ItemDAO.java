@@ -500,6 +500,12 @@ public class ItemDAO {
 	    JSON json = serializer.read( xml );
 	    return json.toString();
 	}
+	protected String fixPagination(String resultsString) {
+		resultsString = resultsString.replace("<numFound>", "<numFound type=\"number\">");
+		resultsString = resultsString.replace("<limit>", "<limit type=\"number\">");
+		resultsString = resultsString.replace("<start>", "<start type=\"number\">");
+		return resultsString;
+	}
 	
 	// deprecated, keep for now - this is how we would provide access to
 	// individual solr fields
