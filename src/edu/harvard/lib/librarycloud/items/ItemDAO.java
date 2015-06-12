@@ -87,6 +87,8 @@ public class ItemDAO {
 		ModsType modsType = new ModsType();
 		HttpSolrServer server = null;
 		try {
+			if (id.contains(":"))
+				id = "\"" + id + "\"";
 			server = SolrServer.getSolrConnection();
 			SolrQuery query = new SolrQuery("recordIdentifier:" + id);
 			QueryResponse response = server.query(query);
@@ -103,7 +105,16 @@ public class ItemDAO {
 			se.printStackTrace();
 			log.error(se.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + se.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		} catch (RemoteSolrException rse) {
+		if (rse.getMessage().contains("SyntaxError")) {
+			log.error("solr syntax error");
+			throw new LibraryCloudException("Incorrect query syntax", Response.Status.BAD_REQUEST);
+		} else {
+			String msg = rse.getMessage().replace("_keyword", "");
+			log.error(msg);
+			throw new LibraryCloudException("Incorrect query syntax:" + msg, Response.Status.BAD_REQUEST);
 		}
+	}
 		return modsType;
 	}
 
@@ -499,6 +510,12 @@ public class ItemDAO {
 	    serializer.setTypeHintsEnabled(false);
 	    JSON json = serializer.read( xml );
 	    return json.toString();
+	}
+	protected String fixPagination(String resultsString) {
+		resultsString = resultsString.replace("<numFound>", "<numFound type=\"number\">");
+		resultsString = resultsString.replace("<limit>", "<limit type=\"number\">");
+		resultsString = resultsString.replace("<start>", "<start type=\"number\">");
+		return resultsString;
 	}
 	
 	// deprecated, keep for now - this is how we would provide access to

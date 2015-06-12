@@ -69,9 +69,8 @@ public class ItemResource {
 	// because of problems rendering json with moxy, xml and json now divided into separate methods
 	//this one for xml
 	@GET @Path("items/{id}")
-    @JSONP(queryParam = "callback")
 	//@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
-	@Produces (MediaType.APPLICATION_XML + ";qs=0.9")
+	@Produces (MediaType.APPLICATION_XML)
 	public ModsType getItem(@PathParam("id") String id) {
 		log.info("getItem called for id: " + id);
 		ModsType modsType = null; 
@@ -110,7 +109,7 @@ public class ItemResource {
 	
 	@GET @Path("items/{id}.dc")
     @JSONP(queryParam = "callback")
-	@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	@Produces ({MediaType.APPLICATION_XML,"application/javascript", MediaType.APPLICATION_JSON})
 	public Metadata getDublinCoreItem(@PathParam("id") String id) {
 		log.info("getDublinCoreItem called for id: " + id);
 		//ModsType modsType = null;
@@ -130,9 +129,8 @@ public class ItemResource {
 	// because of problems rendering json with moxy, xml and json now divided into separate methods
 	//this one for xml
 	@GET @Path("items")
-    @JSONP(queryParam = "callback")
 	//@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
-	@Produces (MediaType.APPLICATION_XML + ";qs=0.9")
+	@Produces (MediaType.APPLICATION_XML)
 	public SearchResultsMods getSearchResults(@Context UriInfo ui) {
 		log.info("getSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
@@ -165,20 +163,22 @@ public class ItemResource {
 		String resultsString = null;
 		try {
 			results = itemdao.getModsResults(queryParams);	
-			resultsString = itemdao.marshallObject(results);
+			String rawResultsString = itemdao.marshallObject(results);
+			// need to fix pagination so they get serialized as numbers
+			resultsString = itemdao.fixPagination(rawResultsString);
+			
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		}
 	    return itemdao.getJsonFromXml(resultsString);
-
 	}
 
 
 	@GET @Path("items.dc")
     @JSONP(queryParam = "callback")
-	@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	@Produces ({MediaType.APPLICATION_XML, "application/javascript", MediaType.APPLICATION_JSON})
 	public SearchResultsDC getDublinCoreSearchResults(@Context UriInfo ui) {
 		log.info("getDublinCoreSearchResults made query: " + "TO DO");
 		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
