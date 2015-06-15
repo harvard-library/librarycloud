@@ -11,7 +11,7 @@ see implementation details http://jersey.java.net/nonav/documentation/latest/jax
         </init-param>
         <init-param>
             <param-name>jersey.config.server.mediaTypeMappings</param-name>
-            <param-value>json : application/json, xml : application/xml, jsonp : application/javascript</param-value>
+            <param-value>xml : application/xml, json : application/json, jsonp : application/javascript</param-value>
         </init-param>
 		<init-param>
 		  <param-name>jersey.config.server.provider.classnames</param-name>
