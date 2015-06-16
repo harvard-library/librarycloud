@@ -89,7 +89,7 @@ public class ItemResource {
 	//this one for json	
 	@GET @Path("items/{id}")
     @JSONP(queryParam = "callback")
-	@Produces ({MediaType.APPLICATION_JSON, "application/javascript"})
+	@Produces ({MediaType.APPLICATION_JSON + ";qs=0.9", "application/javascript;qs=0.9"})
 	public String getItemJson(@PathParam("id") String id) {
 		log.info("getItem called for id: " + id);
 		ModsType modsType = null;
@@ -152,7 +152,7 @@ public class ItemResource {
 	//this one for json
 	@GET @Path("items")
     @JSONP(queryParam = "callback")
-	@Produces ({MediaType.APPLICATION_JSON, "application/javascript"})
+	@Produces ({MediaType.APPLICATION_JSON + ";qs=0.9", "application/javascript;qs=0.9"})
 	public String getSearchResultsJson(@Context UriInfo ui) {
 		log.info("getSearchResults made query: " + "TO DO");
 	    MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
