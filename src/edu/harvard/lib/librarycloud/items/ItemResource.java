@@ -106,10 +106,10 @@ public class ItemResource {
 	    return itemdao.getJsonFromXml(modsString);
 	}
 
-	
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for xml	
 	@GET @Path("items/{id}.dc")
-    @JSONP(queryParam = "callback")
-	@Produces ({MediaType.APPLICATION_XML,"application/javascript", MediaType.APPLICATION_JSON})
+	@Produces (MediaType.APPLICATION_XML)
 	public Metadata getDublinCoreItem(@PathParam("id") String id) {
 		log.info("getDublinCoreItem called for id: " + id);
 		//ModsType modsType = null;
@@ -126,6 +126,29 @@ public class ItemResource {
 		return metadata;
 	}
 
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for json
+	@GET @Path("items/{id}.dc")
+    @JSONP(queryParam = "callback")
+	@Produces ({MediaType.APPLICATION_JSON + ";qs=0.9", "application/javascript;qs=0.9"})
+	public String getDublinCoreItemJson(@PathParam("id") String id) {
+		log.info("getDublinCoreItemJson called for id: " + id);
+		//ModsType modsType = null;
+		Metadata metadata = null;
+		String metadataString = null;
+		try {
+			metadata = itemdao.getDublinCore(id);
+			metadataString = itemdao.marshallObject(metadata);
+
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je);
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
+
+		return itemdao.getJsonFromXml(metadataString);
+	}
+	
 	// because of problems rendering json with moxy, xml and json now divided into separate methods
 	//this one for xml
 	@GET @Path("items")
@@ -165,7 +188,7 @@ public class ItemResource {
 			results = itemdao.getModsResults(queryParams);	
 			String rawResultsString = itemdao.marshallObject(results);
 			// need to fix pagination so they get serialized as numbers
-			resultsString = itemdao.fixPagination(rawResultsString);
+			resultsString = itemdao.fixPaginationAndFacets(rawResultsString);
 			
 		} catch (JAXBException je) {
 			je.printStackTrace();
@@ -175,10 +198,10 @@ public class ItemResource {
 	    return itemdao.getJsonFromXml(resultsString);
 	}
 
-
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for xml
 	@GET @Path("items.dc")
-    @JSONP(queryParam = "callback")
-	@Produces ({MediaType.APPLICATION_XML, "application/javascript", MediaType.APPLICATION_JSON})
+	@Produces (MediaType.APPLICATION_XML)
 	public SearchResultsDC getDublinCoreSearchResults(@Context UriInfo ui) {
 		log.info("getDublinCoreSearchResults made query: " + "TO DO");
 		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
@@ -191,6 +214,29 @@ public class ItemResource {
 			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
 		} 
 		return resultsDC;
+	}
+
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for json
+	@GET @Path("items.dc")
+    @JSONP(queryParam = "callback")
+	@Produces ({MediaType.APPLICATION_JSON + ";qs=0.9", "application/javascript;qs=0.9"})
+	public String getDublinCoreSearchResultsJson(@Context UriInfo ui) {
+		log.info("getDublinCoreSearchResultsJson made query: " + "TO DO");
+		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+		SearchResultsDC resultsDC = null;
+		String resultsString = null;
+		try {
+			resultsDC = itemdao.getDCResults(queryParams);
+			String rawResultsString = itemdao.marshallObject(resultsDC);
+			// need to fix pagination so they get serialized as numbers
+			resultsString = itemdao.fixPaginationAndFacets(rawResultsString);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		} 
+		return itemdao.getJsonFromXml(resultsString);
 	}
 	
 }

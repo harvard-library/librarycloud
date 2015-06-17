@@ -511,10 +511,11 @@ public class ItemDAO {
 	    JSON json = serializer.read( xml );
 	    return json.toString();
 	}
-	protected String fixPagination(String resultsString) {
+	protected String fixPaginationAndFacets(String resultsString) {
 		resultsString = resultsString.replace("<numFound>", "<numFound type=\"number\">");
 		resultsString = resultsString.replace("<limit>", "<limit type=\"number\">");
 		resultsString = resultsString.replace("<start>", "<start type=\"number\">");
+		resultsString = resultsString.replace("<count>", "<count type=\"number\">");
 		return resultsString;
 	}
 	
