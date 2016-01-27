@@ -145,7 +145,7 @@ public class ItemDAO {
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SolrDocumentList docs = doQuery(queryParams);
 		SearchResultsMods results = new SearchResultsMods();
-		Pagination pagination = getPagination(docs);
+		Pagination pagination = getPagination(docs,queryParams);
 		ModsGroup modsGroup = getModsGroup(docs);
 		results.setItemGroup(modsGroup);
 		results.setPagination(pagination);
@@ -166,7 +166,7 @@ public class ItemDAO {
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		SolrDocumentList docs = doQuery(queryParams);
 		SearchResultsDC results = new SearchResultsDC();
-		Pagination pagination = getPagination(docs);
+		Pagination pagination = getPagination(docs,queryParams);
 		DublinCoreGroup dcGroup = getDublinCoreGroup(docs);
 		results.setitemGroup(dcGroup);
 		results.setPagination(pagination);
@@ -175,11 +175,22 @@ public class ItemDAO {
 		return results;
 	}
 	
-	private Pagination getPagination(SolrDocumentList docs) {
+	private Pagination getPagination(SolrDocumentList docs, MultivaluedMap<String, String> queryParams) {
+		StringBuffer sb = new StringBuffer();
+		int counter = 0;
+		for (String key : queryParams.keySet()) {
+			String value = queryParams.getFirst(key);
+			if (counter > 0)
+				sb.append("&");
+			sb.append(key + "=" + value);
+			counter++;
+		}
+		String query = sb.toString();
 		Pagination pagination = new Pagination();
 		pagination.setNumFound(docs.getNumFound());
 		pagination.setStart(docs.getStart());
-		pagination.setRows(limit);		
+		pagination.setRows(limit);
+		pagination.setQuery(query);
 		return pagination;
 	}
 
@@ -327,8 +338,8 @@ public class ItemDAO {
 					query.setStart(startNo);
 				} else if (key.equals("limit")) {
 					limit = Integer.parseInt(value);
-					if (limit > 250) {
-						limit = 250;
+					if (limit > 10) {
+						limit = 10;
 					}
 					query.setRows(limit);
 				} else if (key.equals("sort.asc") || key.equals("sort"))

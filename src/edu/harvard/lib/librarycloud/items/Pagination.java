@@ -50,6 +50,7 @@ public class Pagination {
 	private long numFound;
 	private long start;
 	private long rows;
+	private String query;
 
 	public Pagination () {
 		
@@ -69,16 +70,25 @@ public class Pagination {
 	public long getRows() {
 		return rows;
 	}
-	
+
+	public String getQuery() {
+		return query;
+	}
+
 	public void setNumFound(long numFound){
 		this.numFound = numFound;
 	}
-	
+
 	public void setStart(long start){
 		this.start = start;
-	}	
-	
+	}
+
 	public void setRows(long rows){
 		this.rows = rows;
 	}
+
+	public void setQuery(String query){
+		this.query = query;
+	}
+
 }
