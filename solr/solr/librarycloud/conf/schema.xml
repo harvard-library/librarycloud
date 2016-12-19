@@ -181,7 +181,9 @@
 	<field name="collectionTitle" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="collectionTitle_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
     <copyField source="collectionTitle" dest="collectionTitle_keyword"/>
-    
+	<field name="collectionId" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="collectionId_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
+    <copyField source="collectionId" dest="collectionId_keyword"/>
 
 	<!-- Keyword searching (normalize text, stem it, etc. here)-->
 	<field name="resourceType_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>
