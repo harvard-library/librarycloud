@@ -135,6 +135,15 @@
 	<field name="isOnline" type="string" indexed="true" stored="true"/>
 	<field name="stackscore" type="string" indexed="true" stored="true"/>
 
+  <field name="inDRS" type="string" indexed="true" stored="true"/>
+  <field name="accessFlag" type="string" indexed="true" stored="true"/>
+  <field name="contentModel" type="string" indexed="true" stored="true"/>
+  <field name="uriType" type="string" indexed="true" stored="true"/>
+  <field name="ownerCode" type="string" indexed="true" stored="true"/>
+  <field name="ownerCodeDisplayName" type="string" indexed="true" stored="true"/>
+  <field name="metsLabel" type="string" indexed="true" stored="true"/>
+  <field name="lastModifiedDate" type="string" indexed="true" stored="true"/>
+
 <!-- Muliple values possible -->
     <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="edition" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -184,6 +193,25 @@
 	<field name="collectionId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="collectionId_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
     <copyField source="collectionId" dest="collectionId_keyword"/>
+
+<!-- DRS Extensions -->
+
+  <field name="inDRS_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="inDRS" dest="inDRS_keyword"/>
+  <field name="accessFlag_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="accessFlag" dest="accessFlag_keyword"/>
+  <field name="contentModel_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="contentModel" dest="contentModel_keyword"/>
+  <field name="uriType_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="uriType" dest="uriType_keyword"/>
+  <field name="ownerCode_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="ownerCode" dest="ownerCode_keyword"/>
+  <field name="ownerCodeDisplayName_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="ownerCodeDisplayName" dest="ownerCodeDisplayName_keyword"/>
+  <field name="metsLabel_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="metsLabel" dest="metsLabel_keyword"/>
+  <field name="lastModifiedDate_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
+  <copyField source="lastModifiedDate" dest="lastModifiedDate_keyword"/>
 
 	<!-- Keyword searching (normalize text, stem it, etc. here)-->
 	<field name="resourceType_keyword" type="text_en" indexed="true" stored="false"  multiValued="true" omitNorms="true"/>

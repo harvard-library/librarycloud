@@ -49,6 +49,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *         &lt;/simpleType>
  *       &lt;/attribute>
  *       &lt;attribute name="displayLabel" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="otherType" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="ID" type="{http://www.w3.org/2001/XMLSchema}ID" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -90,6 +91,9 @@ public class RelatedItemType {
     protected String riType;
     @XmlAttribute
     protected String displayLabel;
+    @XmlAttribute
+    protected String otherType;
+
     @XmlAttribute(name = "ID")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -205,6 +209,31 @@ public class RelatedItemType {
      */
     public void setDisplayLabel(String value) {
         this.displayLabel = value;
+    }
+
+
+    /**
+     * Gets the value of the otherType property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getOtherType() {
+        return otherType;
+    }
+
+    /**
+     * Sets the value of the otherType property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setOtherType(String value) {
+        this.otherType = value;
     }
 
     /**
