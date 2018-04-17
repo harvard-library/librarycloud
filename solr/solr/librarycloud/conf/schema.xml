@@ -144,15 +144,6 @@
   <field name="metsLabel" type="string" indexed="true" stored="true"/>
   <field name="lastModifiedDate" type="string" indexed="true" stored="true"/>
 
-  <field name="inDRS" type="string" indexed="true" stored="true"/>
-  <field name="accessFlag" type="string" indexed="true" stored="true"/>
-  <field name="contentModel" type="string" indexed="true" stored="true"/>
-  <field name="uriType" type="string" indexed="true" stored="true"/>
-  <field name="ownerCode" type="string" indexed="true" stored="true"/>
-  <field name="ownerCodeDisplayName" type="string" indexed="true" stored="true"/>
-  <field name="metsLabel" type="string" indexed="true" stored="true"/>
-  <field name="lastModifiedDate" type="string" indexed="true" stored="true"/>
-
 <!-- Muliple values possible -->
     <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="edition" type="string" indexed="true" stored="true" multiValued="true"/>
