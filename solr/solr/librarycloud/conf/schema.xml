@@ -187,10 +187,16 @@
   <field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="stackscore_keyword" type="text_en" indexed="true" stored="false" multiValued="false" omitNorms="true"/>
     <copyField source="stackscore" dest="stackscore_keyword"/>
-  <field name="collectionTitle" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="setName" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="setName_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
+    <copyField source="setName" dest="setName_keyword"/>
+    <field name="collectionTitle" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="collectionTitle_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
     <copyField source="collectionTitle" dest="collectionTitle_keyword"/>
-  <field name="collectionId" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="setSystemId" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="setSystemId_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
+    <copyField source="setSystemId" dest="setSystemId_keyword"/>
+    <field name="collectionId" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="collectionId_keyword" type="text_en" indexed="true" stored="false" multiValued="true" omitNorms="true"/>
     <copyField source="collectionId" dest="collectionId_keyword"/>
 
