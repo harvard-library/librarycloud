@@ -1,1 +1,5 @@
 /bin/
+.java-version
+project.properties
+conf/application.properties
+solr/solr/librarycloud/data
