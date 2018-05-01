@@ -3,27 +3,31 @@ curl -X POST -H 'Content-type:application/json' --data-binary '{
      "name":"setName",
      "type":"string",
      "stored":true,
-     "indexed":true
+     "indexed":true,
+     "multiValued": true
       },
   "add-field":{
      "name":"setName_keyword",
      "type":"text_en",
      "stored":false,
      "indexed":true,
-     "omitNorms":true
+     "omitNorms":true,
+     "multiValued": true
       },
   "add-field":{
      "name":"setSystemId",
      "type":"string",
      "stored":true,
-     "indexed":true
+     "indexed":true,
+     "multiValued": true
       },
   "add-field":{
      "name":"setSystemId_keyword",
      "type":"text_en",
      "stored":false,
      "indexed":true,
-     "omitNorms":true
+     "omitNorms":true,
+     "multiValued": true
       },
   "add-copy-field":{
      "source":"setName",
