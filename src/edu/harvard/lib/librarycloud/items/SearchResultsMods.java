@@ -40,6 +40,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.solr.client.solrj.response.QueryResponse;
+
 /**
 *
 * SearchResults is the java object representation of results returned from solr; it contains
@@ -51,42 +54,20 @@ import java.util.List;
 
 @XmlRootElement(name="results")
 @XmlType(propOrder={"pagination", "itemGroup","facet"})
-public class SearchResultsMods {
-	
-	public SearchResultsMods () {
-		
-	}
-	
-	private Pagination pagination;
-
+public class SearchResultsMods extends SearchResults {
 	private ModsGroup itemGroup;
-	private Facet facet;
-	
-	@XmlElement(name = "pagination")
-	public Pagination getPagination() {
-		return pagination;
+
+	public SearchResultsMods () {
+		super();
 	}
-	
-	public void setPagination(Pagination pagination) {
-		this.pagination = pagination;
-	}
-	
+
 	@XmlElement(name = "items")
 	public ModsGroup getItemGroup() {
 		return itemGroup;
 	}
-	
+
 	public void setItemGroup(ModsGroup itemGroup) {
 		this.itemGroup = itemGroup;
-	}
-	
-	@XmlElement(name = "facets")
-	public Facet getFacet() {
-		return facet;
-	}
-	
-	public void setFacet(Facet facet) {
-		this.facet = facet;
 	}
 
 

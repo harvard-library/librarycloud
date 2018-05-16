@@ -32,9 +32,14 @@ import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -54,8 +59,8 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -72,7 +77,6 @@ import org.apache.solr.common.SolrDocumentList;
 public class ItemDAO {
 	Logger log = Logger.getLogger(ItemDAO.class);
 	private int limit = 10;
-	private Facet facet = null;
 
 	/**
 	 * Returns a MODS record for a given recordIdentifier.
@@ -85,7 +89,7 @@ public class ItemDAO {
 		SolrDocumentList docs;
 		SolrDocument doc;
 		ModsType modsType = new ModsType();
-		HttpSolrServer server = null;
+    HttpSolrClient server = null;
 		try {
 			if (id.contains(":"))
 				id = "\"" + id + "\"";
@@ -114,7 +118,10 @@ public class ItemDAO {
 			log.error(msg);
 			throw new LibraryCloudException("Incorrect query syntax:" + msg, Response.Status.BAD_REQUEST);
 		}
+    } catch (IOException rse) {
+      throw new LibraryCloudException("IO Exception", Response.Status.BAD_REQUEST);
 	}
+
 		return modsType;
 	}
 
@@ -143,14 +150,14 @@ public class ItemDAO {
 	 */
 	public SearchResultsMods getModsResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
-		SolrDocumentList docs = doQuery(queryParams);
+    QueryResponse response = doQuery(queryParams);
 		SearchResultsMods results = new SearchResultsMods();
+    results.setResponse(response);
+    SolrDocumentList docs = results.getSolrDocs();
 		Pagination pagination = getPagination(docs,queryParams);
 		ModsGroup modsGroup = getModsGroup(docs);
 		results.setItemGroup(modsGroup);
 		results.setPagination(pagination);
-		if (facet != null)
-			results.setFacet(facet);
 		return results;
 	}
 	
@@ -164,14 +171,14 @@ public class ItemDAO {
 	 */
 	public SearchResultsDC getDCResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
-		SolrDocumentList docs = doQuery(queryParams);
+    QueryResponse response = doQuery(queryParams);
 		SearchResultsDC results = new SearchResultsDC();
+    results.setResponse(response);
+    SolrDocumentList docs = results.getSolrDocs();    
 		Pagination pagination = getPagination(docs,queryParams);
 		DublinCoreGroup dcGroup = getDublinCoreGroup(docs);
 		results.setitemGroup(dcGroup);
 		results.setPagination(pagination);
-		if (facet != null)
-			results.setFacet(facet);
 		return results;
 	}
 	
@@ -241,32 +248,32 @@ public class ItemDAO {
 	 * @return the SearchResultsMods object for this solr result
 	 * @see SearchResultsMods
 	 */
-	private SearchResultsMods buildModsResults(SolrDocumentList docs) {
-		SearchResultsMods results = new SearchResultsMods();
-		Pagination pagination = new Pagination();
-		pagination.setNumFound(docs.getNumFound());
-		pagination.setStart(docs.getStart());
-		pagination.setRows(limit);
-		ModsGroup modsGroup = new ModsGroup();
-		List<ModsType> modsList = new ArrayList<ModsType>();
-		for (final SolrDocument doc : docs) {
-			ModsType modsType = null;
-			try {
-				modsType = unmarshallModsType(doc);
-			} catch (JAXBException je) {
-				log.error(je.getMessage());
-				je.printStackTrace();
-				throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-			}
-			modsList.add(modsType);
-		}
-		modsGroup.setItems(modsList);
-		results.setItemGroup(modsGroup);
-		results.setPagination(pagination);
-		if (facet != null)
-			results.setFacet(facet);
-		return results;
-	}
+  // private SearchResultsMods buildModsResults(SolrDocumentList docs) {
+  //   SearchResultsMods results = new SearchResultsMods();
+  //   Pagination pagination = new Pagination();
+  //   pagination.setNumFound(docs.getNumFound());
+  //   pagination.setStart(docs.getStart());
+  //   pagination.setRows(limit);
+  //   ModsGroup modsGroup = new ModsGroup();
+  //   List<ModsType> modsList = new ArrayList<ModsType>();
+  //   for (final SolrDocument doc : docs) {
+  //     ModsType modsType = null;
+  //     try {
+  //       modsType = unmarshallModsType(doc);
+  //     } catch (JAXBException je) {
+  //       log.error(je.getMessage());
+  //       je.printStackTrace();
+  //       throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+  //     }
+  //     modsList.add(modsType);
+  //   }
+  //   modsGroup.setItems(modsList);
+  //   results.setItemGroup(modsGroup);
+  //   results.setPagination(pagination);
+  //   if (facet != null)
+  //     results.setFacet(facet);
+  //   return results;
+  // }
 
 	
 	/**
@@ -276,37 +283,37 @@ public class ItemDAO {
 	 * @return the SearchResultsDC object for this solr result
 	 * @see SearchResultsSlim
 	 */
-	private SearchResultsDC buildDCResults(SolrDocumentList docs) {
-		SearchResultsDC results = new SearchResultsDC();
-		Pagination pagination = new Pagination();
-		pagination.setNumFound(docs.getNumFound());
-		pagination.setStart(docs.getStart());
-		pagination.setRows(limit);
-		// List<ModsType> modsTypes = new ArrayList<ModsType>();
-		DublinCoreGroup dcGroup = new DublinCoreGroup();
-		List<Metadata> metadataList = new ArrayList<Metadata>();
-		for (final SolrDocument doc : docs) {
-			Metadata metadata= new Metadata();
-			ModsType modsType = null;
-			try {
-				modsType = unmarshallModsType(doc);
-				String modsXml = marshallObject(modsType);
-				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
-				metadata = unmarshallDublinCore(dcXml);
-			} catch (JAXBException je) {
-				log.error(je.getMessage());
-				je.printStackTrace();
-				throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-			}
-			metadataList.add(metadata);
-		}
-		dcGroup.setItems(metadataList);
-		results.setitemGroup(dcGroup);
-		results.setPagination(pagination);
-		if (facet != null)
-			results.setFacet(facet);
-		return results;
-	}
+  // private SearchResultsDC buildDCResults(SolrDocumentList docs) {
+  //   SearchResultsDC results = new SearchResultsDC();
+  //   Pagination pagination = new Pagination();
+  //   pagination.setNumFound(docs.getNumFound());
+  //   pagination.setStart(docs.getStart());
+  //   pagination.setRows(limit);
+  //   // List<ModsType> modsTypes = new ArrayList<ModsType>();
+  //   DublinCoreGroup dcGroup = new DublinCoreGroup();
+  //   List<Metadata> metadataList = new ArrayList<Metadata>();
+  //   for (final SolrDocument doc : docs) {
+  //     Metadata metadata= new Metadata();
+  //     ModsType modsType = null;
+  //     try {
+  //       modsType = unmarshallModsType(doc);
+  //       String modsXml = marshallObject(modsType);
+  //       String dcXml = transform(modsXml, Config.getInstance().DC_XSLT);
+  //       metadata = unmarshallDublinCore(dcXml);
+  //     } catch (JAXBException je) {
+  //       log.error(je.getMessage());
+  //       je.printStackTrace();
+  //       throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+  //     }
+  //     metadataList.add(metadata);
+  //   }
+  //   dcGroup.setItems(metadataList);
+  //   results.setitemGroup(dcGroup);
+  //   results.setPagination(pagination);
+  //   if (facet != null)
+  //     results.setFacet(facet);
+  //   return results;
+  // }
 	
 	/**
 	 * Returns a SolrDocumentList for a given set of search parameters. Search
@@ -315,22 +322,25 @@ public class ItemDAO {
 	 * 
 	 * @param queryParams
 	 * query parameters to map to a solr query
-	 * @return the SolrDocumentList for this query
+   * @return the QueryResponse for this query
 	 * @see SolrDocumentList
 	 */
-	private SolrDocumentList doQuery(MultivaluedMap<String, String> queryParams) {
-		SolrDocumentList docs = null;
-		HttpSolrServer server = null;
+  private QueryResponse doQuery(MultivaluedMap<String, String> queryParams) {
+    HttpSolrClient server = null;
 		String queryStr = "";
 		SolrQuery query = new SolrQuery();
 		System.out.println("queryParams: " + queryParams.size());
 		ArrayList<String> queryList = new ArrayList<String>();
 		server = SolrServer.getSolrConnection();
+
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
 				String value = queryParams.getFirst(key);
 				System.out.println(key + " : " + queryParams.getFirst(key)
 						+ "\n");
+        if (key.equals("dates.start") || key.equals("dates.end")) {
+          continue;
+        }
 				if (key.equals("start")) {
 					int startNo = Integer.parseInt(value);
 					if (startNo < 0)
@@ -342,16 +352,31 @@ public class ItemDAO {
 						limit = 250;
 					}
 					query.setRows(limit);
-				} else if (key.equals("sort.asc") || key.equals("sort"))
+        } else if (key.equals("sort.asc") || key.equals("sort")) {
 					query.setSort(value, ORDER.asc);
-				else if (key.equals("sort.desc"))
+        } else if (key.equals("sort.desc"))  {
 					query.setSort(value, ORDER.desc);
-				else if (key.startsWith("facet")) {
+        } else if (key.startsWith("facet.range")) {
+          // ignore
+        } else if (key.startsWith("facet")) {
 					query.setFacet(true);
 					String[] facetArray = value.split(",");
 					for (String f : facetArray) {
+            System.out.println("F {"+f+"}");
+            if (f.equals("dateRange")) {
+              try {
+                DateFormat formatter = new SimpleDateFormat("YYYY");
+                Date start = (queryParams.containsKey("facet.range.start")) ? formatter.parse(queryParams.getFirst("facet.range.start")) : formatter.parse("0001");
+                Date end = (queryParams.containsKey("facet.range.end")) ? formatter.parse(queryParams.getFirst("facet.range.end")) : formatter.parse("2050");
+                String gap = (queryParams.containsKey("facet.range.gap")) ? queryParams.getFirst("facet.range.gap") : "+10YEAR";
+                query.addDateRangeFacet("dateRange", start, end, gap);
+              } catch (ParseException pe) {
+                log.error("parse date range facet params error");
+              }
+            } else {
 						query.addFacetField(f);
 					}
+          }
 				} else {
 					if (key.endsWith("_exact"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
@@ -390,6 +415,18 @@ public class ItemDAO {
 		}
 		System.out.print("queryStr: " + queryStr);
 		query.setQuery(queryStr);
+
+    if (queryParams.containsKey("dates.start") || queryParams.containsKey("dates.end")) {
+      String start = queryParams.getFirst("dates.start");
+      String end = queryParams.getFirst("dates.end");
+      if (start == null)
+        start = "*";
+      if (end == null)
+        end = "*";
+
+      query.addFilterQuery("dateRange:["+start+" TO "+end+"]");
+    }
+
 		QueryResponse response = null;
 		try {
 			response = server.query(query);
@@ -406,33 +443,10 @@ public class ItemDAO {
 				throw new LibraryCloudException("Incorrect query syntax:" + msg, Response.Status.BAD_REQUEST);
 			}
 		}
-		List<FacetField> facets = response.getFacetFields();
-		facet = null;
-		if (facets != null) {
-			facet = new Facet();
-			List<FacetType> facetTypes = new ArrayList<FacetType>();
-			for (FacetField facetField : facets) {
-				List<FacetTerm> facetTerms = new ArrayList<FacetTerm>();
-				FacetType facetType = new FacetType();
-				facetType.setFacetName(facetField.getName());
-				List<FacetField.Count> facetEntries = facetField.getValues();
-				for (FacetField.Count fcount : facetEntries) {
-					if (fcount.getCount() > 0) {
-						FacetTerm facetTerm = new FacetTerm();
-						facetTerm.setTermName(fcount.getName());
-						facetTerm.setTermCount(fcount.getCount());
-						// System.out.println(fcount.getName() + ": " +
-						// fcount.getCount());
-						facetTerms.add(facetTerm);
-					}
+    catch (IOException rse) {
+      throw new LibraryCloudException("IO Exception", Response.Status.BAD_REQUEST);
 				}
-				facetType.setFacetTerms(facetTerms);
-				facetTypes.add(facetType);
-			}
-			facet.setFacetTypes(facetTypes);
-		}
-		docs = response.getResults();
-		return docs;
+    return response;
 	}
 	
 	/**
@@ -449,7 +463,6 @@ public class ItemDAO {
 	 */
 	protected ModsType unmarshallModsType(SolrDocument doc) throws JAXBException {
 		String modsString = (String) doc.getFieldValue("originalMods");
-		//System.out.println(modsString);
 		Unmarshaller unmarshaller = JAXBHelper.context.createUnmarshaller();
 		StringReader reader = new StringReader(modsString);
 		ModsType modsType = (ModsType) ((JAXBElement) (unmarshaller
@@ -580,7 +593,7 @@ public class ItemDAO {
 		SolrDocumentList docs;
 		SolrDocument doc;
 		Item item = new Item();
-		HttpSolrServer server = null;
+    HttpSolrClient server = null;
 		try {
 			server = SolrServer.getSolrConnection();
 			SolrQuery query = new SolrQuery("recordIdentifier:" + id);
@@ -596,6 +609,8 @@ public class ItemDAO {
 			log.error(se.getMessage());
 			se.printStackTrace();
 			throw new LibraryCloudException("Internal Server Error:" + se.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    } catch (IOException rse) {
+      throw new LibraryCloudException("IO Exception", Response.Status.BAD_REQUEST);
 		}
 		return item;
 	}

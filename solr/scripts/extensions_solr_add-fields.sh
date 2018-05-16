@@ -116,7 +116,7 @@ curl -X POST -H 'Content-type:application/json' --data-binary '{
             "indexed": true,
             "stored": true
         },
-  {
+        {
             "name": "urn_keyword",
             "type": "text_en",
             "indexed": true,
@@ -171,4 +171,4 @@ curl -X POST -H 'Content-type:application/json' --data-binary '{
             "dest": "urn_keyword"
         }
     ]
-]}' http://$SOLR_HOST:$SOLR_PORT/solr/holdings/schema
+}' http://$SOLR_HOST:$SOLR_PORT/solr/extensions/schema

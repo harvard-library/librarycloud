@@ -36,27 +36,37 @@ import java.util.List;
 *
 * Facet is the java object representation of solr facet_counts list; it contains a list of
 * one or more FacetType objects
-* 
+*
 * @author Michael Vandermillen
 *
 */
 
 @XmlRootElement()
 public class Facet {
-	
-	private List<FacetType> facetTypes;
-	
-	public Facet() {
-	
-	}
 
-    @XmlElement(name="facetField")  
-    public List<FacetType> getFacetTypes() {  
-        return facetTypes;  
-    }  
-  
-    public void setFacetTypes( List<FacetType> facetTypes) {  
-        this.facetTypes = facetTypes;  
-    }     
-    
+  private List<FacetType> facetTypes;
+  private List<FacetRange> facetRanges;
+
+  public Facet() {
+
+  }
+
+  @XmlElement(name="facetField")
+  public List<FacetType> getFacetTypes() {
+    return facetTypes;
+  }
+
+  public void setFacetTypes( List<FacetType> facetTypes) {
+    this.facetTypes = facetTypes;
+  }
+
+  @XmlElement(name="facetRange")
+  public List<FacetRange> getFacetRanges() {
+    return facetRanges;
+  }
+
+  public void setFacetRanges( List<FacetRange> facetRanges) {
+    this.facetRanges = facetRanges;
+  }
+
 }
