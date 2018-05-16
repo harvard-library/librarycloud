@@ -51,10 +51,10 @@ import java.util.List;
 
 @XmlRootElement(name="results")
 @XmlType(propOrder={"pagination", "itemGroup","facet"})
-public class SearchResultsDC {
+public class SearchResultsDC extends SearchResults {
 	
 	public SearchResultsDC () {
-		
+    super();
 	}
 	
 	private Pagination pagination;
@@ -62,16 +62,6 @@ public class SearchResultsDC {
 	//private List<ModsType> modsTypes;
 	//private List<Metadata> metadataList;
 	private DublinCoreGroup itemGroup;
-	private Facet facet;
-	
-	@XmlElement(name = "pagination")
-	public Pagination getPagination() {
-		return pagination;
-	}
-	
-	public void setPagination(Pagination pagination) {
-		this.pagination = pagination;
-	}
 	
 	/*
 	@XmlElement()
@@ -93,16 +83,6 @@ public class SearchResultsDC {
 		this.itemGroup = itemGroup;
 	}
 	
-	@XmlElement(name = "facets")
-	public Facet getFacet() {
-		return facet;
-	}
-	
-	public void setFacet(Facet facet) {
-		this.facet = facet;
-	}
-
-
 	/*
 	//the old way was to add ModsType objects directly, now they get wrapped as a list in Item
 	//hold on for now in case things change for some reason
@@ -117,5 +97,3 @@ public class SearchResultsDC {
 	}
 	*/
 }
-
-

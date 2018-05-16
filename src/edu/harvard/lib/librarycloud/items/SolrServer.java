@@ -27,7 +27,7 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 /**
 *
 *
@@ -35,15 +35,15 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 *
 */
 public class SolrServer {
-	private static HttpSolrServer server = null;
-	
-	protected static HttpSolrServer getSolrConnection() {
-		try {
-			server = new HttpSolrServer(Config.getInstance().SOLR_URL);
-		} catch (Exception e) {
-			// TO DO - error handling
-			System.out.println( e);
-		}
-		return server;
-	}
+  private static HttpSolrClient server = null;
+
+  protected static HttpSolrClient getSolrConnection() {
+    try {
+      server = new HttpSolrClient.Builder(Config.getInstance().SOLR_URL).build();
+    } catch (Exception e) {
+      // TO DO - error handling
+      System.out.println( e);
+    }
+    return server;
+  }
 }
