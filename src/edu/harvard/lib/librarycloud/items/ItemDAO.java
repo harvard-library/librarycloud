@@ -365,7 +365,7 @@ public class ItemDAO {
             System.out.println("F {"+f+"}");
             if (f.equals("dateRange")) {
               try {
-                DateFormat formatter = new SimpleDateFormat("YYYY");
+                DateFormat formatter = new SimpleDateFormat("yyyy");
                 Date start = (queryParams.containsKey("facet.range.start")) ? formatter.parse(queryParams.getFirst("facet.range.start")) : formatter.parse("0001");
                 Date end = (queryParams.containsKey("facet.range.end")) ? formatter.parse(queryParams.getFirst("facet.range.end")) : formatter.parse("2050");
                 String gap = (queryParams.containsKey("facet.range.gap")) ? queryParams.getFirst("facet.range.gap") : "+10YEAR";

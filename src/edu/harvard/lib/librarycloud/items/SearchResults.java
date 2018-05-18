@@ -32,6 +32,14 @@ import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.lang.Integer;
+import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -44,15 +52,16 @@ public class SearchResults {
   private QueryResponse response;
   private Pagination pagination;
   private Facet facet;
-  Logger log = Logger.getLogger(SearchResults.class);
+  private DateFormat dfSolr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+  private DateFormat dfApi = new SimpleDateFormat("yyyy");
+  private Calendar cal = Calendar.getInstance();
+  private Logger log = Logger.getLogger(SearchResults.class);
 
   SearchResults() {
   }
 
   public void setResponse(QueryResponse response) {
     this.response = response;
-    log.debug("RESPONSE");
-    log.debug(response.toString());
     setFacets();
   }
 
@@ -106,10 +115,20 @@ public class SearchResults {
       FacetRange facetRange = new FacetRange();
       facetRange.setStart(rangeFacet.getStart());
       facetRange.setEnd(rangeFacet.getEnd());
-
+      int gapYears = parseGap(rangeFacet.getGap());
       List<RangeFacet.Count> counts = rangeFacet.getCounts();
       for (RangeFacet.Count c : counts) {
-        facetRange.addCount(c.getValue(), c.getCount());
+        try {
+          Date d = dfSolr.parse(c.getValue());
+          String yearStart = dfApi.format(d);
+          cal.setTime(d);
+          cal.add(Calendar.YEAR, gapYears);
+          d = cal.getTime();
+          String yearEnd = dfApi.format(d);
+          facetRange.addCount(yearStart+"-"+yearEnd, c.getCount());
+        } catch (ParseException pe) {
+          log.error(pe, pe);
+        }
       }
 
       facetRanges.add(facetRange);
@@ -118,4 +137,13 @@ public class SearchResults {
     facet.setFacetRanges(facetRanges);
   }
 
+  private int parseGap(Object gap) {
+    Pattern p = Pattern.compile("[^0-9]([0-9]+)YEAR");
+    Matcher m = p.matcher(gap.toString());
+    if(m.matches()) {
+      return Integer.parseInt(m.group(1));
+    } else {
+      return 0;
+    }
+  }
 }
