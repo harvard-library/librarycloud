@@ -341,6 +341,21 @@ public class ItemDAO {
         if (key.equals("dates.start") || key.equals("dates.end")) {
           continue;
         }
+        if (key.equals("url.access") && value.equals("preview")) {
+            queryList.add("url.access.preview:true");
+            continue;
+        } else if (key.equals("url.access") && value.equals("raw object in context")) {
+            queryList.add("url.access.raw_object:true");
+            continue;
+        }
+
+        if (key.equals("identifier") && value.startsWith("978") && (value.length() == 13)) {
+            value = ISBN.convert13to10(value);
+        }
+
+        if (key.equals("languageText")) {
+            key = "language";
+        }
 				if (key.equals("start")) {
 					int startNo = Integer.parseInt(value);
 					if (startNo < 0)
