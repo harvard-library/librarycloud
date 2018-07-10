@@ -90,7 +90,7 @@ public class ItemDAO {
 			if (id.contains(":"))
 				id = "\"" + id + "\"";
 			server = SolrServer.getSolrConnection();
-			SolrQuery query = new SolrQuery("recordIdentifier:" + id);
+			SolrQuery query = new SolrQuery("(recordIdentifier:" + id + " OR priorRecordIdentifier:" + id + ")");
 			QueryResponse response = server.query(query);
 			docs = response.getResults();
 			if (docs.size() == 0)
@@ -352,6 +352,10 @@ public class ItemDAO {
 					for (String f : facetArray) {
 						query.addFacetField(f);
 					}
+				} else if (key.equals("recordIdentifier")) {
+					if (value.contains(":"))
+						value = "\"" + value + "\"";
+					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
 				} else {
 					if (key.endsWith("_exact"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value

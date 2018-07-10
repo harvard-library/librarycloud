@@ -129,6 +129,7 @@
 	<field name="physicalDescription" type="string" indexed="true" stored="true"/>
 	<field name="source" type="string" indexed="true" stored="true"/>
 	<field name="recordIdentifier" type="string" indexed="true" stored="true"/>
+  <field name="priorRecordIdentifier" type="string" indexed="true" stored="true"/>
 	<field name="originalMods" type="string" indexed="false" stored="true"/>
 	<field name="isCollection" type="string" indexed="true" stored="true"/>
 	<field name="isManuscript" type="string" indexed="true" stored="true"/>
