@@ -40,6 +40,8 @@ import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -77,6 +79,7 @@ import org.apache.solr.common.SolrDocumentList;
 public class ItemDAO {
 	Logger log = Logger.getLogger(ItemDAO.class);
 	private int limit = 10;
+  private static Pattern lastModifiedDateRangePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
 
 	/**
 	 * Returns a MODS record for a given recordIdentifier.
@@ -341,6 +344,10 @@ public class ItemDAO {
         if (key.equals("dates.start") || key.equals("dates.end")) {
           continue;
         }
+        if (key.equals("modified.after") || key.equals("modified.before")) {
+          continue;
+        }
+
         if (key.equals("url.access") && value.equals("preview")) {
             queryList.add("url.access.preview:true");
             continue;
@@ -393,7 +400,7 @@ public class ItemDAO {
 					}
           }
 				} else {
-					if (key.endsWith("_exact"))
+            if (key.endsWith("_exact") || key.equals("fileDeliveryURL"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
 								+ "\"");
 					else {
@@ -438,8 +445,28 @@ public class ItemDAO {
         start = "*";
       if (end == null)
         end = "*";
-
       query.addFilterQuery("dateRange:["+start+" TO "+end+"]");
+    }
+
+    if (queryParams.containsKey("modified.after") || queryParams.containsKey("modified.before")) {
+      String start = queryParams.getFirst("modified.after");
+      String end = queryParams.getFirst("modified.before");
+      if (start == null) {
+        start = "*";
+      } else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+        throw new LibraryCloudException("Bad Param: modified.after", Response.Status.BAD_REQUEST);
+      } else {
+        start = start+"T00:00:00Z";
+      }
+
+      if (end == null) {
+        end = "*";
+      } else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+        throw new LibraryCloudException("Bad Param: modified.after", Response.Status.BAD_REQUEST);
+      } else {
+        end = end+"T00:00:00Z";
+      }
+      query.addFilterQuery("lastModifiedDate:["+start+" TO "+end+"]");
     }
 
 		QueryResponse response = null;
