@@ -461,12 +461,12 @@ public class ItemDAO {
 
       if (end == null) {
         end = "*";
-      } else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+      } else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
         throw new LibraryCloudException("Bad Param: modified.after", Response.Status.BAD_REQUEST);
       } else {
         end = end+"T00:00:00Z";
       }
-      query.addFilterQuery("lastModifiedDate:["+start+" TO "+end+"]");
+      query.addFilterQuery("_lastModifiedDate:["+start+" TO "+end+"]");
     }
 
 		QueryResponse response = null;
