@@ -75,6 +75,7 @@ public class ModsType {
     })
     
     
+
     protected List<Object> modsGroup;
     @XmlAttribute(name = "ID")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -83,6 +84,10 @@ public class ModsType {
     protected String id;
     @XmlAttribute
     protected String version;
+
+    @XmlAttribute(name = "schemaLocation", namespace = "http://www.w3.org/2001/XMLSchema-instance")
+    protected String schemaLocation;
+
 
     /**
      * Gets the value of the modsGroup property.
@@ -179,5 +184,30 @@ public class ModsType {
     public void setVersion(String value) {
         this.version = value;
     }
+
+    /**
+     * Gets the value of the schemaLocation property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getSchemaLocation() {
+        return schemaLocation;
+    }
+
+    /**
+     * Sets the value of the schemaLocation property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setSchemaLocation(String value) {
+        this.schemaLocation = value;
+    }
+
 
 }
