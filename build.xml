@@ -15,22 +15,25 @@
   <property name="jar.home"	         	 value="lib"/>
   <property name="config.home"	         value="conf"/>
   <property name="compile.dirs"	         value="src"/>
-  
+  <property name="test.dirs"	         value="test"/>
+
+
   <property name="javadoc.home"          value="javadoc"/>
   <property name="manifest.name"         value="MANIFEST.MF"/>
-  <property name="bin.home"				 value="bin" />	
-	
+  <property name="bin.home"				 value="bin" />
+
   <property name="build.home" value="webapps"/>
+  <property name="build.test.home" value="target/test"/>
   <property name="webinf.home" value="${build.home}/WEB-INF"/>
   <property name="metainf.home" value="${build.home}/META-INF"/>
-  
+
   <!-- ==================== Build 2.0 enhancements ======================== -->
-  <property name="appserver.home"	value="/usr/local/tomcat7"/>	
+  <property name="appserver.home"	value="/usr/local/tomcat7"/>
   <property name="war-file" 		value="${app.name}.war" />
   <property name="web-xml-file" 	value="${webinf.home}/web.xml" />
 
   <property name="deployments.home"	value="${appserver.home}/webapps"/>
-	
+
 <!-- ===================== Compilation Control Options ==================== -->
 
   <property name="compile.debug"       value="true"/>
@@ -45,7 +48,14 @@
       <include name="lib_tmp/*.jar"/>
     </fileset>
   </path>
-	
+
+  <path id="test.classpath">
+    <pathelement path="target/test/classes"/>
+    <pathelement path="webapps/WEB-INF/classes"/>
+    <fileset dir=".">
+      <include name="lib/*.jar"/>
+    </fileset>
+  </path>
 <!-- ==================== Config Target ================================== -->
 
 
@@ -61,7 +71,7 @@
   <target name="check-build-local.properties">
     <available file="build-local.properties" type="file" property="blp.available"/>
   </target>
-	
+
   <macrodef name="propertycopy">
     <attribute name="name" />
     <attribute name="from" />
@@ -69,29 +79,29 @@
       <property name="@{name}" value="${@{from}}" />
     </sequential>
   </macrodef>
-	
+
 	<target name="run-post-config" if="post-config.available" depends="post-config.check">
 		<echo>post-config.sh found...executing</echo>
-		<!-- make post-config.sh executable -->	
+		<!-- make post-config.sh executable -->
 	     <exec dir="${project.base}/${project.dir}/bin" executable="/bin/chmod">
 	       <arg line="+x post-config.sh"/>
-	     </exec> 
+	     </exec>
 		<!-- call post-config.sh-->
 		<exec executable="${project.base}/${project.dir}/bin/post-config.sh">
-			<arg line="${instance}"/> 
+			<arg line="${instance}"/>
 		</exec>
 	</target>
-	
+
 	<target name="make-bin-executable" if="bin.present" depends="check-bin">
-	    <echo>Making files in ${bin.home} executable</echo>	  	
+	    <echo>Making files in ${bin.home} executable</echo>
 	  	<apply dir="${bin.home}" executable="/bin/chmod" parallel="false">
 	  	    <arg value="700" />
 	  	    <fileset dir="${bin.home}">
 	  	        <include name="**/*.sh"/>
 	  	    </fileset>
-	  	</apply>		
+	  	</apply>
 	</target>
-	 	
+
   <target name="post-config.check">
   	<echo>checking for bin/post-config.sh</echo>
 	<available file="${project.base}/${project.dir}/bin/post-config.sh" type="file" property="post-config.available"/>
@@ -99,9 +109,9 @@
 
   <target name="config" depends="init-build-local.properties">
 
-    <dirname property="project.base" file="." />  	
+    <dirname property="project.base" file="." />
   	<basename property="project.dir" file="." />
-  	
+
     <property name="app.home" value="${project.base}/${project.dir}"/>
 
     <echo>instance: ${instance}</echo>
@@ -109,7 +119,7 @@
     <echo>config.home: ${config.home}</echo>
   	<echo>bin.home: ${bin.home}</echo>
   	<echo>appserver.home: ${appserver.home}</echo>
-	  	  	
+
   	<!-- copy web.xml.template to web.xml -->
   	<copy overwrite="true" todir="${webinf.home}">
 	  	<fileset dir="${webinf.home}">
@@ -122,9 +132,9 @@
 	  	</filterset>
 	  	<globmapper from="*.template" to="*"/>
   	</copy>
-  	
+
   	<antcall target="make-bin-executable" />
-  	
+
   	<antcall target="run-post-config" />
 
   </target>
@@ -144,12 +154,12 @@
 			  	<include name="lib/*.jar"/>
 			</fileset>
 	  	</classpath>
-  	</javac> 
- 	
-          <!-- copy all jars from lib/ to WEB-INF/lib -->
-        <copy todir="${webinf.home}/lib">
+  	</javac>
+
+    <!-- copy all jars from lib/ to WEB-INF/lib -->
+    <copy todir="${webinf.home}/lib">
                 <fileset dir="lib">
-                        <include name="*.jar"/>
+                  <include name="*.jar"/>
                 </fileset>
         </copy>
 
@@ -159,8 +169,40 @@
                         <include name="*.properties"/>
                         <include name="*.xml"/>
                 </fileset>
-        </copy>	
-  	   	
+        </copy>
+
+  </target>
+
+
+<!-- ==================== Compile Tests ================================== -->
+
+  <target name="compile-tests" if="lib.present" depends="check-lib" description="Compile Java sources">
+    <echo>
+       The dest dir is ${build.home}/WEB-INF/classes
+    </echo>
+
+  	<javac srcdir="${test.dirs}" destdir="${build.test.home}/classes" debug="${compile.debug}" deprecation="${compile.deprecation}" classpathref="test.classpath">
+      <exclude name="**/ItemTest.java" />
+      <exclude name="**/TestRecords.java" />
+      <exclude name="**/TestResource.java" />
+      <exclude name="**/ClientTest.java" />
+  	</javac>
+
+    <!-- copy all jars from lib/ to WEB-INF/lib -->
+    <copy todir="${webinf.home}/lib">
+                <fileset dir="lib">
+                  <include name="*.jar"/>
+                </fileset>
+        </copy>
+
+        <!-- copy all configuration files from conf/ to WEB-INF/classes -->
+        <copy todir="${webinf.home}/classes">
+                <fileset dir="conf">
+                        <include name="*.properties"/>
+                        <include name="*.xml"/>
+                </fileset>
+        </copy>
+
   </target>
 
 
@@ -202,20 +244,20 @@
   <target name="check-src">
     <available file="src" type="dir" property="src.present" />
   </target>
-	
+
   <target name="check-bin">
     <available file="bin" type="dir" property="bin.present" />
   </target>
 
 	<!-- ====================================== NEW BUILD 2.0 deployment tasks ==================================== -->
-	
+
 	<tstamp prefix="build-info">
 		<format property="current-date" pattern="d-MMMM-yyyy" locale="en" />
 		<format property="current-time" pattern="hh:mm:ss a z" locale="en" />
 		<format property="year-month-day" pattern="yyyy-MM-dd" locale="en" />
-	</tstamp>	
+	</tstamp>
 	<property name="builder" value="LTS" />
-	
+
 	<target name="war" depends="config, compile">
 			<delete file="webapps/${war-file}" />
 			<war warfile="webapps/${war-file}" webxml="${web-xml-file}">
@@ -230,7 +272,7 @@
 				<lib dir="${webinf.home}/lib/">
 				    <!-- <exclude name="jdbc1.jar"/> -->
 				 </lib>
-					
+
 				<manifest>
 					<attribute name="Built-By" value="${builder}" />
 					<attribute name="Built-On" value="${build-info.current-date}" />
@@ -238,18 +280,40 @@
 				</manifest>
 			</war>
 	</target>
-	
-	
+
+
 	<target name="deploy" description="deploy to jboss">
 			<echo>deploying ${deployments.home}/${war-file}</echo>
 			<copy file="webapps/${war-file}" todir="${deployments.home}" />
 	</target>
-	
-	<target name="undeploy" description="undeploy from tomcat">		
+
+	<target name="undeploy" description="undeploy from tomcat">
 		<echo>deleting ${deployments.home}/${war-file}</echo>
 		<delete file="${deployments.home}/${war-file}" />
 	</target>
-	
+
 	<target name="doall" depends="config,compile,war,deploy" />
-	
+
+  <target name="test.junit.launcher" depends="compile,compile-tests">
+    <junitlauncher>
+      <classpath refid="test.classpath" />
+
+      <!-- <test name="ItemDAOTests" /> -->
+      <testclasses>
+        <fileset dir="target/test/classes">
+          <include name="**/*Tests.class"/>
+        </fileset>
+        <!-- <listener type="legacy-plain" sendSysOut="true" /> -->
+      </testclasses>
+    </junitlauncher>
+
+  </target>
+
+  <target name="test.console.launcher" depends="compile">
+    <java classpathref="test.classpath" classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="true">
+      <arg value="--scan-classpath"/>
+    </java>
+    </target>
+
+    <target name="test" depends="test.junit.launcher, test.console.launcher" />
 </project>

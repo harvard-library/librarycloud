@@ -67,7 +67,6 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-
 /**
  *
  * ItemDAO makes queries to the solr index via solrj methods; item id info or
@@ -83,7 +82,7 @@ public class ItemDAO {
 
 	/**
 	 * Returns a MODS record for a given recordIdentifier.
-	 * 
+	 *
 	 * @param id a recordIdentifier for a solr document
 	 * @return the ModsType for this recordidentifier
 	 * @see ModsType
@@ -103,7 +102,7 @@ public class ItemDAO {
 			if (docs.size() == 0)
 				throw new LibraryCloudException("Item " + id + " not found", Response.Status.NOT_FOUND);
 			else if (docs.size() > 1)
-				throw new LibraryCloudException("Internal Server Error", Response.Status.INTERNAL_SERVER_ERROR); 
+				throw new LibraryCloudException("Internal Server Error", Response.Status.INTERNAL_SERVER_ERROR);
 			else {
 				doc = docs.get(0);
 				modsType = unmarshallModsType(doc);
@@ -130,7 +129,7 @@ public class ItemDAO {
 
 	/**
 	 * Returns a Metadata (DublinCore) record for a given recordIdentifier.
-	 * 
+	 *
 	 * @param id a recordIdentifier for a solr document
 	 * @return the Metadata (DublinCore record) for this recordidentifier
 	 * @see Metadata
@@ -138,15 +137,15 @@ public class ItemDAO {
 	public Metadata getDublinCore(String id) throws JAXBException {
 		ModsType modsType = getMods(id);
 		String modsXml = marshallObject(modsType);
-		String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
+		String dcXml = transform(modsXml, Config.getInstance().DC_XSLT);
 		Metadata metadata = unmarshallDublinCore(dcXml);
 		return metadata;
 	}
-	
-	
+
+
 	/**
 	 * Returns search results for a given query, in mods format.
-	 * 
+	 *
 	 * @param queryParams query parameters to map to a solr query
 	 * @return the SearchResultsMods object for this query
 	 * @see SearchResultsMods
@@ -163,10 +162,10 @@ public class ItemDAO {
 		results.setPagination(pagination);
 		return results;
 	}
-	
+
 	/**
 	 * Returns search results for a given query, in dublin core
-	 * 
+	 *
 	 * @param queryParams
 	 * query parameters to map to a solr query
 	 * @return the SearchResultsDC object for this query
@@ -177,14 +176,14 @@ public class ItemDAO {
     QueryResponse response = doQuery(queryParams);
 		SearchResultsDC results = new SearchResultsDC();
     results.setResponse(response);
-    SolrDocumentList docs = results.getSolrDocs();    
+    SolrDocumentList docs = results.getSolrDocs();
 		Pagination pagination = getPagination(docs,queryParams);
 		DublinCoreGroup dcGroup = getDublinCoreGroup(docs);
 		results.setitemGroup(dcGroup);
 		results.setPagination(pagination);
 		return results;
 	}
-	
+
 	private Pagination getPagination(SolrDocumentList docs, MultivaluedMap<String, String> queryParams) {
 		StringBuffer sb = new StringBuffer();
 		int counter = 0;
@@ -231,7 +230,7 @@ public class ItemDAO {
 			try {
 				modsType = unmarshallModsType(doc);
 				String modsXml = marshallObject(modsType);
-				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT); 
+				String dcXml = transform(modsXml, Config.getInstance().DC_XSLT);
 				metadata = unmarshallDublinCore(dcXml);;
 			} catch (JAXBException je) {
 				log.error(je.getMessage());
@@ -243,10 +242,10 @@ public class ItemDAO {
 		dcGroup.setItems(metadataList);
 		return dcGroup;
 	}
-	
+
 	/**
 	 * Returns search results for a given SolrDocumentList, in mods format.
-	 * 
+	 *
 	 * @param doc solr document list to build results
 	 * @return the SearchResultsMods object for this solr result
 	 * @see SearchResultsMods
@@ -278,10 +277,10 @@ public class ItemDAO {
   //   return results;
   // }
 
-	
+
 	/**
 	 * Returns search results for a given SolrDocumentList, in dublin core
-	 * 
+	 *
 	 * @param doc solr document list to build results
 	 * @return the SearchResultsDC object for this solr result
 	 * @see SearchResultsSlim
@@ -317,24 +316,23 @@ public class ItemDAO {
   //     results.setFacet(facet);
   //   return results;
   // }
-	
+
 	/**
 	 * Returns a SolrDocumentList for a given set of search parameters. Search
 	 * parameters are parsed and mapped into solr (solrj) query syntax, and solr
 	 * query is performed.
-	 * 
+	 *
 	 * @param queryParams
 	 * query parameters to map to a solr query
    * @return the QueryResponse for this query
 	 * @see SolrDocumentList
 	 */
   private QueryResponse doQuery(MultivaluedMap<String, String> queryParams) {
-    HttpSolrClient server = null;
 		String queryStr = "";
 		SolrQuery query = new SolrQuery();
 		System.out.println("queryParams: " + queryParams.size());
 		ArrayList<String> queryList = new ArrayList<String>();
-		server = SolrServer.getSolrConnection();
+		HttpSolrClient server = SolrServer.getSolrConnection();
 
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
@@ -405,11 +403,8 @@ public class ItemDAO {
 								+ "\"");
 					else {
 						value = value.trim();
-						if (value.contains(" OR "))
-							value = "(" + value.replaceAll(" OR ", "+OR+")
-									+ ")";
-						if (value.contains(" "))
-							value = "( " + value.replaceAll(" ", " AND ") + ")";
+						if (value.contains(" OR ") || value.contains(" AND ") || value.contains(" NOT "))
+                value = "(" + value + ")";
 						if (value.contains(":"))
 							value = "\"" + value + "\"";
 						if (key.equals("q")) {
@@ -490,7 +485,7 @@ public class ItemDAO {
 				}
     return response;
 	}
-	
+
 	/**
 	 *
 	 * Returns a mods document, which is embedded in escaped xml form in the
@@ -498,7 +493,7 @@ public class ItemDAO {
 	 * unmarshalled (jaxb) into a loc.gov.mods.v3.ModsType (and all child
 	 * elements) and returned as an individual item or added to a search result
 	 * set
-	 * 
+	 *
 	 * @param doc a SolrDocument from which to extract the mods record
 	 * @return the ModsType
 	 * @see ModsType
@@ -515,11 +510,11 @@ public class ItemDAO {
 	/**
 	 *
 	 * Returns a Metadata (DublinCore) document
-	 * 
+	 *
 	 * @param dc a String containing DC XML
 	 * @return the Metadata object unmarshalled from DC xml string
 	 * @see Metadata
-	 */	
+	 */
 	protected Metadata unmarshallDublinCore(String dc) throws JAXBException {
 		//System.out.println(dc);
 		Unmarshaller unmarshaller = JAXBHelper.context.createUnmarshaller();
@@ -530,10 +525,10 @@ public class ItemDAO {
 		//JAXBElement<Metadata> m = (JAXBElement<Metadata>)unmarshaller.unmarshal(reader).getValue();
 		return metadata;
 	}
-	
+
 	/**
 	 *
-	 * Transforms XML using XSLT (currently MODS to DC). 
+	 * Transforms XML using XSLT (currently MODS to DC).
 	 * @param xmlString the XLM string
 	 * @param xslFilename the XSLT
 	 * @return the transformed XML String
@@ -570,7 +565,7 @@ public class ItemDAO {
 	}
 
 	protected String getJsonFromXml(String xml) {
-	    XMLSerializer serializer = new XMLSerializer();  
+	    XMLSerializer serializer = new XMLSerializer();
 	    serializer.setSkipNamespaces(true);
 	    serializer.setRemoveNamespacePrefixFromElements(true);
 	    serializer.setTypeHintsEnabled(false);
@@ -584,7 +579,7 @@ public class ItemDAO {
 		resultsString = resultsString.replace("<count>", "<count type=\"number\">");
 		return resultsString;
 	}
-	
+
 	// deprecated, keep for now - this is how we would provide access to
 	// individual solr fields
 	// but we are instead displaying the embedded mods record in 1 solr field;
