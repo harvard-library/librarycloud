@@ -411,8 +411,12 @@ public class ItemDAO {
 							if (!value.equals("*")) {
 								queryList.add("keyword:" + value);
 							}
-						} else if (!key.equals("callback"))
+						} else if (!key.equals("callback")) {
+              if (key.equals("seriesTitle")) {
+                key = "relatedItem";
+              }
 							queryList.add(key + "_keyword:" + value);
+            }
 					}
 				}
 			}

@@ -113,4 +113,12 @@ class ItemDAOTests {
         assertEquals("q=keyword:((apples+AND+oranges)+NOT+pears)", solrQueryString);
     }
 
+    //LTCLOUD-759
+    @Test
+    void SeriesTitleTest() throws Exception {
+        MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<>();
+        queryParams.add("seriesTitle", "The Rambler");
+        String solrQueryString = this.convertToSolrQuery(queryParams);
+        assertEquals("q=relatedItem_keyword:The+Rambler", solrQueryString);
+    }
 }
