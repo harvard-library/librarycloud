@@ -96,7 +96,7 @@ public class ItemDAO {
 			if (id.contains(":"))
 				id = "\"" + id + "\"";
 			server = SolrServer.getSolrConnection();
-			SolrQuery query = new SolrQuery("recordIdentifier:" + id);
+			SolrQuery query = new SolrQuery("(recordIdentifier:" + id + " OR priorRecordIdentifier:" + id + ")");
 			QueryResponse response = server.query(query);
 			docs = response.getResults();
 			if (docs.size() == 0)
@@ -397,7 +397,12 @@ public class ItemDAO {
 						query.addFacetField(f);
 					}
           }
-				} else {
+		}
+		if (key.equals("recordIdentifier")) {
+					if (value.contains(":"))
+						value = "\"" + value + "\"";
+					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+		}
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
 								+ "\"");

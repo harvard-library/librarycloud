@@ -478,6 +478,8 @@
   <field name="publisher_keyword" type="text_en" omitNorms="true" multiValued="true" indexed="true" stored="false"/>
   <field name="recordIdentifier" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
   <field name="recordIdentifier_keyword" type="text_en" omitNorms="true" multiValued="true" indexed="true" stored="false"/>
+  <field name="priorRecordIdentifier" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
+  <field name="priorRecordIdentifier_keyword" type="text_en" omitNorms="true" multiValued="true" indexed="true" stored="false"/>
   <field name="relatedItem" type="string" multiValued="true" indexed="true" stored="true"/>
   <field name="relatedItem_keyword" type="text_en" omitNorms="true" multiValued="true" indexed="true" stored="false"/>
   <field name="resourceType" type="string" indexed="true" stored="true"/>
@@ -631,6 +633,7 @@
   <copyField source="physicalLocation" dest="physicalLocation_keyword"/>
   <copyField source="publisher" dest="publisher_keyword"/>
   <copyField source="recordIdentifier" dest="recordIdentifier_keyword"/>
+  <copyField source="priorRecordIdentifier" dest="priorRecordIdentifier_keyword"/>
   <copyField source="relatedItem" dest="relatedItem_keyword"/>
   <copyField source="resourceType" dest="resourceType_keyword"/>
   <copyField source="role" dest="role_keyword"/>
