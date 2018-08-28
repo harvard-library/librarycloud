@@ -345,7 +345,9 @@ public class ItemDAO {
         if (key.equals("modified.after") || key.equals("modified.before")) {
           continue;
         }
-
+        if (key.equals("processed.after") || key.equals("processed.before")) {
+          continue;
+        }
         if (key.equals("url.access") && value.equals("preview")) {
             queryList.add("url.access.preview:true");
             continue;
@@ -467,12 +469,34 @@ public class ItemDAO {
       if (end == null) {
         end = "*";
       } else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
-        throw new LibraryCloudException("Bad Param: modified.after", Response.Status.BAD_REQUEST);
+        throw new LibraryCloudException("Bad Param: modified.before", Response.Status.BAD_REQUEST);
       } else {
         end = end+"T00:00:00Z";
       }
       query.addFilterQuery("_lastModifiedDate:["+start+" TO "+end+"]");
     }
+
+    if (queryParams.containsKey("processed.after") || queryParams.containsKey("processed.before")) {
+      String start = queryParams.getFirst("processed.after");
+      String end = queryParams.getFirst("processed.before");
+      if (start == null) {
+        start = "*";
+      } else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+        throw new LibraryCloudException("Bad Param: processed.after", Response.Status.BAD_REQUEST);
+      } else {
+        start = start+"T00:00:00Z";
+      }
+
+      if (end == null) {
+        end = "*";
+      } else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
+        throw new LibraryCloudException("Bad Param: processed.before", Response.Status.BAD_REQUEST);
+      } else {
+        end = end+"T00:00:00Z";
+      }
+      query.addFilterQuery("processingDate:["+start+" TO "+end+"]");
+    }
+
 
 		QueryResponse response = null;
 		try {
