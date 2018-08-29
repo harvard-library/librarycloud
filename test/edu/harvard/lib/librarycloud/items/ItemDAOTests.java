@@ -129,4 +129,12 @@ class ItemDAOTests {
         String solrQueryString = this.convertToSolrQuery(queryParams);
         assertEquals("facet=true&facet.field=repository&q=*:*", solrQueryString);
     }
+
+    @Test
+    void doesntCareIfYouSayFacetsTest() throws Exception {
+        MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<>();
+        queryParams.add("facets", "repository");
+        String solrQueryString = this.convertToSolrQuery(queryParams);
+        assertEquals("facet=true&facet.field=repository&q=*:*", solrQueryString);
+    }
 }

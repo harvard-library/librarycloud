@@ -404,7 +404,7 @@ public class ItemDAO {
 					if (value.contains(":"))
 						value = "\"" + value + "\"";
 					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
-		} else if (key.equals("facet")) {
+		} else if (key.equals("facet") || key.equals("facets")) {
 		} else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
