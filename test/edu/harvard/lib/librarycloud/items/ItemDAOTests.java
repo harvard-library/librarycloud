@@ -121,4 +121,12 @@ class ItemDAOTests {
         String solrQueryString = this.convertToSolrQuery(queryParams);
         assertEquals("q=relatedItem_keyword:The+Rambler", solrQueryString);
     }
+
+    @Test
+    void facetQueryTest() throws Exception {
+        MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<>();
+        queryParams.add("facet", "repository");
+        String solrQueryString = this.convertToSolrQuery(queryParams);
+        assertEquals("facet=true&facet.field=repository&q=*:*", solrQueryString);
+    }
 }

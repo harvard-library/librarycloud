@@ -315,5 +315,5 @@
     </java>
     </target>
 
-    <target name="test" depends="test.junit.launcher, test.console.launcher" />
+    <target name="test" depends="test.console.launcher" />
 </project>
