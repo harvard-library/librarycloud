@@ -137,4 +137,13 @@ class ItemDAOTests {
         String solrQueryString = this.convertToSolrQuery(queryParams);
         assertEquals("facet=true&facet.field=repository&q=*:*", solrQueryString);
     }
+
+    @Test
+    void canRecognizeLimits() throws Exception {
+        MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<>();
+        queryParams.add("limit", "250");
+        String solrQueryString = this.convertToSolrQuery(queryParams);
+        assertEquals("rows=250&q=*:*", solrQueryString);
+    }
+
 }

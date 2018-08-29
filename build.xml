@@ -309,7 +309,7 @@
 
   </target>
 
-  <target name="test.console.launcher" depends="compile">
+  <target name="test.console.launcher" depends="compile-tests,compile">
     <java classpathref="test.classpath" classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="true">
       <arg value="--scan-classpath"/>
     </java>
