@@ -423,7 +423,7 @@ public class ItemDAO {
               if (key.equals("seriesTitle")) {
                 key = "relatedItem";
               }
-							queryList.add(key + "_keyword:" + value);
+							queryList.add("(" + key + "_keyword:" + value + ")");
             }
 					}
 				}
