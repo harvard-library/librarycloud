@@ -399,13 +399,13 @@ public class ItemDAO {
 						query.addFacetField(f);
 					}
           }
-		}/*
+		}
 		if (key.equals("recordIdentifier")) {
 					if (value.contains(":"))
 						value = "\"" + value + "\"";
 					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
-		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start")) {
-		}*/ else {
+		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort")) {
+		} else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
 								+ "\"");
