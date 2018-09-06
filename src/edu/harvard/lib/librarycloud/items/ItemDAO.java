@@ -405,7 +405,7 @@ public class ItemDAO {
 						value = "\"" + value + "\"";
 					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
 		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start")) {
-		} */else {
+		}*/ else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
 								+ "\"");
@@ -424,7 +424,7 @@ public class ItemDAO {
                 key = "relatedItem";
               }
 							queryList.add("(" + key + "_keyword:" + value + ")");
-
+            }
 					}
 				}
 			}
