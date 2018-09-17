@@ -119,7 +119,7 @@ class ItemDAOTests {
         MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<>();
         queryParams.add("seriesTitle", "The Rambler");
         String solrQueryString = this.convertToSolrQuery(queryParams);
-        assertEquals("q=relatedItem_keyword:The+Rambler", solrQueryString);
+        assertEquals("q=(relatedItem_keyword:The+Rambler)", solrQueryString);
     }
 
     @Test
@@ -146,4 +146,11 @@ class ItemDAOTests {
         assertEquals("rows=250&q=*:*", solrQueryString);
     }
 
+    @Test
+    void wrapsKeywordQueriesInParenthesis() throws Exception {
+        MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<>();
+        queryParams.add("repository", "Some Awesome Repository");
+        String solrQueryString = this.convertToSolrQuery(queryParams);
+        assertEquals("q=(repository_keyword:Some+Awesome+Repository)", solrQueryString);
+    }
 }
