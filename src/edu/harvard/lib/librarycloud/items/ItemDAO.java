@@ -396,7 +396,9 @@ public class ItemDAO {
                 log.error("parse date range facet params error");
               }
             } else {
-						query.addFacetField(f);
+                if f.equals("setName")
+                    f = "setName_str";
+                query.addFacetField(f);
 					}
           }
 		}
@@ -412,7 +414,9 @@ public class ItemDAO {
 					else {
 						value = value.trim();
 						if (value.contains(" OR ") || value.contains(" AND ") || value.contains(" NOT "))
-                value = "(" + value + ")";
+                			value = "(" + value.replaceAll(" ","+") + ")";
+						if (value.contains(" "))
+							value = "( " + value.replaceAll(" ", "+AND+") + ")";
 						if (value.contains(":"))
 							value = "\"" + value + "\"";
 						if (key.equals("q")) {
