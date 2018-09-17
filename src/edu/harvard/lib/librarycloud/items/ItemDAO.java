@@ -396,7 +396,7 @@ public class ItemDAO {
                 log.error("parse date range facet params error");
               }
             } else {
-                if f.equals("setName")
+                if (f.equals("setName"))
                     f = "setName_str";
 						query.addFacetField(f);
 					}
