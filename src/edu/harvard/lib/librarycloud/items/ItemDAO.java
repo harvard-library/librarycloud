@@ -414,9 +414,9 @@ public class ItemDAO {
 					else {
 						value = value.trim();
 						if (value.contains(" OR ") || value.contains(" AND ") || value.contains(" NOT "))
-                			value = "(" + value.replaceAll(" ","+") + ")";
-						if (value.contains(" "))
-							value = "( " + value.replaceAll(" ", "+AND+") + ")";
+                			value = "(" + value + ")";
+						else if (value.contains(" "))
+							value = "( " + value.replaceAll(" ", " AND ") + ")";
 						if (value.contains(":"))
 							value = "\"" + value + "\"";
 						if (key.equals("q")) {
