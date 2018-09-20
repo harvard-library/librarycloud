@@ -398,7 +398,7 @@ public class ItemDAO {
             } else {
                 if (f.equals("setName"))
                     f = "setName_str";
-                query.addFacetField(f);
+						query.addFacetField(f);
 					}
           }
 		}
