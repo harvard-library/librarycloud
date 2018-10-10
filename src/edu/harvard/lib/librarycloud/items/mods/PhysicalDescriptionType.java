@@ -89,6 +89,9 @@ public class PhysicalDescriptionType {
     protected String altRepGroup;
     @XmlAttribute
     protected String transliteration;
+    //harvard 2018-10-10 for update to mods 3.6
+    @XmlAttribute
+    protected String valueURI;
 
     /**
      * Gets the value of the formOrReformattingQualityOrInternetMediaType property.
@@ -199,11 +202,11 @@ public class PhysicalDescriptionType {
 
     /**
      * Gets the value of the transliteration property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getTransliteration() {
         return transliteration;
@@ -211,14 +214,38 @@ public class PhysicalDescriptionType {
 
     /**
      * Sets the value of the transliteration property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setTransliteration(String value) {
         this.transliteration = value;
+    }
+
+    /**
+     * Gets the value of the valueURI property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getvalueURI() {
+        return valueURI;
+    }
+
+    /**
+     * Sets the value of the valueURI property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setValueURI(String value) {
+        this.valueURI = value;
     }
 
 }

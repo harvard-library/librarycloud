@@ -139,4 +139,32 @@ public class RoleType {
 
     }
 
+    //harvard - 2018-10-10: update to mods 3.6
+    @XmlAttribute
+    protected String valueURI;
+
+    /**
+     * Gets the value of the valueURI property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getValueURI() {
+        return valueURI;
+    }
+
+    /**
+     * Sets the value of the valueURI property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *
+     */
+    public void setValueURI(String value) {
+        this.valueURI = value;
+    }
+
 }
