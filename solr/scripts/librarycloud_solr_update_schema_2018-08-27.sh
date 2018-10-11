@@ -16,5 +16,5 @@ curl -X POST -H 'Content-type:application/json' --data-binary '{
   "add-copy-field":{
     "source":"priorRecordIdentifier",
     "dest":"priorRecordIdentifier_keyword"
-  }, 
+  } 
 }' http://$SOLR_HOST:$SOLR_PORT/solr/librarycloud/schema
