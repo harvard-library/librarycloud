@@ -112,6 +112,8 @@ public class SubjectType {
     protected String altRepGroup;
     @XmlAttribute
     protected String transliteration;
+    @XmlAttribute
+    protected String displayLabel;
     @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
     protected String type;
     @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
@@ -675,6 +677,30 @@ public class SubjectType {
          */
         public void setAuthority(PlaceAuthority value) {
             this.authority = value;
+        }
+
+        /**
+         * Gets the value of the displayLabel property.
+         *
+         * @return
+         *     possible object is
+         *     {@link String }
+         *
+         */
+        public String getDisplayLabel() {
+            return displayLabel;
+        }
+
+        /**
+         * Sets the value of the displayLabel property.
+         *
+         * @param value
+         *     allowed object is
+         *     {@link String }
+         *
+         */
+        public void setDisplayLabel(String value) {
+            this.displayLabel = value;
         }
 
     }
