@@ -15,11 +15,14 @@
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://purl.org/dc/elements/1.1/", prefix = "dc"),  
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.w3.org/1999/xlink", prefix = "xlink"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://api.lib.harvard.edu/v2/item", prefix = ""),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://lib.harvard.edu/urlinfo", prefix = "urlinfo"),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://lib.harvard.edu/originalDocument", prefix = "originalDocument"),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://lib.harvard.edu/urlinfo", prefix = "urlinfo"),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://lib.harvard.edu/alephmigration", prefix = "priorrecordids"),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.loc.gov/MARC21/slim", prefix = "marc")
-    },  
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/urlinfo", prefix = "urlinfo"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/originalDocument", prefix = "originalDocument"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/HarvardRepositories", prefix = "HarvardRepositories"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/pariorrecordids", prefix = "priorrecordids"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/HarvardDRS", prefix = "HarvardDRS"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/processingDate", prefix = "processingDate"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/availableTo", prefix = "availableTo"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/digitalFormats", prefix = "digitalFormats")
+    },
     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) 
 package edu.harvard.lib.librarycloud.items;
