@@ -23,7 +23,8 @@
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/HarvardDRS", prefix = "HarvardDRS"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/processingDate", prefix = "processingDate"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/availableTo", prefix = "availableTo"),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/digitalFormats", prefix = "digitalFormats")
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/digitalFormats", prefix = "digitalFormats"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/sets", prefix = "sets")
     },
     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) 
 package edu.harvard.lib.librarycloud.items;
