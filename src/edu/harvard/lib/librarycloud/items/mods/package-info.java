@@ -12,7 +12,7 @@ xmlns = {
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.w3.org/1999/xlink", prefix = "xlink"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.w3.org/2001/XMLSchema", prefix = "xs"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/HarvardDRS", prefix = "HarvardDRS"),
-		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/librarycloud", prefix = "libirarycloud"),
+		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/librarycloud", prefix = "librarycloud"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/sets", prefix = "sets")
 },
 elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
