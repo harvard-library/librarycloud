@@ -21,5 +21,5 @@
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/librarycloud", prefix = "librarycloud"),
 		@javax.xml.bind.annotation.XmlNs(namespaceURI = "http://hul.harvard.edu/ois/xml/ns/sets", prefix = "sets")
     },
-    elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) 
+    elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package edu.harvard.lib.librarycloud.items;
