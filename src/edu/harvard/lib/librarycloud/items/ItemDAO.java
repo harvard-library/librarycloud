@@ -348,6 +348,9 @@ public class ItemDAO {
         if (key.equals("processed.after") || key.equals("processed.before")) {
           continue;
         }
+		if (key.equals("recordChanged.after") || key.equals("recordChanged.before")) {
+			continue;
+		}
         if (key.equals("url.access") && value.equals("preview")) {
             queryList.add("url.access.preview:true");
             continue;
