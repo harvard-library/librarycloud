@@ -501,7 +501,26 @@ public class ItemDAO {
       query.addFilterQuery("processingDate:["+start+" TO "+end+"]");
     }
 
+	  if (queryParams.containsKey("recordChanged.after") || queryParams.containsKey("recordChanged.before")) {
+		  String start = queryParams.getFirst("recordChanged.after");
+		  String end = queryParams.getFirst("recordChanged.before");
+		  if (start == null) {
+			  start = "*";
+		  } else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+			  throw new LibraryCloudException("Bad Param: recordChanged.after", Response.Status.BAD_REQUEST);
+		  } else {
+			  start = start+"T00:00:00Z";
+		  }
 
+		  if (end == null) {
+			  end = "*";
+		  } else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
+			  throw new LibraryCloudException("Bad Param: modified.before", Response.Status.BAD_REQUEST);
+		  } else {
+			  end = end+"T00:00:00Z";
+		  }
+		  query.addFilterQuery("recordChangeDateDate:["+start+" TO "+end+"]");
+	  }
 		QueryResponse response = null;
 		try {
 			response = server.query(query);
