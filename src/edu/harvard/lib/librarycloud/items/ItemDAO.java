@@ -519,7 +519,7 @@ public class ItemDAO {
 		  } else {
 			  end = end+"T00:00:00Z";
 		  }
-		  query.addFilterQuery("recordChangeDateDate:["+start+" TO "+end+"]");
+		  query.addFilterQuery("recordChangeDate:["+start+" TO "+end+"]");
 	  }
 		QueryResponse response = null;
 		try {
