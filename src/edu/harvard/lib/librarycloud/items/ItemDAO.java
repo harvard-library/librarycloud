@@ -354,7 +354,7 @@ public class ItemDAO {
         if (key.equals("url.access") && value.equals("preview")) {
             queryList.add("url.access.preview:true");
             continue;
-        } else if (key.equals("url.access") && value.equals("raw object in context")) {
+        } else if (key.equals("url.access") && value.equals("raw object")) {
             queryList.add("url.access.raw_object:true");
             continue;
         }
