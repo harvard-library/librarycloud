@@ -330,7 +330,7 @@ public class ItemDAO {
   private QueryResponse doQuery(MultivaluedMap<String, String> queryParams) {
 		String queryStr = "";
 		SolrQuery query = new SolrQuery();
-		System.out.println("queryParams: " + queryParams.size());
+		//System.out.println("queryParams: " + queryParams.size());
 		ArrayList<String> queryList = new ArrayList<String>();
 		HttpSolrClient server = SolrServer.getSolrConnection();
 
@@ -340,7 +340,7 @@ public class ItemDAO {
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
 				String value = queryParams.getFirst(key);
-				System.out.println(key + " : " + queryParams.getFirst(key)
+				//System.out.println(key + " : " + queryParams.getFirst(key)
 						+ "\n");
         if (key.equals("dates.start") || key.equals("dates.end")) {
           continue;
@@ -390,7 +390,7 @@ public class ItemDAO {
 					query.setFacet(true);
 					String[] facetArray = value.split(",");
 					for (String f : facetArray) {
-            System.out.println("F {"+f+"}");
+            //System.out.println("F {"+f+"}");
             if (f.equals("dateRange")) {
               try {
                 DateFormat formatter = new SimpleDateFormat("yyyy");
@@ -452,7 +452,7 @@ public class ItemDAO {
 		} else {
 			queryStr = "*:*";
 		}
-		System.out.print("queryStr: " + queryStr);
+		//System.out.print("queryStr: " + queryStr);
 		query.setQuery(queryStr);
 
     if (queryParams.containsKey("dates.start") || queryParams.containsKey("dates.end")) {
@@ -526,6 +526,7 @@ public class ItemDAO {
 			  end = end+"T00:00:00Z";
 		  }
 		  query.addFilterQuery("recordChangeDate:["+start+" TO "+end+"]");
+		  System.out.println(query.toQueryString());
 	  }
 		QueryResponse response = null;
 		try {
