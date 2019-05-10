@@ -440,9 +440,9 @@ public class ItemDAO {
 			Iterator<String> it = queryList.iterator();
 			while (it.hasNext()) {
 				String qTerm = (String) it.next();
-				System.out.print("QT: " + qTerm + "\n");
+				//System.out.print("QT: " + qTerm + "\n");
 				queryStr += qTerm;
-				System.out.print("QS: " + queryStr + "\n");
+				//System.out.print("QS: " + queryStr + "\n");
 				if (it.hasNext())
 					queryStr += " AND ";
 			}
@@ -525,8 +525,8 @@ public class ItemDAO {
 			  end = end+"T00:00:00Z";
 		  }
 		  query.addFilterQuery("recordChangeDate:["+start+" TO "+end+"]");
-		  System.out.println(query.toString());
 	  }
+	  	System.out.println("Query: " + query.toQueryString());
 		QueryResponse response = null;
 		try {
 			response = server.query(query);
