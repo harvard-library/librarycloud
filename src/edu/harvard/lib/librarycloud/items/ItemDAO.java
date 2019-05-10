@@ -526,7 +526,7 @@ public class ItemDAO {
 		  }
 		  query.addFilterQuery("recordChangeDate:["+start+" TO "+end+"]");
 	  }
-	  	System.out.println("Query: " + query.toQueryString());
+	  	System.out.println("Query: " + query.toString());
 		QueryResponse response = null;
 		try {
 			response = server.query(query);
