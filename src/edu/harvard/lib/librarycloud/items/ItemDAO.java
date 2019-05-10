@@ -340,8 +340,7 @@ public class ItemDAO {
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
 				String value = queryParams.getFirst(key);
-				//System.out.println(key + " : " + queryParams.getFirst(key)
-						+ "\n");
+				//System.out.println(key + " : " + queryParams.getFirst(key) + "\n");
         if (key.equals("dates.start") || key.equals("dates.end")) {
           continue;
         }
