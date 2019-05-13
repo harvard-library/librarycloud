@@ -335,7 +335,8 @@ public class ItemDAO {
 		HttpSolrClient server = SolrServer.getSolrConnection();
 
 		//michaelv 20190506
-	    query.setSort("recordIdentifier", ORDER.asc);
+      query.addSort("score", ORDER.desc);
+	    query.addSort("recordIdentifier", ORDER.asc);
 
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
