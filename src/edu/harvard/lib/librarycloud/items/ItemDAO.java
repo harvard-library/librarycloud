@@ -372,20 +372,18 @@ public class ItemDAO {
         if (key.equals("languageText")) {
             key = "language";
         }
-        int startNo = 0;
 		if (key.equals("start")) {
-			startNo = Integer.parseInt(value);
+			int startNo = Integer.parseInt(value);
 			if (startNo < 0)
 				startNo = 0;
-			//query.setStart(startNo);
+			if (startNo > 100000)
+			    startNo = 100000;
+			query.setStart(startNo);
 		} else if (key.equals("limit")) {
 			limit = Integer.parseInt(value);
 			if (limit > 250) {
 				limit = 250;
 			}
-			if (limit * startNo >= 100000)
-				startNo = 100000 / limit;
-			query.setStart(startNo);
 			query.setRows(limit);
         } else if (key.equals("sort.asc") || key.equals("sort")) {
 					query.setSort(value, ORDER.asc);
