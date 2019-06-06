@@ -196,7 +196,10 @@ public class ItemDAO {
 		}
 		String query = sb.toString();
 		Pagination pagination = new Pagination();
-		pagination.setNumFound(docs.getNumFound());
+		long numFound = docs.getNumFound();
+		//if (numFound > 100000)
+		//	numFound = 100000;
+		pagination.setNumFound(numFound);
 		pagination.setStart(docs.getStart());
 		pagination.setRows(limit);
 		pagination.setQuery(query);
@@ -369,17 +372,21 @@ public class ItemDAO {
         if (key.equals("languageText")) {
             key = "language";
         }
-				if (key.equals("start")) {
-					int startNo = Integer.parseInt(value);
-					if (startNo < 0)
-						startNo = 0;
-					query.setStart(startNo);
-				} else if (key.equals("limit")) {
-					limit = Integer.parseInt(value);
-					if (limit > 250) {
-						limit = 250;
-					}
-					query.setRows(limit);
+        int startNo = 0;
+		if (key.equals("start")) {
+			startNo = Integer.parseInt(value);
+			if (startNo < 0)
+				startNo = 0;
+			//query.setStart(startNo);
+		} else if (key.equals("limit")) {
+			limit = Integer.parseInt(value);
+			if (limit > 250) {
+				limit = 250;
+			}
+			if (limit * startNo >= 100000)
+				startNo = 100000 / limit;
+			query.setStart(startNo);
+			query.setRows(limit);
         } else if (key.equals("sort.asc") || key.equals("sort")) {
 					query.setSort(value, ORDER.asc);
         } else if (key.equals("sort.desc"))  {
