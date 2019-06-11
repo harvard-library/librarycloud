@@ -378,8 +378,8 @@ public class ItemDAO {
 			if (startNo < 0)
 				startNo = 0;
 			if (startNo > solrMaxStart)
-				throw new LibraryCloudException("Maximum start position (" + solrMaxStart + ") exceeded", Response.Status.BAD_REQUEST);
-			    //startNo = solrMaxStart;
+				startNo = solrMaxStart;
+				//throw new LibraryCloudException("Maximum start position (" + solrMaxStart + ") exceeded", Response.Status.BAD_REQUEST);
 			query.setStart(startNo);
 		} else if (key.equals("limit")) {
 			limit = Integer.parseInt(value);
