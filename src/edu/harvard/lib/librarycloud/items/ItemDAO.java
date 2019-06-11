@@ -374,10 +374,11 @@ public class ItemDAO {
         }
 		if (key.equals("start")) {
 			int startNo = Integer.parseInt(value);
+			int solrMaxStart = Integer.parseInt(Config.getInstance().SOLR_MAX_START);
 			if (startNo < 0)
 				startNo = 0;
-			if (startNo > 100000)
-			    startNo = 100000;
+			if (startNo > solrMaxStart)
+			    startNo = solrMaxStart;
 			query.setStart(startNo);
 		} else if (key.equals("limit")) {
 			limit = Integer.parseInt(value);
