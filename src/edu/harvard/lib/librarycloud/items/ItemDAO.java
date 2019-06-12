@@ -202,6 +202,7 @@ public class ItemDAO {
 		pagination.setNumFound(numFound);
 		pagination.setStart(docs.getStart());
 		pagination.setRows(limit);
+		pagination.setMaxResultSet(Config.getInstance().SOLR_MAX_START);
 		pagination.setQuery(query);
 		return pagination;
 	}
@@ -378,8 +379,8 @@ public class ItemDAO {
 			if (startNo < 0)
 				startNo = 0;
 			if (startNo > solrMaxStart)
-				//startNo = solrMaxStart;
-				throw new LibraryCloudException("Maximum start position (" + solrMaxStart + ") exceeded", Response.Status.BAD_REQUEST);
+				startNo = solrMaxStart;
+				//throw new LibraryCloudException("Maximum start position (" + solrMaxStart + ") exceeded", Response.Status.BAD_REQUEST);
 			query.setStart(startNo);
 		} else if (key.equals("limit")) {
 			limit = Integer.parseInt(value);
