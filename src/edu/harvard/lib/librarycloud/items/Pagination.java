@@ -73,7 +73,7 @@ public class Pagination {
 	}
 
 	@XmlElement
-	public String getMaxResultSet() { return maxResultSet}
+	public String getMaxResultSet() { return maxResultSet; }
 
 	public String getQuery() {
 		return query;
