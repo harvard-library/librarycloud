@@ -51,7 +51,7 @@ public class Pagination {
 	private long start;
 	private long rows;
 	private String query;
-	private String maxResultSet;
+	private String maxPageableSet;
 
 	public Pagination () {
 		
@@ -73,7 +73,7 @@ public class Pagination {
 	}
 
 	@XmlElement
-	public String getMaxResultSet() { return maxResultSet; }
+	public String getMaxPageableSet() { return maxPageableSet; }
 
 	public String getQuery() {
 		return query;
@@ -91,8 +91,8 @@ public class Pagination {
 		this.rows = rows;
 	}
 
-	public void setMaxResultSet(String maxResultSet){
-		this.maxResultSet = maxResultSet;
+	public void setMaxPageableSet(String maxPageableSet){
+		this.maxPageableSet = maxPageableSet;
 	}
 
 	public void setQuery(String query){

@@ -202,7 +202,7 @@ public class ItemDAO {
 		pagination.setNumFound(numFound);
 		pagination.setStart(docs.getStart());
 		pagination.setRows(limit);
-		pagination.setMaxResultSet(Config.getInstance().SOLR_MAX_START);
+		pagination.setMaxPageableSet(Config.getInstance().SOLR_MAX_START);
 		pagination.setQuery(query);
 		return pagination;
 	}
