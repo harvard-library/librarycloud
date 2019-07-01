@@ -422,7 +422,7 @@ public class ItemDAO {
 				ArrayList<String> idAr = new ArrayList<String>();
 				for (String rId: rIds) {
 					if (rId.contains(":"))
-						rId = "\" + rId + \"";
+						rId = "\"" + rId + "\"";
 					idAr.add(rId);
 				}
 				value = String.join(" OR ", idAr);
