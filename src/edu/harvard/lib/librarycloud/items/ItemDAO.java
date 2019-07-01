@@ -417,7 +417,7 @@ public class ItemDAO {
           }
 		}
 		if (key.equals("recordIdentifier")) {
-			if (value.contains(" OR " && value.contains(":"))) {
+			if (value.contains(" OR ") && value.contains(":")) {
 				String rIds[] = value.split(" OR ");
 				ArrayList<String> idAr = new ArrayList<String>();
 				for (String rId: rIds) {
