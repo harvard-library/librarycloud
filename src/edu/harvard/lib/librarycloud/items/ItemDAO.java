@@ -425,7 +425,7 @@ public class ItemDAO {
 						rId = "\"" + rId + "\"";
 					idAr.add(rId);
 				}
-				value = String.join(" OR ", idAr);
+				value = "(" + String.join(" OR ", idAr) + ")";
 			}
 			//if (value.contains(":"))
 			//	value = "\"" + value + "\"";
