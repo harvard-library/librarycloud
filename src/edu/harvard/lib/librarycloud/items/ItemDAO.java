@@ -429,10 +429,13 @@ public class ItemDAO {
 					idAr.add(rId);
 				}
 				value = "(" + String.join(" OR ", idAr) + ")";
+				queryList.add("recordIdentifier:" + value);
 			}
-			else  if (value.contains(":"))
-				value = "\"" + value + "\"";
-			queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+			else {
+				if (value.contains(":"))
+					value = "\"" + value + "\"";
+				queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+			}
 		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort")) {
 		} else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
