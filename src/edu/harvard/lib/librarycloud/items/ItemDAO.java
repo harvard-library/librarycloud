@@ -417,9 +417,19 @@ public class ItemDAO {
           }
 		}
 		if (key.equals("recordIdentifier")) {
-					if (value.contains(":"))
-						value = "\"" + value + "\"";
-					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+			if (value.contains(" OR " && value.contains(":"))) {
+				String rIds[] = value.split(" OR ");
+				ArrayList<String> idAr = new ArrayList<String>();
+				for (String rId: rIds) {
+					if (rId.contains(":"))
+						rId = "\"\"";
+					idAr.add(rId);
+				}
+				value = String.join(" OR ", idAr);
+			}
+			//if (value.contains(":"))
+			//	value = "\"" + value + "\"";
+			queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
 		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort")) {
 		} else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
