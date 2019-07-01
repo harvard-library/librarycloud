@@ -417,7 +417,10 @@ public class ItemDAO {
           }
 		}
 		if (key.equals("recordIdentifier")) {
+			if (value.contains(","))
+				value = value.replace(","," OR ");
 			if (value.contains(" OR ") && value.contains(":")) {
+				value = value.replace("(","").replace(")","");
 				String rIds[] = value.split(" OR ");
 				ArrayList<String> idAr = new ArrayList<String>();
 				for (String rId: rIds) {
@@ -427,8 +430,8 @@ public class ItemDAO {
 				}
 				value = "(" + String.join(" OR ", idAr) + ")";
 			}
-			//if (value.contains(":"))
-			//	value = "\"" + value + "\"";
+			else  if (value.contains(":"))
+				value = "\"" + value + "\"";
 			queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
 		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort")) {
 		} else {
