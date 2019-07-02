@@ -426,7 +426,7 @@ public class ItemDAO {
 				for (String rId: rIds) {
 					if (rId.contains(":"))
 						rId = "\"" + rId + "\"";
-					idAr.add(rId);
+					idAr.add(rId.replace(" ",""));
 				}
 				value = "(" + String.join(" OR ", idAr) + ")";
 				queryList.add("recordIdentifier:" + value);
