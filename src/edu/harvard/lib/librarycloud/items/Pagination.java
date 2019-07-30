@@ -52,6 +52,7 @@ public class Pagination {
 	private long rows;
 	private String query;
 	private String maxPageableSet;
+	private String nextCursor;
 
 	public Pagination () {
 		
@@ -75,6 +76,9 @@ public class Pagination {
 	@XmlElement
 	public String getMaxPageableSet() { return maxPageableSet; }
 
+	@XmlElement
+	public String getNextCursor() { return nextCursor; }
+
 	public String getQuery() {
 		return query;
 	}
@@ -93,6 +97,10 @@ public class Pagination {
 
 	public void setMaxPageableSet(String maxPageableSet){
 		this.maxPageableSet = maxPageableSet;
+	}
+
+	public void setNextCursor(String nextCursor){
+		this.nextCursor = nextCursor;
 	}
 
 	public void setQuery(String query){

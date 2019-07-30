@@ -172,6 +172,28 @@ public class ItemResource {
 	}
 
 	// because of problems rendering json with moxy, xml and json now divided into separate methods
+	//this one for xml
+	@GET @Path("items_by_cursor")
+	//@Produces ({"application/javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML + ";qs=0.9"})
+	@Produces (MediaType.APPLICATION_XML)
+	public SearchResultsMods getSearchResultsByCursor(@Context UriInfo ui) {
+		log.info("getSearchResults made query: " + "TO DO");
+		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+		//we don't currently need to use the pathParam
+		//MultivaluedMap<String, String> pathParams = ui.getPathParameters();
+
+		SearchResultsMods results = null;
+		try {
+			results = itemdao.getModsResultsByCursor(queryParams);
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		return results;
+	}
+
+	// because of problems rendering json with moxy, xml and json now divided into separate methods
 	//this one for json
 	@GET @Path("items")
     @JSONP(queryParam = "callback")
