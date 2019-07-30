@@ -629,6 +629,7 @@ public class ItemDAO {
 			cursor = CursorMarkParams.CURSOR_MARK_START;
 		try {
 			cursor = URLEncoder.encode(cursor, "UTF-8");
+		}
 		catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
