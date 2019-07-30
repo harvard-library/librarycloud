@@ -29,7 +29,7 @@ package edu.harvard.lib.librarycloud.items;
 
 import java.util.Properties;
 
-import javax.servlet.ServletContext;
+//import javax.servlet.ServletContext;
 
 /**
 *

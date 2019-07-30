@@ -176,6 +176,8 @@ public class ItemDAO {
 	public SearchResultsMods getModsResultsByCursor(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		QueryResponse response = doQueryByCursor(queryParams);
+		if (response.getNextCursorMark() != null);
+			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
 		results.setResponse(response);
 		SolrDocumentList docs = results.getSolrDocs();
@@ -619,12 +621,13 @@ public class ItemDAO {
 		//michaelv 20190506
 		//query.addSort("score", ORDER.desc);
 		query.addSort("recordIdentifier", ORDER.asc);
+		String cursor = null;
         if (queryParams.containsKey("cursor"))
-		    cursorMark = queryParams.getFirst("cursor");
+		    cursor = queryParams.getFirst("cursor");
 		else
-			cursorMark = CursorMarkParams.CURSOR_MARK_START;
-		query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
-			query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
+			cursor = CursorMarkParams.CURSOR_MARK_START;
+		query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
+
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
 				String value = queryParams.getFirst(key);
