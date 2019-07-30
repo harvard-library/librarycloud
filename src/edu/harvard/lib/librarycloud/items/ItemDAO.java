@@ -619,9 +619,9 @@ public class ItemDAO {
 		//michaelv 20190506
 		//query.addSort("score", ORDER.desc);
 		query.addSort("recordIdentifier", ORDER.asc);
-        if (queryParams.containsKey("cursor")
+        if (queryParams.containsKey("cursor"))
 		    cursorMark = queryParams.getFirst("cursor");
-		else)
+		else
 			cursorMark = CursorMarkParams.CURSOR_MARK_START;
 		query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
 			query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
