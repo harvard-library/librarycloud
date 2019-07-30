@@ -33,6 +33,7 @@ import edu.harvard.lib.librarycloud.items.mods.ModsType;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -176,7 +177,7 @@ public class ItemDAO {
 	public SearchResultsMods getModsResultsByCursor(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		QueryResponse response = doQueryByCursor(queryParams);
-		if (response.getNextCursorMark() != null);
+		if (response.getNextCursorMark() != null)
 			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
 		results.setResponse(response);
@@ -626,6 +627,13 @@ public class ItemDAO {
 		    cursor = queryParams.getFirst("cursor");
 		else
 			cursor = CursorMarkParams.CURSOR_MARK_START;
+		try {
+			cursor = URLEncoder.encode(cursor, "UTF-8");
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+
 		query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
 
 		if (queryParams.size() > 0) {
