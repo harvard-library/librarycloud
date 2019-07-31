@@ -381,6 +381,7 @@ public class ItemDAO {
 			  //System.out.println(e.getMessage());
 			  throw new LibraryCloudException("Unable to encode url", Response.Status.BAD_REQUEST);
 		  }
+		  query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
   		}
 
 		//michaelv 20190506
@@ -481,7 +482,7 @@ public class ItemDAO {
 					value = "\"" + value + "\"";
 				queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
 			}
-		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort")) {
+		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort") || key.equals("cursor")) {
 		} else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
