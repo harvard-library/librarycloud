@@ -372,6 +372,8 @@ public class ItemDAO {
 		  throw new LibraryCloudException("Bad Params: only start or cursor allowed, not both", Response.Status.BAD_REQUEST);
 	  if (queryParams.containsKey("cursor")) {
 		  cursor = queryParams.getFirst("cursor");
+	  cursor = cursor.replace("+","%2B").replace("=","%3D");
+
 	  //else
 	  //  cursor = CursorMarkParams.CURSOR_MARK_START;
 	  //  cursor = cursor.replace("+","%2B").replace("=","%3D");
