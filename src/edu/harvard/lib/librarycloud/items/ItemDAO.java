@@ -181,7 +181,6 @@ public class ItemDAO {
 		QueryResponse response = doQueryByCursor(queryParams);
 		if (response.getNextCursorMark() != null)
 			cursorMark = response.getNextCursorMark();
-		cursorMark = cursorMark.replace("+","&2B");
 		SearchResultsMods results = new SearchResultsMods();
 		results.setResponse(response);
 		SolrDocumentList docs = results.getSolrDocs();
@@ -233,7 +232,7 @@ public class ItemDAO {
 		pagination.setRows(limit);
 		pagination.setMaxPageableSet(Config.getInstance().SOLR_MAX_START);
 		pagination.setQuery(query);
-		pagination.setNextCursor(cursorMark);
+		pagination.setNextCursor(cursorMark.replace("+","%2B"));
 		return pagination;
 	}
 
