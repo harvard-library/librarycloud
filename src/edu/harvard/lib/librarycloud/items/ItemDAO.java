@@ -375,12 +375,12 @@ public class ItemDAO {
 	  //else
 	  //  cursor = CursorMarkParams.CURSOR_MARK_START;
 	  //  cursor = cursor.replace("+","%2B").replace("=","%3D");
-		  try {
-			  cursor = URLEncoder.encode(cursor, "UTF-8");
-		  } catch (Exception e) {
-			  //System.out.println(e.getMessage());
-			  throw new LibraryCloudException("Unable to encode url", Response.Status.BAD_REQUEST);
-		  }
+	  //  try {
+	  // 	  cursor = URLEncoder.encode(cursor, "UTF-8");
+	  //  } catch (Exception e) {
+	  //		  //System.out.println(e.getMessage());
+	  //		  throw new LibraryCloudException("Unable to encode url", Response.Status.BAD_REQUEST);
+	  //	  }
 		  query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
   		}
 
