@@ -627,13 +627,13 @@ public class ItemDAO {
 		    cursor = queryParams.getFirst("cursor");
 		else
 			cursor = CursorMarkParams.CURSOR_MARK_START;
-		cursor = cursor.replace("+","%2B").replace("=","%3D");
-		/*try {
+		//cursor = cursor.replace("+","%2B").replace("=","%3D");
+		try {
 			cursor = URLEncoder.encode(cursor, "UTF-8");
 		}
 		catch(Exception e) {
 			System.out.println(e.getMessage());
-		}*/
+		}
 
 		query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
 
