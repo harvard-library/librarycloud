@@ -156,10 +156,12 @@ public class ItemDAO {
 	 */
 	public SearchResultsMods getModsResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
-    QueryResponse response = doQuery(queryParams);
+    	QueryResponse response = doQuery(queryParams);
+		if (response.getNextCursorMark() != null)
+			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
-    results.setResponse(response);
-    SolrDocumentList docs = results.getSolrDocs();
+    	results.setResponse(response);
+    	SolrDocumentList docs = results.getSolrDocs();
 		Pagination pagination = getPagination(docs,queryParams);
 		ModsGroup modsGroup = getModsGroup(docs);
 		results.setItemGroup(modsGroup);
@@ -365,8 +367,24 @@ public class ItemDAO {
 		ArrayList<String> queryList = new ArrayList<String>();
 		HttpSolrClient server = SolrServer.getSolrConnection();
 
+	  String cursor = null;
+	  if (queryParams.containsKey("cursor") && queryParams.containsKey("start"))
+		  throw new LibraryCloudException("Bad Params: only start or cursor allowed, not both", Response.Status.BAD_REQUEST);
+	  if (queryParams.containsKey("cursor"))
+		  cursor = queryParams.getFirst("cursor");
+	  //else
+	  //  cursor = CursorMarkParams.CURSOR_MARK_START;
+	  //  cursor = cursor.replace("+","%2B").replace("=","%3D");
+	  try {
+		  cursor = URLEncoder.encode(cursor, "UTF-8");
+	  }
+	  catch(Exception e) {
+		  //System.out.println(e.getMessage());
+		  throw new LibraryCloudException("Unable to encode url", Response.Status.BAD_REQUEST);
+	  }
+
 		//michaelv 20190506
-      query.addSort("score", ORDER.desc);
+      	query.addSort("score", ORDER.desc);
 	    query.addSort("recordIdentifier", ORDER.asc);
 
 		if (queryParams.size() > 0) {
