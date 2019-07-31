@@ -385,7 +385,8 @@ public class ItemDAO {
   		}
 
 		//michaelv 20190506
-      	query.addSort("score", ORDER.desc);
+	    if (cursor == null)
+      		query.addSort("score", ORDER.desc);
 	    query.addSort("recordIdentifier", ORDER.asc);
 
 		if (queryParams.size() > 0) {
