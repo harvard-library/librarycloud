@@ -27,7 +27,7 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import edu.harvard.lib.librarycloud.items.dc.Metadata;f
+import edu.harvard.lib.librarycloud.items.dc.Metadata;
 import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 import java.io.StringReader;
