@@ -27,7 +27,7 @@
  **********************************************************************/
 package edu.harvard.lib.librarycloud.items;
 
-import edu.harvard.lib.librarycloud.items.dc.Metadata;
+import edu.harvard.lib.librarycloud.items.dc.Metadata;f
 import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 import java.io.StringReader;
@@ -81,7 +81,7 @@ import org.apache.solr.common.params.CursorMarkParams;
 public class ItemDAO {
 	Logger log = Logger.getLogger(ItemDAO.class);
 	private int limit = 10;
-	private String cursorMark = "";
+	private String cursorMark = null;
   private static Pattern lastModifiedDateRangePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
 
 	/**
@@ -157,7 +157,7 @@ public class ItemDAO {
 	public SearchResultsMods getModsResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
     	QueryResponse response = doQuery(queryParams);
-		if (response.getNextCursorMark() != "")
+		if (response.getNextCursorMark() != null)
 			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
     	results.setResponse(response);
@@ -179,7 +179,7 @@ public class ItemDAO {
 	public SearchResultsMods getModsResultsByCursor(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		QueryResponse response = doQueryByCursor(queryParams);
-		if (response.getNextCursorMark() != "")
+		if (response.getNextCursorMark() != null)
 			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
 		results.setResponse(response);
@@ -232,7 +232,8 @@ public class ItemDAO {
 		pagination.setRows(limit);
 		pagination.setMaxPageableSet(Config.getInstance().SOLR_MAX_START);
 		pagination.setQuery(query);
-		pagination.setNextCursor(cursorMark.replace("+","%2B"));
+		if (cursorMark != null)
+			pagination.setNextCursor(cursorMark.replace("+","%2B"));
 		return pagination;
 	}
 
