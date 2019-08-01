@@ -81,7 +81,7 @@ import org.apache.solr.common.params.CursorMarkParams;
 public class ItemDAO {
 	Logger log = Logger.getLogger(ItemDAO.class);
 	private int limit = 10;
-	private String cursorMark = null;
+	private String cursorMark = "";
   private static Pattern lastModifiedDateRangePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
 
 	/**
@@ -157,7 +157,7 @@ public class ItemDAO {
 	public SearchResultsMods getModsResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
     	QueryResponse response = doQuery(queryParams);
-		if (response.getNextCursorMark() != null)
+		if (response.getNextCursorMark() != "")
 			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
     	results.setResponse(response);
@@ -179,7 +179,7 @@ public class ItemDAO {
 	public SearchResultsMods getModsResultsByCursor(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
 		QueryResponse response = doQueryByCursor(queryParams);
-		if (response.getNextCursorMark() != null)
+		if (response.getNextCursorMark() != "")
 			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
 		results.setResponse(response);
