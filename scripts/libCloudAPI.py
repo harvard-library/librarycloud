@@ -4,7 +4,7 @@
 import urllib.request 
 import xml.dom.minidom
 
-def printIDs(doc):  
+def printIDs(doc):
   # check that the record exists in the API
   # query = doc.getElementsByTagName("query")
   numFound = doc.getElementsByTagName("numFound")
@@ -13,7 +13,7 @@ def printIDs(doc):
     query = doc.getElementsByTagName("query")
     query = query[0].firstChild.nodeValue
     print ("NO_RECORDS_FOUND_FOR_QUERY:_" + query)
-  
+
   # get mods:mods records
   modsRecords = doc.getElementsByTagName("mods:mods")
   # loop through each mods:mods record
@@ -54,7 +54,7 @@ def printIDs(doc):
         else: 
           results = results
         # if a rawObject is found but no preview is found:
-        results = results + "\t"
+          results = results + "\t"
         if preview == 0:
           # print "NO THUMBNAIL"
           results = results + "NO_THUMBNAIL"
@@ -64,11 +64,11 @@ def printIDs(doc):
         # get HarvardDRS:accessFlag
         accessFlagCheck = "NO_VALUE_FOUND"
         accessFlags = modsRecord.getElementsByTagName("HarvardDRS:accessFlag")
-        results = results + "\t"
+          results = results + "\t"
         for accessFlag in accessFlags:
             accessFlagCheck = accessFlag.firstChild.nodeValue
-        results = results + accessFlagCheck 
-          
+        results = results + accessFlagCheck
+
         print (results)
 
 def main():
@@ -90,10 +90,10 @@ def main():
     # define a variable to hold the source URL
     urlData = "https://api-qa.lib.harvard.edu/v2/items?"
     # add recordIdentifier=ID* and increase limit to 250
-    
+
     # use for all records except JSTOR Forum URNs
     # urlData = urlData + "recordIdentifier=" + x + "*" + "&limit=250"
-    
+
     # use for JSTOR Forum URNs
     urlData = urlData + "q=" + x + "&limit=250"
 
@@ -105,7 +105,6 @@ def main():
     
     # put urlData in DOM
     doc = xml.dom.minidom.parse(urllib.request.urlopen(urlData))
-
     # print results
     printIDs (doc)
 

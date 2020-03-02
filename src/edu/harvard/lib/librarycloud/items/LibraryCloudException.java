@@ -15,6 +15,6 @@ public class LibraryCloudException extends WebApplicationException {
 
     public LibraryCloudException(String message, Response.Status status) {
         super(Response.status(status).
-        		entity(new ErrorItem(status.getStatusCode(), message, "https://wiki.harvard.edu/confluence/display/LibraryStaffDoc/Library+Cloud")).build());
+        		entity(new ErrorItem(status.getStatusCode(), message, "https://wiki.harvard.edu/confluence/display/LibraryStaffDoc/LibraryCloud")).build());
     }
 }

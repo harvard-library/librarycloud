@@ -1,5 +1,6 @@
 /bin/
 .java-version
+.idea
 project.properties
 conf/application.properties
 solr/solr/librarycloud/data

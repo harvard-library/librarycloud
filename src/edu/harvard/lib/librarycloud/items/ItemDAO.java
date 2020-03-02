@@ -33,6 +33,7 @@ import edu.harvard.lib.librarycloud.items.mods.ModsType;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -67,6 +68,8 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.CursorMarkParams;
+
 /**
  *
  * ItemDAO makes queries to the solr index via solrj methods; item id info or
@@ -78,6 +81,7 @@ import org.apache.solr.common.SolrDocumentList;
 public class ItemDAO {
 	Logger log = Logger.getLogger(ItemDAO.class);
 	private int limit = 10;
+	private String cursorMark = null;
   private static Pattern lastModifiedDateRangePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
 
 	/**
@@ -152,10 +156,34 @@ public class ItemDAO {
 	 */
 	public SearchResultsMods getModsResults(
 			MultivaluedMap<String, String> queryParams) throws JAXBException {
-    QueryResponse response = doQuery(queryParams);
+    	QueryResponse response = doQuery(queryParams);
+		if (response.getNextCursorMark() != null)
+			cursorMark = response.getNextCursorMark();
 		SearchResultsMods results = new SearchResultsMods();
-    results.setResponse(response);
-    SolrDocumentList docs = results.getSolrDocs();
+    	results.setResponse(response);
+    	SolrDocumentList docs = results.getSolrDocs();
+		Pagination pagination = getPagination(docs,queryParams);
+		ModsGroup modsGroup = getModsGroup(docs);
+		results.setItemGroup(modsGroup);
+		results.setPagination(pagination);
+		return results;
+	}
+
+	/**
+	 * Returns search results for a given query, in mods format.
+	 *
+	 * @param queryParams query parameters to map to a solr query
+	 * @return the SearchResultsMods object for this query
+	 * @see SearchResultsMods
+	 */
+	public SearchResultsMods getModsResultsByCursor(
+			MultivaluedMap<String, String> queryParams) throws JAXBException {
+		QueryResponse response = doQueryByCursor(queryParams);
+		if (response.getNextCursorMark() != null)
+			cursorMark = response.getNextCursorMark();
+		SearchResultsMods results = new SearchResultsMods();
+		results.setResponse(response);
+		SolrDocumentList docs = results.getSolrDocs();
 		Pagination pagination = getPagination(docs,queryParams);
 		ModsGroup modsGroup = getModsGroup(docs);
 		results.setItemGroup(modsGroup);
@@ -196,10 +224,16 @@ public class ItemDAO {
 		}
 		String query = sb.toString();
 		Pagination pagination = new Pagination();
-		pagination.setNumFound(docs.getNumFound());
+		long numFound = docs.getNumFound();
+		//if (numFound > 100000)
+		//	numFound = 100000;
+		pagination.setNumFound(numFound);
 		pagination.setStart(docs.getStart());
 		pagination.setRows(limit);
+		pagination.setMaxPageableSet(Config.getInstance().SOLR_MAX_START);
 		pagination.setQuery(query);
+		if (cursorMark != null)
+			pagination.setNextCursor(cursorMark.replace("+","%2B"));
 		return pagination;
 	}
 
@@ -328,17 +362,40 @@ public class ItemDAO {
 	 * @see SolrDocumentList
 	 */
   private QueryResponse doQuery(MultivaluedMap<String, String> queryParams) {
-		String queryStr = "";
-		SolrQuery query = new SolrQuery();
-		System.out.println("queryParams: " + queryParams.size());
-		ArrayList<String> queryList = new ArrayList<String>();
-		HttpSolrClient server = SolrServer.getSolrConnection();
+	  String queryStr = "";
+	  SolrQuery query = new SolrQuery();
+	  //System.out.println("queryParams: " + queryParams.size());
+	  ArrayList<String> queryList = new ArrayList<String>();
+	  HttpSolrClient server = SolrServer.getSolrConnection();
+
+	  String cursor = null;
+	  if (queryParams.containsKey("cursor") && queryParams.containsKey("start"))
+		  throw new LibraryCloudException("Bad Params: only start or cursor allowed, not both", Response.Status.BAD_REQUEST);
+	  if (queryParams.containsKey("cursor")) {
+		  cursor = queryParams.getFirst("cursor");
+	  //cursor = cursor.replace("+","%2B").replace("=","%3D");
+
+	  //else
+	  //  cursor = CursorMarkParams.CURSOR_MARK_START;
+	  //  cursor = cursor.replace("+","%2B").replace("=","%3D");
+	  //  try {
+	  // 	  cursor = URLEncoder.encode(cursor, "UTF-8");
+	  //  } catch (Exception e) {
+	  //		  //System.out.println(e.getMessage());
+	  //		  throw new LibraryCloudException("Unable to encode url", Response.Status.BAD_REQUEST);
+	  //	  }
+		  query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
+  		}
+
+		//michaelv 20190506
+	    if (cursor == null)
+      		query.addSort("score", ORDER.desc);
+	    query.addSort("recordIdentifier", ORDER.asc);
 
 		if (queryParams.size() > 0) {
 			for (String key : queryParams.keySet()) {
 				String value = queryParams.getFirst(key);
-				System.out.println(key + " : " + queryParams.getFirst(key)
-						+ "\n");
+				//System.out.println(key + " : " + queryParams.getFirst(key) + "\n");
         if (key.equals("dates.start") || key.equals("dates.end")) {
           continue;
         }
@@ -348,10 +405,13 @@ public class ItemDAO {
         if (key.equals("processed.after") || key.equals("processed.before")) {
           continue;
         }
+		if (key.equals("recordChanged.after") || key.equals("recordChanged.before")) {
+			continue;
+		}
         if (key.equals("url.access") && value.equals("preview")) {
             queryList.add("url.access.preview:true");
             continue;
-        } else if (key.equals("url.access") && value.equals("raw object in context")) {
+        } else if (key.equals("url.access") && value.equals("raw object")) {
             queryList.add("url.access.raw_object:true");
             continue;
         }
@@ -363,17 +423,21 @@ public class ItemDAO {
         if (key.equals("languageText")) {
             key = "language";
         }
-				if (key.equals("start")) {
-					int startNo = Integer.parseInt(value);
-					if (startNo < 0)
-						startNo = 0;
-					query.setStart(startNo);
-				} else if (key.equals("limit")) {
-					limit = Integer.parseInt(value);
-					if (limit > 250) {
-						limit = 250;
-					}
-					query.setRows(limit);
+		if (key.equals("start")) {
+			int startNo = Integer.parseInt(value);
+			int solrMaxStart = Integer.parseInt(Config.getInstance().SOLR_MAX_START);
+			if (startNo < 0)
+				startNo = 0;
+			if (startNo > solrMaxStart)
+				startNo = solrMaxStart;
+				//throw new LibraryCloudException("Maximum start position (" + solrMaxStart + ") exceeded", Response.Status.BAD_REQUEST);
+			query.setStart(startNo);
+		} else if (key.equals("limit")) {
+			limit = Integer.parseInt(value);
+			if (limit > 250) {
+				limit = 250;
+			}
+			query.setRows(limit);
         } else if (key.equals("sort.asc") || key.equals("sort")) {
 					query.setSort(value, ORDER.asc);
         } else if (key.equals("sort.desc"))  {
@@ -384,7 +448,7 @@ public class ItemDAO {
 					query.setFacet(true);
 					String[] facetArray = value.split(",");
 					for (String f : facetArray) {
-            System.out.println("F {"+f+"}");
+            //System.out.println("F {"+f+"}");
             if (f.equals("dateRange")) {
               try {
                 DateFormat formatter = new SimpleDateFormat("yyyy");
@@ -403,10 +467,26 @@ public class ItemDAO {
           }
 		}
 		if (key.equals("recordIdentifier")) {
-					if (value.contains(":"))
-						value = "\"" + value + "\"";
-					queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
-		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort")) {
+			if (value.contains(","))
+				value = value.replace(","," OR ");
+			if (value.contains(" OR ") && value.contains(":")) {
+				value = value.replace("(","").replace(")","");
+				String rIds[] = value.split(" OR ");
+				ArrayList<String> idAr = new ArrayList<String>();
+				for (String rId: rIds) {
+					if (rId.contains(":"))
+						rId = "\"" + rId + "\"";
+					idAr.add(rId.replace(" ",""));
+				}
+				value = "(" + String.join(" OR ", idAr) + ")";
+				queryList.add("recordIdentifier:" + value);
+			}
+			else {
+				if (value.contains(":"))
+					value = "\"" + value + "\"";
+				queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+			}
+		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort") || key.equals("cursor")) {
 		} else {
             if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
 						queryList.add(key.replace("_exact", "") + ":\"" + value
@@ -435,9 +515,9 @@ public class ItemDAO {
 			Iterator<String> it = queryList.iterator();
 			while (it.hasNext()) {
 				String qTerm = (String) it.next();
-				System.out.print("QT: " + qTerm + "\n");
+				//System.out.print("QT: " + qTerm + "\n");
 				queryStr += qTerm;
-				System.out.print("QS: " + queryStr + "\n");
+				//System.out.print("QS: " + queryStr + "\n");
 				if (it.hasNext())
 					queryStr += " AND ";
 			}
@@ -446,7 +526,7 @@ public class ItemDAO {
 		} else {
 			queryStr = "*:*";
 		}
-		System.out.print("queryStr: " + queryStr);
+		//System.out.print("queryStr: " + queryStr);
 		query.setQuery(queryStr);
 
     if (queryParams.containsKey("dates.start") || queryParams.containsKey("dates.end")) {
@@ -501,7 +581,27 @@ public class ItemDAO {
       query.addFilterQuery("processingDate:["+start+" TO "+end+"]");
     }
 
+	  if (queryParams.containsKey("recordChanged.after") || queryParams.containsKey("recordChanged.before")) {
+		  String start = queryParams.getFirst("recordChanged.after");
+		  String end = queryParams.getFirst("recordChanged.before");
+		  if (start == null) {
+			  start = "*";
+		  } else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+			  throw new LibraryCloudException("Bad Param: recordChanged.after", Response.Status.BAD_REQUEST);
+		  } else {
+			  start = start+"T00:00:00Z";
+		  }
 
+		  if (end == null) {
+			  end = "*";
+		  } else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
+			  throw new LibraryCloudException("Bad Param: modified.before", Response.Status.BAD_REQUEST);
+		  } else {
+			  end = end+"T00:00:00Z";
+		  }
+		  query.addFilterQuery("recordChangeDate:["+start+" TO "+end+"]");
+	  }
+	  	System.out.println("Query: " + query.toString());
 		QueryResponse response = null;
 		try {
 			response = server.query(query);
@@ -523,6 +623,277 @@ public class ItemDAO {
 				}
     return response;
 	}
+
+
+	/**
+	 * Returns a SolrDocumentList for a given set of search parameters. Search
+	 * parameters are parsed and mapped into solr (solrj) query syntax, and solr
+	 * query is performed.
+	 *
+	 * @param queryParams
+	 * query parameters to map to a solr query
+	 * @return the QueryResponse for this query
+	 * @see SolrDocumentList
+	 */
+	private QueryResponse doQueryByCursor(MultivaluedMap<String, String> queryParams) {
+		String queryStr = "";
+		SolrQuery query = new SolrQuery();
+		//System.out.println("queryParams: " + queryParams.size());
+		ArrayList<String> queryList = new ArrayList<String>();
+		HttpSolrClient server = SolrServer.getSolrConnection();
+
+		//michaelv 20190506
+		//query.addSort("score", ORDER.desc);
+		query.addSort("recordIdentifier", ORDER.asc);
+		String cursor = null;
+        if (queryParams.containsKey("cursor"))
+		    cursor = queryParams.getFirst("cursor");
+		else
+			cursor = CursorMarkParams.CURSOR_MARK_START;
+		//cursor = cursor.replace("+","%2B").replace("=","%3D");
+		try {
+			cursor = URLEncoder.encode(cursor, "UTF-8");
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+		query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursor);
+
+		if (queryParams.size() > 0) {
+			for (String key : queryParams.keySet()) {
+				String value = queryParams.getFirst(key);
+				//System.out.println(key + " : " + queryParams.getFirst(key) + "\n");
+				if (key.equals("dates.start") || key.equals("dates.end")) {
+					continue;
+				}
+				if (key.equals("modified.after") || key.equals("modified.before")) {
+					continue;
+				}
+				if (key.equals("processed.after") || key.equals("processed.before")) {
+					continue;
+				}
+				if (key.equals("recordChanged.after") || key.equals("recordChanged.before")) {
+					continue;
+				}
+				if (key.equals("url.access") && value.equals("preview")) {
+					queryList.add("url.access.preview:true");
+					continue;
+				} else if (key.equals("url.access") && value.equals("raw object")) {
+					queryList.add("url.access.raw_object:true");
+					continue;
+				}
+
+				if (key.equals("identifier") && value.startsWith("978") && (value.length() == 13)) {
+					value = ISBN.convert13to10(value);
+				}
+
+				if (key.equals("languageText")) {
+					key = "language";
+				}
+				/*
+				if (key.equals("start")) {
+					int startNo = Integer.parseInt(value);
+					int solrMaxStart = Integer.parseInt(Config.getInstance().SOLR_MAX_START);
+					if (startNo < 0)
+						startNo = 0;
+					if (startNo > solrMaxStart)
+						startNo = solrMaxStart;
+					//throw new LibraryCloudException("Maximum start position (" + solrMaxStart + ") exceeded", Response.Status.BAD_REQUEST);
+					query.setStart(startNo);
+				}*/
+				else if (key.equals("limit")) {
+					limit = Integer.parseInt(value);
+					if (limit > 250) {
+						limit = 250;
+					}
+					query.setRows(limit);
+				} else if (key.equals("sort.asc") || key.equals("sort")) {
+					query.setSort(value, ORDER.asc);
+				} else if (key.equals("sort.desc"))  {
+					query.setSort(value, ORDER.desc);
+				} else if (key.startsWith("facet.range")) {
+					// ignore
+				} else if (key.startsWith("facet")) {
+					query.setFacet(true);
+					String[] facetArray = value.split(",");
+					for (String f : facetArray) {
+						//System.out.println("F {"+f+"}");
+						if (f.equals("dateRange")) {
+							try {
+								DateFormat formatter = new SimpleDateFormat("yyyy");
+								Date start = (queryParams.containsKey("facet.range.start")) ? formatter.parse(queryParams.getFirst("facet.range.start")) : formatter.parse("0001");
+								Date end = (queryParams.containsKey("facet.range.end")) ? formatter.parse(queryParams.getFirst("facet.range.end")) : formatter.parse("2050");
+								String gap = (queryParams.containsKey("facet.range.gap")) ? queryParams.getFirst("facet.range.gap") : "+10YEAR";
+								query.addDateRangeFacet("dateRange", start, end, gap);
+							} catch (ParseException pe) {
+								log.error("parse date range facet params error");
+							}
+						} else {
+							if (f.equals("setName"))
+								f = "setName_str";
+							query.addFacetField(f);
+						}
+					}
+				}
+				if (key.equals("recordIdentifier")) {
+					if (value.contains(","))
+						value = value.replace(","," OR ");
+					if (value.contains(" OR ") && value.contains(":")) {
+						value = value.replace("(","").replace(")","");
+						String rIds[] = value.split(" OR ");
+						ArrayList<String> idAr = new ArrayList<String>();
+						for (String rId: rIds) {
+							if (rId.contains(":"))
+								rId = "\"" + rId + "\"";
+							idAr.add(rId.replace(" ",""));
+						}
+						value = "(" + String.join(" OR ", idAr) + ")";
+						queryList.add("recordIdentifier:" + value);
+					}
+					else {
+						if (value.contains(":"))
+							value = "\"" + value + "\"";
+						queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+					}
+				} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort") || key.equals("cursor")){
+				} else {
+					if (key.endsWith("_exact") || key.equals("fileDeliveryURL") || key.equals("availableTo"))
+						queryList.add(key.replace("_exact", "") + ":\"" + value
+								+ "\"");
+					else {
+						value = value.trim();
+						if (value.contains(" OR ") || value.contains(" AND ") || value.contains(" NOT "))
+							value = "(" + value + ")";
+						else if (value.contains(" "))
+							value = "( " + value.replaceAll(" ", " AND ") + ")";
+						if (value.contains(":"))
+							value = "\"" + value + "\"";
+						if (key.equals("q")) {
+							if (!value.equals("*")) {
+								queryList.add("keyword:" + value);
+							}
+						} else if (!key.equals("callback")) {
+							if (key.equals("seriesTitle")) {
+								key = "relatedItem";
+							}
+							queryList.add("(" + key + "_keyword:" + value + ")");
+						}
+					}
+				}
+			}
+			Iterator<String> it = queryList.iterator();
+			while (it.hasNext()) {
+				String qTerm = (String) it.next();
+				//System.out.print("QT: " + qTerm + "\n");
+				queryStr += qTerm;
+				//System.out.print("QS: " + queryStr + "\n");
+				if (it.hasNext())
+					queryStr += " AND ";
+			}
+			if (queryList.size() == 0)
+				queryStr = "*:*";
+		} else {
+			queryStr = "*:*";
+		}
+		//System.out.print("queryStr: " + queryStr);
+		query.setQuery(queryStr);
+
+		if (queryParams.containsKey("dates.start") || queryParams.containsKey("dates.end")) {
+			String start = queryParams.getFirst("dates.start");
+			String end = queryParams.getFirst("dates.end");
+			if (start == null)
+				start = "*";
+			if (end == null)
+				end = "*";
+			query.addFilterQuery("dateRange:["+start+" TO "+end+"]");
+		}
+
+		if (queryParams.containsKey("modified.after") || queryParams.containsKey("modified.before")) {
+			String start = queryParams.getFirst("modified.after");
+			String end = queryParams.getFirst("modified.before");
+			if (start == null) {
+				start = "*";
+			} else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+				throw new LibraryCloudException("Bad Param: modified.after", Response.Status.BAD_REQUEST);
+			} else {
+				start = start+"T00:00:00Z";
+			}
+
+			if (end == null) {
+				end = "*";
+			} else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
+				throw new LibraryCloudException("Bad Param: modified.before", Response.Status.BAD_REQUEST);
+			} else {
+				end = end+"T00:00:00Z";
+			}
+			query.addFilterQuery("_lastModifiedDate:["+start+" TO "+end+"]");
+		}
+
+		if (queryParams.containsKey("processed.after") || queryParams.containsKey("processed.before")) {
+			String start = queryParams.getFirst("processed.after");
+			String end = queryParams.getFirst("processed.before");
+			if (start == null) {
+				start = "*";
+			} else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+				throw new LibraryCloudException("Bad Param: processed.after", Response.Status.BAD_REQUEST);
+			} else {
+				start = start+"T00:00:00Z";
+			}
+
+			if (end == null) {
+				end = "*";
+			} else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
+				throw new LibraryCloudException("Bad Param: processed.before", Response.Status.BAD_REQUEST);
+			} else {
+				end = end+"T00:00:00Z";
+			}
+			query.addFilterQuery("processingDate:["+start+" TO "+end+"]");
+		}
+
+		if (queryParams.containsKey("recordChanged.after") || queryParams.containsKey("recordChanged.before")) {
+			String start = queryParams.getFirst("recordChanged.after");
+			String end = queryParams.getFirst("recordChanged.before");
+			if (start == null) {
+				start = "*";
+			} else if (!lastModifiedDateRangePattern.matcher(start).matches()) {
+				throw new LibraryCloudException("Bad Param: recordChanged.after", Response.Status.BAD_REQUEST);
+			} else {
+				start = start+"T00:00:00Z";
+			}
+
+			if (end == null) {
+				end = "*";
+			} else if (!lastModifiedDateRangePattern.matcher(end).matches()) {
+				throw new LibraryCloudException("Bad Param: modified.before", Response.Status.BAD_REQUEST);
+			} else {
+				end = end+"T00:00:00Z";
+			}
+			query.addFilterQuery("recordChangeDate:["+start+" TO "+end+"]");
+		}
+		System.out.println("Query: " + query.toString());
+		QueryResponse response = null;
+		try {
+			response = server.query(query);
+		} catch (SolrServerException se) {
+			log.error(se.getMessage());
+			throw new LibraryCloudException(se.getMessage(), Response.Status.BAD_REQUEST);
+		} catch (RemoteSolrException rse) {
+			if (rse.getMessage().contains("SyntaxError")) {
+				log.error("solr syntax error");
+				throw new LibraryCloudException("Incorrect query syntax", Response.Status.BAD_REQUEST);
+			} else {
+				String msg = rse.getMessage().replace("_keyword", "");
+				log.error(msg);
+				throw new LibraryCloudException("Incorrect query syntax:" + msg, Response.Status.BAD_REQUEST);
+			}
+		}
+		catch (IOException rse) {
+			throw new LibraryCloudException("IO Exception", Response.Status.BAD_REQUEST);
+		}
+		return response;
+	}
+
 
 	/**
 	 *

@@ -29,7 +29,7 @@ package edu.harvard.lib.librarycloud.items;
 
 import java.util.Properties;
 
-import javax.servlet.ServletContext;
+//import javax.servlet.ServletContext;
 
 /**
 *
@@ -43,6 +43,7 @@ public class Config {
 	public String SOLR_URL;
 	public String JSON_XSLT;
 	public String DC_XSLT;
+	public String SOLR_MAX_START;
     
 	private static Config conf;
 	
@@ -62,6 +63,7 @@ public class Config {
 		SOLR_URL = props.getProperty("solr_url");
 		JSON_XSLT = props.getProperty("json_xslt");
 		DC_XSLT = props.getProperty("dc_xslt");
+		SOLR_MAX_START = props.getProperty("solr_max_start");
 	
 	}
 	
