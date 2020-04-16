@@ -82,6 +82,7 @@ public class ItemDAO {
 	Logger log = Logger.getLogger(ItemDAO.class);
 	private int limit = 10;
 	private String cursorMark = null;
+	String solrErr = "We are experiencing search difficulties, please contact LTS Support from Wiki page below";
   private static Pattern lastModifiedDateRangePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");
 
 	/**
@@ -114,15 +115,15 @@ public class ItemDAO {
 		} catch (SolrServerException se) {
 			se.printStackTrace();
 			log.error(se.getMessage());
-			throw new LibraryCloudException("Internal Server Error:" + se.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+			throw new LibraryCloudException(solrErr, Response.Status.INTERNAL_SERVER_ERROR);
 		} catch (RemoteSolrException rse) {
 		if (rse.getMessage().contains("SyntaxError")) {
-			log.error("solr syntax error");
+			log.error("solr syntax error:" + rse.getMessage());
 			throw new LibraryCloudException("Incorrect query syntax", Response.Status.BAD_REQUEST);
 		} else {
 			String msg = rse.getMessage().replace("_keyword", "");
 			log.error(msg);
-			throw new LibraryCloudException("Incorrect query syntax:" + msg, Response.Status.BAD_REQUEST);
+			throw new LibraryCloudException("Incorrect query syntax", Response.Status.BAD_REQUEST);
 		}
     } catch (IOException rse) {
       throw new LibraryCloudException("IO Exception", Response.Status.BAD_REQUEST);
@@ -607,10 +608,11 @@ public class ItemDAO {
 			response = server.query(query);
 		} catch (SolrServerException se) {
 			log.error(se.getMessage());
-			throw new LibraryCloudException(se.getMessage(), Response.Status.BAD_REQUEST);
+			//throw new LibraryCloudException(se.getMessage(), Response.Status.BAD_REQUEST);
+			throw new LibraryCloudException(solrErr, Response.Status.BAD_REQUEST);
 		} catch (RemoteSolrException rse) {
 			if (rse.getMessage().contains("SyntaxError")) {
-				log.error("solr syntax error");
+				log.error("solr syntax error:" + rse.getMessage());
 				throw new LibraryCloudException("Incorrect query syntax", Response.Status.BAD_REQUEST);
 			} else {
 				String msg = rse.getMessage().replace("_keyword", "");
@@ -877,7 +879,7 @@ public class ItemDAO {
 			response = server.query(query);
 		} catch (SolrServerException se) {
 			log.error(se.getMessage());
-			throw new LibraryCloudException(se.getMessage(), Response.Status.BAD_REQUEST);
+			throw new LibraryCloudException(solrErr, Response.Status.BAD_REQUEST);
 		} catch (RemoteSolrException rse) {
 			if (rse.getMessage().contains("SyntaxError")) {
 				log.error("solr syntax error");
