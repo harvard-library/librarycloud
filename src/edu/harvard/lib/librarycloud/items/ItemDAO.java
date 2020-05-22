@@ -973,6 +973,15 @@ public class ItemDAO {
 		return sw.toString();
 	}
 
+	protected String getCsvResults(SearchResultsMods results) throws JAXBException {
+		String rawResults = marshallObject(results);
+		//System.out.println("RAW: " + rawResults);
+		String preCsvXml = transform(rawResults, Config.getInstance().CSVPREP_XSLT);
+		//System.out.println("PRECSV: " + preCsvXml);
+		String csvResults = transform(preCsvXml, Config.getInstance().CSV_XSLT);
+		return csvResults;
+	}
+
 	protected String getJsonFromXml(String xml) {
 	    XMLSerializer serializer = new XMLSerializer();
 	    serializer.setSkipNamespaces(true);
