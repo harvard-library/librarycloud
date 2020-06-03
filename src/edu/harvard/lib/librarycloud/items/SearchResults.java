@@ -92,14 +92,20 @@ public class SearchResults {
     for (FacetField facetField : facets) {
       List<FacetTerm> facetTerms = new ArrayList<FacetTerm>();
       FacetType facetType = new FacetType();
-      facetType.setFacetName(facetField.getName());
+      String fname = facetField.getName();
+      facetType.setFacetName(fname);
       List<FacetField.Count> facetEntries = facetField.getValues();
       for (FacetField.Count fcount : facetEntries) {
         if (fcount.getCount() > 0) {
-          FacetTerm facetTerm = new FacetTerm();
-          facetTerm.setTermName(fcount.getName());
-          facetTerm.setTermCount(fcount.getCount());
-          facetTerms.add(facetTerm);
+          if (fname.equals("setSpec") && fcount.getName().startsWith("hdc_")) {
+            //do not display hdc sets
+          }
+          else {
+            FacetTerm facetTerm = new FacetTerm();
+            facetTerm.setTermName(fcount.getName());
+            facetTerm.setTermCount(fcount.getCount());
+            facetTerms.add(facetTerm);
+          }
         }
       }
       facetType.setFacetTerms(facetTerms);
