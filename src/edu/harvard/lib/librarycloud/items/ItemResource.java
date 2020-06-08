@@ -205,8 +205,10 @@ public class ItemResource {
 		SearchResultsMods results = null;
 		String csvResults = null;
 		try {
-			results = itemdao.getModsResults(queryParams);
+			results = itemdao.getModsResultsByCursor(queryParams);
+			//System.out.println("NUMFOUND: " + results.getPagination().getNumFound());
 			csvResults = itemdao.getCsvResults(results);
+
 		} catch (JAXBException je) {
 			je.printStackTrace();
 			log.error(je.getMessage());
