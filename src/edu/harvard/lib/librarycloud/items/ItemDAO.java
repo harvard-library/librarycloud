@@ -973,12 +973,19 @@ public class ItemDAO {
 		return sw.toString();
 	}
 
+	protected String getCsvAssessmentResults(SearchResultsMods results) throws JAXBException {
+		String rawResults = marshallObject(results);
+		//System.out.println("RAW: " + rawResults);
+		String preCsvXml = transform(rawResults, Config.getInstance().CSVASSESSMENTPREP_XSLT);
+		//System.out.println("PRECSV: " + preCsvXml);
+		String csvResults = transform(preCsvXml, Config.getInstance().CSVASSESSMENT_XSLT);
+		return csvResults;
+	}
+
 	protected String getCsvResults(SearchResultsMods results) throws JAXBException {
 		String rawResults = marshallObject(results);
 		//System.out.println("RAW: " + rawResults);
-		String preCsvXml = transform(rawResults, Config.getInstance().CSVPREP_XSLT);
-		//System.out.println("PRECSV: " + preCsvXml);
-		String csvResults = transform(preCsvXml, Config.getInstance().CSV_XSLT);
+		String preCsvXml = transform(rawResults, Config.getInstance().CSV_XSLT);
 		return csvResults;
 	}
 
