@@ -67,7 +67,7 @@ public class Config {
 		JSON_XSLT = props.getProperty("json_xslt");
 		DC_XSLT = props.getProperty("dc_xslt");
 		CSVASSESSMENTPREP_XSLT = props.getProperty("csvassessmentprep_xslt");
-		CSVASSESSMENTXSLT = props.getProperty("csvassessment_xslt");
+		CSVASSESSMENT_XSLT = props.getProperty("csvassessment_xslt");
 		CSV_XSLT = props.getProperty("csv_xslt");
 		SOLR_MAX_START = props.getProperty("solr_max_start");
 	
