@@ -100,7 +100,7 @@ public class ItemDAO {
 			if (id.contains(":"))
 				id = "\"" + id + "\"";
 			server = SolrServer.getSolrConnection();
-			SolrQuery query = new SolrQuery("(recordIdentifier:" + id + " OR priorRecordIdentifier:" + id + ")");
+			SolrQuery query = new SolrQuery("(recordIdentifier_keyword:" + id + " OR priorRecordIdentifier_keyword:" + id + ")");
 			QueryResponse response = server.query(query);
 			docs = response.getResults();
 			if (docs.size() == 0)
@@ -479,12 +479,12 @@ public class ItemDAO {
 					idAr.add(rId.replace(" ",""));
 				}
 				value = "(" + String.join(" OR ", idAr) + ")";
-				queryList.add("recordIdentifier:" + value);
+				queryList.add("recordIdentifier_keyword:" + value);
 			}
 			else {
 				if (value.contains(":"))
 					value = "\"" + value + "\"";
-				queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+				queryList.add("(recordIdentifier_keyword:" + value + " OR priorRecordIdentifier_keyword:" + value + ")");
 			}
 		} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort") || key.equals("cursor")) {
 		} else {
@@ -749,12 +749,12 @@ public class ItemDAO {
 							idAr.add(rId.replace(" ",""));
 						}
 						value = "(" + String.join(" OR ", idAr) + ")";
-						queryList.add("recordIdentifier:" + value);
+						queryList.add("recordIdentifier_keyword:" + value);
 					}
 					else {
 						if (value.contains(":"))
 							value = "\"" + value + "\"";
-						queryList.add("(recordIdentifier:" + value + " OR priorRecordIdentifier:" + value + ")");
+						queryList.add("(recordIdentifier_keyword:" + value + " OR priorRecordIdentifier_keyword:" + value + ")");
 					}
 				} else if (key.equals("facet") || key.equals("facets") || key.equals("limit") || key.equals("start") || key.startsWith("sort") || key.equals("cursor")){
 				} else {
