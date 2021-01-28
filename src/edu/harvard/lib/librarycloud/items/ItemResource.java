@@ -193,6 +193,30 @@ public class ItemResource {
 		return results;
 	}
 
+	// produce iiif output
+	@GET @Path("items.iiif")
+	@Produces (MediaType.APPLICATION_XML)
+	public String getSearchResultsByCursorCsv(@Context UriInfo ui) {
+		log.info("getSearchResults made query: " + "TO DO");
+		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
+		//we don't currently need to use the pathParam
+		//MultivaluedMap<String, String> pathParams = ui.getPathParameters();
+
+		SearchResultsMods results = null;
+		String iiifResults = null;
+		try {
+			results = itemdao.getModsResults(queryParams);
+			//System.out.println("NUMFOUND: " + results.getPagination().getNumFound());
+			iiifResults = itemdao.getIIIFResults(results);
+
+		} catch (JAXBException je) {
+			je.printStackTrace();
+			log.error(je.getMessage());
+			throw new LibraryCloudException("Internal Server Error:" + je.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+		}
+		return iiifResults;
+	}
+
 	// because of problems rendering json with moxy, xml and json now divided into separate methods
 	//this one for json
 	@GET @Path("items")
