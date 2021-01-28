@@ -974,6 +974,13 @@ public class ItemDAO {
 		return sw.toString();
 	}
 
+	protected String getIIIFResults(SearchResultsMods results) throws JAXBException {
+		String rawResults = marshallObject(results);
+		//System.out.println("RAW: " + rawResults);
+		String iiifResults = transform(rawResults, Config.getInstance().IIIF_XSLT);
+		return iiifResults;
+	}
+
 	protected String getJsonFromXml(String xml) {
 	    XMLSerializer serializer = new XMLSerializer();
 	    serializer.setSkipNamespaces(true);
