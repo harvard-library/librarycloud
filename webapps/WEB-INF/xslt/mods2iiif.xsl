@@ -31,35 +31,44 @@
             <xsl:apply-templates select="mods:language"/>
             <xsl:apply-templates select=".//mods:form"/>
             <xsl:apply-templates select=".//mods:extent"/>
-            <!--<xsl:apply-templates select="//cdwalite:termMaterialsTech"/>-->
-            <!--<xsl:apply-templates select="//mods:subject"/>-->
-            <!--<xsl:apply-templates select="//mods:physicalLocation[not(@displayLabel='Harvard repository')]"/>-->
-            <!--<xsl:apply-templates select="//mods:hierarchicalGeographic"/>-->
+            <xsl:apply-templates select=".//cdwalite:termMaterialsTech"/>
+            <xsl:apply-templates
+                select=".//mods:subject[not(mods:hierarchicalGeographic) and not(mods:geographicCode) and not(mods:titleInfo) and not(mods:name)]"/>
+            <xsl:apply-templates select=".//mods:subject[mods:titleInfo]"/>
+            <xsl:apply-templates select=".//mods:subject[mods:name]"/>
+            <xsl:apply-templates
+                select=".//mods:physicalLocation[not(@displayLabel = 'Harvard repository')]"/>
+            <xsl:apply-templates select=".//mods:hierarchicalGeographic"/>
             <xsl:apply-templates select=".//mods:coordinates"/>
             <xsl:apply-templates select=".//mods:genre"/>
-            <!--<xsl:apply-templates select="//cdwalite:culture"/>-->
-            <!--<xsl:apply-templates select="//cdwalite:style"/>-->
+            <xsl:apply-templates select="//cdwalite:culture"/>
+            <xsl:apply-templates select="//cdwalite:style"/>
             <xsl:apply-templates select="mods:tableOfContents"/>
             <xsl:apply-templates
                 select=".//mods:note[not(@type = 'statement of responsibility') and not(@type = 'organization') and not(@type = 'funding')]"/>
             <xsl:apply-templates select=".//mods:note[@type = 'statement of responsibility']"/>
             <xsl:apply-templates select=".//mods:note[@type = 'statement of funding']"/>
             <xsl:apply-templates select=".//mods:accessCondition"/>
-            <!--<xsl:apply-templates select="mods:name[not(mods:role/mods:roleTerm='creator')]"/>-->
+            <xsl:apply-templates
+                select="mods:name[not(mods:role/mods:roleTerm = 'creator') and not(mods:role/mods:roleTerm = 'subject')]"
+                mode="contributor"/>
             <!-- TO DO: role, subject info from spreadsheet -->
-            <!--<xsl:apply-templates select="/mods:relatedItem[@type='series']/"/>-->
+            <xsl:apply-templates select="mods:relatedItem[@type = 'series']"/>
             <xsl:apply-templates
                 select="mods:physicalLocation[@displayLabel = 'Harvard repository']"/>
             <xsl:apply-templates select="mods:extension[HarvardDRS:DRSMetadata]" mode="drsid"/>
+            <xsl:apply-templates select="mods:recordInfo"/>
         </iiif_bibrec>
     </xsl:template>
 
     <xsl:template match="mods:titleInfo[not(@type)]">
         <title>
+            <xsl:apply-templates select="..[mods:recordInfo/mods:recordIdentifier/@source='MH:VIA']/mods:relatedItem[@type='constituent']/mods:titleInfo/mods:title"/>
             <xsl:apply-templates select="mods:nonSort" mode="title"/>
             <xsl:apply-templates select="mods:title" mode="title"/>
             <xsl:apply-templates select="mods:subTitle" mode="title"/>
-            <xsl:apply-templates select="mods:namePart" mode="title"/>
+            <xsl:apply-templates select="mods:partName" mode="title"/>
+            <xsl:apply-templates select="..//mods:relatedItem[@type='host']/mods:titleInfo/mods:title"/>
         </title>
     </xsl:template>
 
@@ -77,18 +86,27 @@
         <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
 
-    <xsl:template match="mods:namePart" mode="title">
-        <xsl:text>. </xsl:text>
+    <xsl:template match="mods:partName" mode="title">
+        <xsl:text> </xsl:text>
         <xsl:value-of select="normalize-space(.)"/>
+    </xsl:template>
+
+    <xsl:template match="mods:relatedItem[@type='host']/mods:titleInfo/mods:title">
+        <xsl:text>. </xsl:text><xsl:value-of select="normalize-space(.)"/>       
+    </xsl:template>
+    
+    <xsl:template match="mods:relatedItem[@type='constituent']/mods:titleInfo/mods:title">
+        <xsl:value-of select="normalize-space(.)"/><xsl:text>. </xsl:text>
     </xsl:template>
 
     <xsl:template match="mods:name[mods:role/mods:roleTerm = 'creator']">
         <creator>
-            <xsl:apply-templates select="mods:namePart" mode="creator"/>
+            <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
+                mode="nestedName"/>
         </creator>
     </xsl:template>
 
-    <xsl:template match="mods:namePart" mode="creator">
+    <xsl:template match="*" mode="nestedName">
         <xsl:if test="position() > 1">
             <xsl:text> </xsl:text>
         </xsl:if>
@@ -237,6 +255,117 @@
         <drsId>
             <xsl:value-of select="normalize-space(.)"/>
         </drsId>
+    </xsl:template>
+
+    <xsl:template match="mods:recordInfo">
+        <xsl:apply-templates select="mods:recordIdentifier"/>
+    </xsl:template>
+    <xsl:template match="mods:recordIdentifier">
+        <bibRecordId>
+            <xsl:value-of select="normalize-space(.)"/>
+        </bibRecordId>
+    </xsl:template>
+
+    <xsl:template match="cdwalite:termMaterialsTech">
+        <materialsTech>
+            <xsl:value-of select="normalize-space(.)"/>
+        </materialsTech>
+    </xsl:template>
+
+    <xsl:template match="cdwalite:culture">
+        <culture>
+            <xsl:value-of select="normalize-space(.)"/>
+        </culture>
+    </xsl:template>
+
+    <xsl:template match="cdwalite:style">
+        <style>
+            <xsl:value-of select="normalize-space(.)"/>
+        </style>
+    </xsl:template>
+
+    <xsl:template match="mods:hierarchicalGeographic">
+        <place>
+            <xsl:apply-templates select="*" mode="hiergeog"/>
+        </place>
+    </xsl:template>
+
+    <xsl:template match="*" mode="hiergeog">
+        <xsl:if test="position() > 1">
+            <xsl:text>--</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="normalize-space(.)"/>
+        <!--<xsl:if test="position() = last()">
+            <xsl:text>.</xsl:text>
+        </xsl:if>-->
+    </xsl:template>
+
+    <xsl:template match="mods:physicalLocation[not(@displayLabel = 'Harvard repository')]">
+        <place>
+            <xsl:value-of select="normalize-space(.)"/>
+        </place>
+    </xsl:template>
+
+    <xsl:template
+        match="mods:subject[not(mods:hierarchicalGeographic) and not(mods:geographicCode) and not(mods:titleInfo) and not(mods:name)]">
+        <subject>
+            <xsl:apply-templates select="*" mode="toplevelsubj"/>
+        </subject>
+    </xsl:template>
+
+    <xsl:template match="*" mode="toplevelsubj">
+        <xsl:if test="position() > 1">
+            <xsl:text>--</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="normalize-space(.)"/>
+        <!--<xsl:if test="position() = last()">
+            <xsl:text>.</xsl:text>
+        </xsl:if>-->
+    </xsl:template>
+
+    <xsl:template match="mods:subject[mods:name]">
+        <subject>
+            <xsl:apply-templates select="mods:name" mode="subjname"/>
+        </subject>
+    </xsl:template>
+
+    <xsl:template match="mods:name" mode="subjname">
+        <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
+            mode="nestedName"/>
+    </xsl:template>
+
+    <xsl:template match="mods:subject[mods:titleInfo]">
+        <subject>
+            <xsl:apply-templates select="mods:titleInfo" mode="nestedtitle"/>
+        </subject>
+    </xsl:template>
+
+    <xsl:template match="mods:titleInfo" mode="nestedtitle">
+        <xsl:apply-templates select="mods:nonSort" mode="title"/>
+        <xsl:apply-templates select="mods:title" mode="title"/>
+        <xsl:apply-templates select="mods:subTitle" mode="title"/>
+        <xsl:apply-templates select="mods:partName" mode="title"/>
+    </xsl:template>
+
+    <xsl:template match="mods:relatedItem[@type = 'series']">
+        <series>
+            <xsl:apply-templates select="normalize-space(mods:name)" mode="series"/>
+            <xsl:apply-templates select="normalize-space(mods:titleInfo)" mode="nestedTitle"/>
+        </series>
+    </xsl:template>
+
+    <xsl:template match="mods:name" mode="series">
+        <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
+            mode="nestedName"/>
+    </xsl:template>
+
+    <xsl:template
+        match="mods:name[not(mods:role/mods:roleTerm = 'creator') and not(mods:role/mods:roleTerm = 'subject')]"
+        mode="contributor">
+        <contributor>
+            <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
+                mode="nestedName"/>
+        </contributor>
     </xsl:template>
 
 </xsl:stylesheet>
