@@ -41,8 +41,8 @@
             <xsl:apply-templates select=".//mods:hierarchicalGeographic"/>
             <xsl:apply-templates select=".//mods:coordinates"/>
             <xsl:apply-templates select=".//mods:genre"/>
-            <xsl:apply-templates select="//cdwalite:culture"/>
-            <xsl:apply-templates select="//cdwalite:style"/>
+            <xsl:apply-templates select=".//cdwalite:culture"/>
+            <xsl:apply-templates select=".//cdwalite:style"/>
             <xsl:apply-templates select="mods:tableOfContents"/>
             <xsl:apply-templates
                 select=".//mods:note[not(@type = 'statement of responsibility') and not(@type = 'organization') and not(@type = 'funding')]"/>
