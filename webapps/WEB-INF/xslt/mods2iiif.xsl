@@ -56,6 +56,9 @@
             <xsl:apply-templates select="mods:relatedItem[@type = 'series']"/>
             <xsl:apply-templates
                 select="mods:physicalLocation[@displayLabel = 'Harvard repository']"/>
+            <xsl:apply-templates select="mods:relatedItem[@otherType='HOLLIS record']/mods:location/mods:url"/>
+            <xsl:apply-templates select="mods:relatedItem[@otherType='HOLLIS Images record']/mods:location/mods:url"/>
+            <xsl:apply-templates select="mods:relatedItem[@otherType='HOLLIS for Archival Discovery record']/mods:location/mods:url"/>
             <xsl:apply-templates select="mods:extension[HarvardDRS:DRSMetadata]" mode="drsid"/>
             <xsl:apply-templates select="mods:recordInfo"/>
         </iiif_bibrec>
@@ -366,6 +369,12 @@
             <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
                 mode="nestedName"/>
         </contributor>
+    </xsl:template>
+
+    <xsl:template match="mods:url">
+        <addlInfo>
+            <xsl:value-of select="normalize-space(.)"/>
+        </addlInfo>
     </xsl:template>
 
 </xsl:stylesheet>
