@@ -349,8 +349,8 @@
 
     <xsl:template match="mods:relatedItem[@type = 'series']">
         <series>
-            <xsl:apply-templates select="normalize-space(mods:name)" mode="series"/>
-            <xsl:apply-templates select="normalize-space(mods:titleInfo)" mode="nestedTitle"/>
+            <xsl:apply-templates select="mods:name" mode="series"/>
+            <xsl:apply-templates select="mods:titleInfo" mode="nestedTitle"/>
         </series>
     </xsl:template>
 
