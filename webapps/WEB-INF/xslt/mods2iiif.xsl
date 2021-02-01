@@ -10,18 +10,28 @@
     <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
 
     <xsl:template match="lc:results">
-        <xsl:apply-templates/>
+        <results>
+            <xsl:apply-templates/>
+        </results>
     </xsl:template>
     <xsl:template match="lc:items">
-        <iiif_bibrecs>
+        <items>
             <xsl:apply-templates/>
-        </iiif_bibrecs>
+        </items>
     </xsl:template>
 
-    <xsl:template match="lc:pagination"/>
+    <xsl:template match="lc:pagination">
+        <pagination>
+            <numFound><xsl:value-of select="lc:numFound"/></numFound>
+            <start><xsl:value-of select="lc:start"/></start>
+            <limit><xsl:value-of select="lc:limit"/></limit>
+            <query><xsl:value-of select="lc:query"/></query>
+            <maxPageableSet><xsl:value-of select="lc:maxPageableSet"/></maxPageableSet>
+        </pagination>
+    </xsl:template>
 
     <xsl:template match="mods:mods">
-        <iiif_bibrec>
+        <record>
             <xsl:apply-templates select="mods:extension[HarvardDRS:DRSMetadata]" mode="mongoid"/>
             <xsl:apply-templates select="mods:titleInfo[not(@type)]"/>
             <xsl:apply-templates select="mods:name[mods:role/mods:roleTerm = 'creator']"/>
@@ -56,22 +66,27 @@
             <xsl:apply-templates select="mods:relatedItem[@type = 'series']"/>
             <xsl:apply-templates
                 select="mods:physicalLocation[@displayLabel = 'Harvard repository']"/>
-            <xsl:apply-templates select="mods:relatedItem[@otherType='HOLLIS record']/mods:location/mods:url"/>
-            <xsl:apply-templates select="mods:relatedItem[@otherType='HOLLIS Images record']/mods:location/mods:url"/>
-            <xsl:apply-templates select="mods:relatedItem[@otherType='HOLLIS for Archival Discovery record']/mods:location/mods:url"/>
+            <xsl:apply-templates
+                select="mods:relatedItem[@otherType = 'HOLLIS record']/mods:location/mods:url"/>
+            <xsl:apply-templates
+                select="mods:relatedItem[@otherType = 'HOLLIS Images record']/mods:location/mods:url"/>
+            <xsl:apply-templates
+                select="mods:relatedItem[@otherType = 'HOLLIS for Archival Discovery record']/mods:location/mods:url"/>
             <xsl:apply-templates select="mods:extension[HarvardDRS:DRSMetadata]" mode="drsid"/>
             <xsl:apply-templates select="mods:recordInfo"/>
-        </iiif_bibrec>
+        </record>
     </xsl:template>
 
     <xsl:template match="mods:titleInfo[not(@type)]">
         <title>
-            <xsl:apply-templates select="..[mods:recordInfo/mods:recordIdentifier/@source='MH:VIA']/mods:relatedItem[@type='constituent']/mods:titleInfo/mods:title"/>
+            <xsl:apply-templates
+                select="..[mods:recordInfo/mods:recordIdentifier/@source = 'MH:VIA']/mods:relatedItem[@type = 'constituent']/mods:titleInfo/mods:title"/>
             <xsl:apply-templates select="mods:nonSort" mode="title"/>
             <xsl:apply-templates select="mods:title" mode="title"/>
             <xsl:apply-templates select="mods:subTitle" mode="title"/>
             <xsl:apply-templates select="mods:partName" mode="title"/>
-            <xsl:apply-templates select="..//mods:relatedItem[@type='host']/mods:titleInfo/mods:title"/>
+            <xsl:apply-templates
+                select="..//mods:relatedItem[@type = 'host']/mods:titleInfo/mods:title"/>
         </title>
     </xsl:template>
 
@@ -94,12 +109,14 @@
         <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
 
-    <xsl:template match="mods:relatedItem[@type='host']/mods:titleInfo/mods:title">
-        <xsl:text>. </xsl:text><xsl:value-of select="normalize-space(.)"/>       
+    <xsl:template match="mods:relatedItem[@type = 'host']/mods:titleInfo/mods:title">
+        <xsl:text>. </xsl:text>
+        <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
-    
-    <xsl:template match="mods:relatedItem[@type='constituent']/mods:titleInfo/mods:title">
-        <xsl:value-of select="normalize-space(.)"/><xsl:text>. </xsl:text>
+
+    <xsl:template match="mods:relatedItem[@type = 'constituent']/mods:titleInfo/mods:title">
+        <xsl:value-of select="normalize-space(.)"/>
+        <xsl:text>. </xsl:text>
     </xsl:template>
 
     <xsl:template match="mods:name[mods:role/mods:roleTerm = 'creator']">
