@@ -32,7 +32,7 @@
 
     <xsl:template match="mods:mods">
         <record>
-            <xsl:apply-templates select="mods:extension[HarvardDRS:DRSMetadata]" mode="mongoid"/>
+            <!--<xsl:apply-templates select="mods:extension[HarvardDRS:DRSMetadata]" mode="mongoid"/>-->
             <xsl:apply-templates select="mods:titleInfo[not(@type)]"/>
             <xsl:apply-templates select="mods:name[mods:role/mods:roleTerm = 'creator']"/>
             <xsl:apply-templates select="mods:originInfo"/>
@@ -46,6 +46,7 @@
                 select=".//mods:subject[not(mods:hierarchicalGeographic) and not(mods:geographicCode) and not(mods:titleInfo) and not(mods:name)]"/>
             <xsl:apply-templates select=".//mods:subject[mods:titleInfo]"/>
             <xsl:apply-templates select=".//mods:subject[mods:name]"/>
+            <xsl:apply-templates select="mods:name[mods:role/mods:roleTerm = 'subject']"/>
             <xsl:apply-templates
                 select=".//mods:physicalLocation[not(@displayLabel = 'Harvard repository')]"/>
             <xsl:apply-templates select=".//mods:hierarchicalGeographic"/>
@@ -269,6 +270,7 @@
 
     <xsl:template match="HarvardDRS:DRSMetadata" mode="drsid">
         <xsl:apply-templates select="HarvardDRS:drsObjectId" mode="drsid"/>
+        <xsl:apply-templates select="HarvardDRS:fileDeliveryURL"/>
     </xsl:template>
 
     <xsl:template match="HarvardDRS:drsObjectId" mode="drsid">
@@ -277,13 +279,23 @@
         </drsId>
     </xsl:template>
 
+    <xsl:template match="HarvardDRS:fileDeliveryURL">
+        <fileDeliveryUrl>
+            <xsl:value-of select="normalize-space(.)"/>
+        </fileDeliveryUrl>
+    </xsl:template>
+
     <xsl:template match="mods:recordInfo">
         <xsl:apply-templates select="mods:recordIdentifier"/>
     </xsl:template>
+    
     <xsl:template match="mods:recordIdentifier">
         <bibRecordId>
             <xsl:value-of select="normalize-space(.)"/>
         </bibRecordId>
+        <source>
+            <xsl:value-of select="@source"/>
+        </source>
     </xsl:template>
 
     <xsl:template match="cdwalite:termMaterialsTech">
@@ -352,6 +364,12 @@
     <xsl:template match="mods:name" mode="subjname">
         <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
             mode="nestedName"/>
+    </xsl:template>
+
+    <xsl:template match="mods:name[mods:role/mods:roleTerm = 'subject']">
+        <subject>
+            <xsl:apply-templates select="*[not(self::mods:role)]" mode="nestedName"/>
+        </subject>
     </xsl:template>
 
     <xsl:template match="mods:subject[mods:titleInfo]">
