@@ -430,7 +430,7 @@
             <xsl:value-of select="normalize-space($titleseries)"/>
         </xsl:variable>
         <series>
-            <xsl:value-of select="normalize-space($series)"/>
+            <xsl:value-of select="$series"/>
         </series>
     </xsl:template>
 
