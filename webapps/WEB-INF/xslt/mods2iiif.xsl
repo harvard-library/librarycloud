@@ -22,11 +22,21 @@
 
     <xsl:template match="lc:pagination">
         <pagination>
-            <numFound><xsl:value-of select="lc:numFound"/></numFound>
-            <start><xsl:value-of select="lc:start"/></start>
-            <limit><xsl:value-of select="lc:limit"/></limit>
-            <query><xsl:value-of select="lc:query"/></query>
-            <maxPageableSet><xsl:value-of select="lc:maxPageableSet"/></maxPageableSet>
+            <numFound>
+                <xsl:value-of select="lc:numFound"/>
+            </numFound>
+            <start>
+                <xsl:value-of select="lc:start"/>
+            </start>
+            <limit>
+                <xsl:value-of select="lc:limit"/>
+            </limit>
+            <query>
+                <xsl:value-of select="lc:query"/>
+            </query>
+            <maxPageableSet>
+                <xsl:value-of select="lc:maxPageableSet"/>
+            </maxPageableSet>
         </pagination>
     </xsl:template>
 
@@ -48,7 +58,7 @@
             <xsl:apply-templates select=".//mods:subject[mods:name]"/>
             <xsl:apply-templates select="mods:name[mods:role/mods:roleTerm = 'subject']"/>
             <xsl:apply-templates
-                select=".//mods:physicalLocation[not(@displayLabel = 'Harvard repository')]"/>
+                select=".//mods:physicalLocation[not(@displayLabel = 'Harvard repository') and not(@displayLabel = 'container')]"/>
             <xsl:apply-templates select=".//mods:hierarchicalGeographic"/>
             <xsl:apply-templates select=".//mods:coordinates"/>
             <xsl:apply-templates select=".//mods:genre"/>
@@ -128,18 +138,35 @@
     </xsl:template>
 
     <xsl:template match="*" mode="nestedName">
-        <xsl:if test="position() > 1">
+        <xsl:value-of select="normalize-space(.)"/>
+        <xsl:if test="not(position() = last())">
+            <xsl:if test="not(ends-with(., ',')) and not(ends-with(., '.'))">
+                <xsl:text>,</xsl:text>
+            </xsl:if>
             <xsl:text> </xsl:text>
         </xsl:if>
-        <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
 
     <xsl:template match="mods:originInfo">
         <xsl:apply-templates select="mods:place"/>
         <xsl:apply-templates select="mods:publisher"/>
-        <xsl:apply-templates select="mods:dateCreated[not(@point)]"/>
-        <xsl:apply-templates select="mods:dateIssued[not(@point)]"/>
-        <xsl:apply-templates select="mods:copyrightDate"/>
+        <xsl:variable name="datecount">
+            <xsl:value-of
+                select="count(mods:dateCreated[not(@point)]) + count(mods:dateIssued[not(@point)]) + count(mods:copyrightDate)"
+            />
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="$datecount > 1">
+                <xsl:apply-templates select="mods:dateCreated[not(@point) and not(@encoding='marc')]"/>
+                <xsl:apply-templates select="mods:dateIssued[not(@point) and not(@encoding='marc')]"/>
+                <xsl:apply-templates select="mods:copyrightDate[not(@encoding='marc')]"/>                
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:apply-templates select="mods:dateCreated[not(@point)]"/>
+                <xsl:apply-templates select="mods:dateIssued[not(@point)]"/>
+                <xsl:apply-templates select="mods:copyrightDate"/> 
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="mods:place">
@@ -177,7 +204,9 @@
     </xsl:template>
 
     <xsl:template match="mods:language">
-        <xsl:apply-templates select="mods:languageTerm[@type = 'text']"/>
+        <xsl:apply-templates
+            select="mods:languageTerm[@type = 'text' and not(. = 'No linguistic content') and not(. = 'Undefined')]"
+        />
     </xsl:template>
 
     <xsl:template match="mods:languageTerm[@type = 'text']">
@@ -199,7 +228,8 @@
         </extent>
     </xsl:template>
 
-    <xsl:template match="mods:physicalLocation[not(@displayLabel = 'Harvard repository')]"> </xsl:template>
+    <xsl:template
+        match="mods:physicalLocation[not(@displayLabel = 'Harvard repository') and not(@displayLabel = 'container')]"> </xsl:template>
 
     <xsl:template match="mods:coordinates">
         <coordinates>
@@ -208,9 +238,11 @@
     </xsl:template>
 
     <xsl:template match="mods:genre">
-        <genre>
-            <xsl:value-of select="normalize-space(.)"/>
-        </genre>
+        <xsl:if test="not(following::mods:genre = current())">
+            <genre>
+                <xsl:value-of select="normalize-space(.)"/>
+            </genre>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="mods:tableOfContents">
@@ -288,7 +320,7 @@
     <xsl:template match="mods:recordInfo">
         <xsl:apply-templates select="mods:recordIdentifier"/>
     </xsl:template>
-    
+
     <xsl:template match="mods:recordIdentifier">
         <bibRecordId>
             <xsl:value-of select="normalize-space(.)"/>
@@ -386,9 +418,19 @@
     </xsl:template>
 
     <xsl:template match="mods:relatedItem[@type = 'series']">
-        <series>
+        <xsl:variable name="nameseries">
             <xsl:apply-templates select="mods:name" mode="series"/>
+        </xsl:variable>
+        <xsl:variable name="titleseries">
             <xsl:apply-templates select="mods:titleInfo" mode="nestedTitle"/>
+        </xsl:variable>
+        <xsl:variable name="series">
+            <xsl:value-of select="normalize-space($nameseries)"/>
+            <xsl:text> </xsl:text>
+            <xsl:value-of select="normalize-space($titleseries)"/>
+        </xsl:variable>
+        <series>
+            <xsl:value-of select="normalize-space($series)"/>
         </series>
     </xsl:template>
 
