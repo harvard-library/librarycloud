@@ -422,7 +422,7 @@
             <xsl:apply-templates select="mods:name" mode="series"/>
         </xsl:variable>
         <xsl:variable name="titleseries">
-            <xsl:apply-templates select="mods:titleInfo" mode="nestedTitle"/>
+            <xsl:apply-templates select="mods:titleInfo" mode="series"/>
         </xsl:variable>
         <xsl:variable name="series">
             <xsl:value-of select="normalize-space($nameseries)"/>
@@ -430,13 +430,24 @@
             <xsl:value-of select="normalize-space($titleseries)"/>
         </xsl:variable>
         <series>
-            <xsl:value-of select="$series"/>
+            <xsl:value-of select="normalize-space($series)"/>
         </series>
     </xsl:template>
 
     <xsl:template match="mods:name" mode="series">
         <xsl:apply-templates select="*[not(self::mods:role) and not(mods:alternativeName)]"
             mode="nestedName"/>
+    </xsl:template>
+
+    <xsl:template match="mods:titleInfo" mode="series">
+        <xsl:apply-templates select="*" mode="titleseries"/>
+    </xsl:template>
+    
+    <xsl:template match="*" mode="titleseries">
+        <xsl:value-of select="normalize-space(.)"/>
+        <xsl:if test="not(position() = last())">
+            <xsl:text> </xsl:text>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template
