@@ -196,8 +196,8 @@ public class ItemResource {
 	// produce iiif output
 	@GET @Path("items.iiif")
 	@Produces (MediaType.APPLICATION_XML)
-	public String getSearchResultsByCursorCsv(@Context UriInfo ui) {
-		log.info("getSearchResults made query: " + "TO DO");
+	public String getSearchResultsByCursorIIIF(@Context UriInfo ui) {
+		//log.info("getSearchResults made query: " + "TO DO");
 		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
 		//we don't currently need to use the pathParam
 		//MultivaluedMap<String, String> pathParams = ui.getPathParameters();
