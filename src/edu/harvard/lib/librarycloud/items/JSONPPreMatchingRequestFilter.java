@@ -10,7 +10,8 @@ import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Filter to ensure that JSON requests are treated as JSONP
@@ -23,7 +24,7 @@ import org.apache.log4j.Logger;
 @Provider
 @Priority(Priorities.USER)
 public class JSONPPreMatchingRequestFilter implements ContainerRequestFilter {
- 	protected Logger log = Logger.getLogger(JSONPPreMatchingRequestFilter.class); 	
+ 	protected Logger log = LogManager.getLogger(JSONPPreMatchingRequestFilter.class); 	
 
     @Override
     public void filter(ContainerRequestContext requestContext)
