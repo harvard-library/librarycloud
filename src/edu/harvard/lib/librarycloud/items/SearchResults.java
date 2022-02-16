@@ -41,7 +41,8 @@ import java.util.regex.Matcher;
 import java.lang.Integer;
 import java.util.Calendar;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.RangeFacet;
@@ -55,7 +56,7 @@ public class SearchResults {
   private DateFormat dfSolr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
   private DateFormat dfApi = new SimpleDateFormat("yyyy");
   private Calendar cal = Calendar.getInstance();
-  private Logger log = Logger.getLogger(SearchResults.class);
+  private Logger log = LogManager.getLogger(SearchResults.class);
 
   SearchResults() {
   }

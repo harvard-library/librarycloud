@@ -44,7 +44,8 @@ import javax.xml.bind.JAXBException;
 import net.sf.json.JSON;
 import net.sf.json.xml.XMLSerializer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.server.JSONP;
 
 import edu.harvard.lib.librarycloud.items.dc.Metadata;
@@ -63,7 +64,7 @@ import edu.harvard.lib.librarycloud.items.mods.ModsType;
 
 @Path ("/v2")
 public class ItemResource {
-	Logger log = Logger.getLogger(ItemResource.class); 
+	Logger log = LogManager.getLogger(ItemResource.class);
 	ItemDAO itemdao = new ItemDAO();
 	
 	// because of problems rendering json with moxy, xml and json now divided into separate methods

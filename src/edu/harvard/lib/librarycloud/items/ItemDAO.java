@@ -58,7 +58,8 @@ import javax.xml.transform.stream.StreamSource;
 import net.sf.json.JSON;
 import net.sf.json.xml.XMLSerializer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -79,7 +80,7 @@ import org.apache.solr.common.params.CursorMarkParams;
  *
  */
 public class ItemDAO {
-	Logger log = Logger.getLogger(ItemDAO.class);
+	Logger log = LogManager.getLogger(ItemDAO.class);
 	private int limit = 10;
 	private String cursorMark = null;
   private static Pattern lastModifiedDateRangePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}");

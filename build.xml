@@ -28,7 +28,7 @@
   <property name="metainf.home" value="${build.home}/META-INF"/>
 
   <!-- ==================== Build 2.0 enhancements ======================== -->
-  <property name="appserver.home"	value="/usr/local/tomcat7"/>
+  <property name="appserver.home"	value="/usr/local/tomcat8"/>
   <property name="war-file" 		value="${app.name}.war" />
   <property name="web-xml-file" 	value="${webinf.home}/web.xml" />
 
