@@ -976,7 +976,6 @@ public class ItemDAO {
 
 	protected String getIIIFResults(SearchResultsMods results) throws JAXBException {
 		String rawResults = marshallObject(results);
-		//System.out.println("RAW: " + rawResults);
 		String iiifResults = transform(rawResults, Config.getInstance().IIIF_XSLT);
 		return iiifResults;
 	}

@@ -200,14 +200,12 @@ public class ItemResource {
 	public String getSearchResultsByCursorIIIF(@Context UriInfo ui) {
 		//log.info("getSearchResults made query: " + "TO DO");
 		MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
-		//we don't currently need to use the pathParam
-		//MultivaluedMap<String, String> pathParams = ui.getPathParameters();
 
 		SearchResultsMods results = null;
 		String iiifResults = null;
 		try {
 			results = itemdao.getModsResults(queryParams);
-			//System.out.println("NUMFOUND: " + results.getPagination().getNumFound());
+			log.debug("NUMFOUND: " + results.getPagination().getNumFound());
 			iiifResults = itemdao.getIIIFResults(results);
 
 		} catch (JAXBException je) {
